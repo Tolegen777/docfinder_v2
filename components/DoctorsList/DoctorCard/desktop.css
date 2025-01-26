@@ -1,0 +1,188 @@
+/* Frame 239 */
+
+width: 1181px;
+height: 249px;
+
+background: #EBF2FF;
+border-radius: 20px;
+
+/* Inside auto layout */
+flex: none;
+order: 4;
+align-self: stretch;
+flex-grow: 0;
+
+
+/* Frame 113 */
+
+/* Auto layout */
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+padding: 0px;
+gap: 20px;
+
+position: absolute;
+width: 492px;
+height: 182px;
+left: 43px;
+top: 33px;
+
+
+
+/* Frame 238 */
+
+/* Auto layout */
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+padding: 0px;
+gap: 10px;
+
+width: 492px;
+height: 114px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+align-self: stretch;
+flex-grow: 0;
+
+
+/* Не нашли то, что нужно? */
+
+width: 492px;
+height: 56px;
+
+/* H2 */
+font-family: 'Gilroy';
+font-style: normal;
+font-weight: 600;
+font-size: 40px;
+line-height: 56px;
+/* identical to box height, or 140% */
+
+color: #121923;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+align-self: stretch;
+flex-grow: 0;
+
+
+/* Звоните нам, мы бесплатно подберём врача и запишем вас на приём */
+
+width: 492px;
+height: 48px;
+
+/* Body1 */
+font-family: 'Inter';
+font-style: normal;
+font-weight: 400;
+font-size: 18px;
+line-height: 24px;
+/* or 133% */
+
+color: #121923;
+
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+align-self: stretch;
+flex-grow: 0;
+
+
+/* Кнопки 48
+
+<p>Тип</p>
+*/
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+justify-content: center;
+align-items: center;
+padding: 10px 20px;
+gap: 10px;
+
+width: 173px;
+height: 48px;
+
+background: #16A34A;
+border-radius: 10px;
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+
+
+/* Текст */
+
+width: 133px;
+height: 20px;
+
+/* Button text Medium */
+font-family: 'Inter';
+font-style: normal;
+font-weight: 600;
+font-size: 16px;
+line-height: 20px;
+/* identical to box height, or 125% */
+
+color: #FFFFFF;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* Subtract */
+
+position: absolute;
+width: 709.15px;
+height: 473px;
+left: 551px;
+top: -119px;
+
+background: url(image-Photoroom (3).png);
+
+
+/* image-Photoroom (3) 1 */
+
+position: absolute;
+width: 709.15px;
+height: 473px;
+left: 551px;
+top: -119px;
+
+background: url(image-Photoroom (3).png);
+
+
+/* Ellipse 17 */
+
+position: absolute;
+width: 127.06px;
+height: 113.46px;
+left: 853.99px;
+top: -30.51px;
+
+background: #D9D9D9;
+transform: rotate(53.35deg);
+
+
+/* image-Photoroom (2) 1 */
+
+position: absolute;
+width: 156px;
+height: 163px;
+left: 599px;
+top: 61px;
+
+background: url(image-Photoroom (2).png);

@@ -3,8 +3,9 @@ import React from 'react';
 import Link from 'next/link';
 import { useSearchParams, usePathname } from 'next/navigation';
 import { LayoutGrid, LayoutList, User2, Stethoscope, Building2, Activity, Factory } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import {ServicesSection} from "@/components/ServicesSection/ServicesSection";
+import { cn } from '@/shared/lib/utils';
+import {ServicesSection} from "../ServicesSection/ServicesSection";
+import {HomeClinicsContent} from "../Clinic/HomeClinicsContent/HomeClinicsContent";
 
 const NavItem = ({
                      icon: Icon,
@@ -124,11 +125,11 @@ export const SpecialtiesSection = () => {
     const [view, setView] = React.useState<'grid' | 'list'>('grid');
 
     // Get current tab and specialty from URL
-    const currentTab = searchParams.get('tab') || 'specialists';
-    const currentSpecialty = searchParams.get('specialty') || specialties[0].id;
+    const currentTab = searchParams?.get('tab') || 'specialists';
+    const currentSpecialty = searchParams?.get('specialty') || specialties[0].id;
 
     const createQueryString = (name: string, value: string) => {
-        const params = new URLSearchParams(searchParams);
+        const params = new URLSearchParams(searchParams ?? {});
         params.set(name, value);
         return params.toString();
     };
@@ -166,7 +167,7 @@ export const SpecialtiesSection = () => {
             case 'services':
                 return <ServicesSection />;
             case 'clinics':
-                return <PlaceholderContent text="Страница клиник в разработке" />;
+                return <HomeClinicsContent />;
             case 'symptoms':
                 return <PlaceholderContent text="Страница симптомов в разработке" />;
             case 'diseases':

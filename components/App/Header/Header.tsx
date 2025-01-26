@@ -1,39 +1,13 @@
 import React from 'react';
 import Link from 'next/link';
-import { Menu, Search, Globe, MapPin, ChevronDown } from 'lucide-react';
-import { Button } from '@/components/shadcn/button';
-import {
-    Sheet,
-    SheetContent,
-    SheetTrigger,
-    SheetHeader,
-    SheetTitle,
-} from "@/components/shadcn/sheet";
+import { Search, Globe, MapPin, ChevronDown } from 'lucide-react';
+import { Button } from '../../shadcn/button';
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
-} from "@/components/shadcn/dropdown-menu";
-
-interface LanguageOption {
-    code: string;
-    name: string;
-}
-
-const LANGUAGES: LanguageOption[] = [
-    { code: 'RU', name: 'Русский' },
-    { code: 'KZ', name: 'Қазақша' },
-    { code: 'EN', name: 'English' },
-];
-
-const CITIES: string[] = [
-    'Алматы',
-    'Астана',
-    'Шымкент',
-    'Караганда',
-    'Актобе',
-];
+} from "../../shadcn/dropdown-menu";
 
 const Logo = () => (
     <Link href="/public" className="flex items-center">
@@ -43,7 +17,7 @@ const Logo = () => (
 );
 
 const SearchInput = () => (
-    <div className="relative w-full max-w-2xl">
+    <div className="relative w-full">
         <input
             type="text"
             placeholder="Врач, услуга, болезнь, клиника"
@@ -53,111 +27,67 @@ const SearchInput = () => (
     </div>
 );
 
-const LanguageSelector = ({ isMobile = false }: { isMobile?: boolean }) => (
+const LanguageSelector = () => (
     <DropdownMenu>
         <DropdownMenuTrigger asChild>
             <Button
                 variant="ghost"
-                className={`flex items-center space-x-1 h-8 px-2 ${isMobile ? 'w-full justify-between' : ''}`}
+                className="flex items-center gap-2 h-9"
             >
-                <div className="flex items-center space-x-2">
-                    <Globe className="h-4 w-4" />
-                    <span>RU</span>
-                </div>
+                <Globe className="h-4 w-4" />
+                <span>RU</span>
                 <ChevronDown className="h-4 w-4" />
             </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align={isMobile ? "start" : "end"}>
-            {LANGUAGES.map((lang) => (
-                <DropdownMenuItem key={lang.code}>
-                    {lang.name}
-                </DropdownMenuItem>
-            ))}
+        <DropdownMenuContent align="end">
+            <DropdownMenuItem>Русский</DropdownMenuItem>
+            <DropdownMenuItem>Қазақша</DropdownMenuItem>
+            <DropdownMenuItem>English</DropdownMenuItem>
         </DropdownMenuContent>
     </DropdownMenu>
 );
 
-const CitySelector = ({ isMobile = false }: { isMobile?: boolean }) => (
+const CitySelector = () => (
     <DropdownMenu>
         <DropdownMenuTrigger asChild>
             <Button
                 variant="ghost"
-                className={`flex items-center space-x-1 h-8 px-2 ${isMobile ? 'w-full justify-between' : ''}`}
+                className="flex items-center gap-2 h-9"
             >
-                <div className="flex items-center space-x-2">
-                    <MapPin className="h-4 w-4" />
-                    <span>Алматы</span>
-                </div>
+                <MapPin className="h-4 w-4" />
+                <span>Алматы</span>
                 <ChevronDown className="h-4 w-4" />
             </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align={isMobile ? "start" : "end"}>
-            {CITIES.map((city) => (
-                <DropdownMenuItem key={city}>
-                    {city}
-                </DropdownMenuItem>
-            ))}
+        <DropdownMenuContent align="end">
+            <DropdownMenuItem>Алматы</DropdownMenuItem>
+            <DropdownMenuItem>Астана</DropdownMenuItem>
+            <DropdownMenuItem>Шымкент</DropdownMenuItem>
         </DropdownMenuContent>
     </DropdownMenu>
-);
-
-const LoginButton = ({ className = '' }: { className?: string }) => (
-    <Button className={`bg-green-500 hover:bg-green-600 text-white ${className}`}>
-        Войти
-    </Button>
-);
-
-const MobileMenu = () => (
-    <Sheet>
-        <SheetTrigger asChild>
-            <Button variant="ghost" size="icon">
-                <Menu className="h-6 w-6" />
-            </Button>
-        </SheetTrigger>
-        <SheetContent side="right" className="w-[300px]">
-            <SheetHeader>
-                <SheetTitle>Меню</SheetTitle>
-            </SheetHeader>
-            <div className="flex flex-col space-y-4 mt-8">
-                <SearchInput />
-                <div className="px-2">
-                    <LanguageSelector isMobile />
-                </div>
-                <div className="px-2">
-                    <CitySelector isMobile />
-                </div>
-                <LoginButton className="w-full" />
-            </div>
-        </SheetContent>
-    </Sheet>
-);
-
-const DesktopNavigation = () => (
-    <div className="hidden md:flex items-center space-x-4">
-        <LanguageSelector />
-        <CitySelector />
-        <LoginButton />
-    </div>
 );
 
 const Header = () => {
     return (
         <header className="w-full border-b">
             <div className="container mx-auto px-4">
+                {/* Top row - Logo and Actions */}
                 <div className="flex items-center justify-between h-16">
-                    <div className="flex items-center">
-                        <Logo />
-                    </div>
+                    <Logo />
 
-                    <div className="hidden md:flex flex-1 mx-8">
-                        <SearchInput />
+                    {/* Desktop Navigation */}
+                    <div className="flex items-center space-x-2">
+                        <LanguageSelector />
+                        <CitySelector />
+                        <Button className="bg-green-500 hover:bg-green-600 text-white">
+                            Войти
+                        </Button>
                     </div>
+                </div>
 
-                    <DesktopNavigation />
-
-                    <div className="flex md:hidden items-center space-x-4">
-                        <MobileMenu />
-                    </div>
+                {/* Bottom row - Search (visible on mobile) */}
+                <div className="pb-4 ">
+                    <SearchInput />
                 </div>
             </div>
         </header>

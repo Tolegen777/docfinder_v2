@@ -1,0 +1,167 @@
+/* Frame 245 */
+
+width: 344px;
+height: 466px;
+
+background: #EBF2FF;
+border-radius: 20px;
+
+/* Inside auto layout */
+flex: none;
+order: 4;
+flex-grow: 0;
+
+
+/* Frame 113 */
+
+/* Auto layout */
+display: flex;
+flex-direction: column;
+align-items: center;
+padding: 0px;
+gap: 20px;
+
+position: absolute;
+width: 315px;
+height: 222px;
+left: calc(50% - 315px/2 - 0.5px);
+top: 25px;
+
+
+
+/* Frame 239 */
+
+/* Auto layout */
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+padding: 0px;
+gap: 10px;
+
+width: 315px;
+height: 154px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+align-self: stretch;
+flex-grow: 0;
+
+
+/* Не нашли то, что нужно? */
+
+width: 315px;
+height: 72px;
+
+/* H3 */
+font-family: 'Gilroy';
+font-style: normal;
+font-weight: 600;
+font-size: 28px;
+line-height: 36px;
+/* or 129% */
+text-align: center;
+
+color: #121923;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+align-self: stretch;
+flex-grow: 0;
+
+
+/* Звоните нам, мы бесплатно подберём врача и запишем вас на приём */
+
+width: 315px;
+height: 72px;
+
+/* Body1 */
+font-family: 'Inter';
+font-style: normal;
+font-weight: 400;
+font-size: 18px;
+line-height: 24px;
+/* or 133% */
+text-align: center;
+
+color: #121923;
+
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+align-self: stretch;
+flex-grow: 0;
+
+
+/* Кнопки 48
+
+<p>Тип</p>
+*/
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+justify-content: center;
+align-items: center;
+padding: 10px 20px;
+gap: 10px;
+
+width: 315px;
+height: 48px;
+
+background: #16A34A;
+border-radius: 10px;
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+align-self: stretch;
+flex-grow: 0;
+
+
+/* Текст */
+
+width: 133px;
+height: 20px;
+
+/* Button text Medium */
+font-family: 'Inter';
+font-style: normal;
+font-weight: 600;
+font-size: 16px;
+line-height: 20px;
+/* identical to box height, or 125% */
+
+color: #FFFFFF;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* image-Photoroom (2) 1 */
+
+position: absolute;
+width: 91px;
+height: 95px;
+left: 23px;
+top: 346.88px;
+
+background: url(image-Photoroom (2).png);
+
+
+/* image-Photoroom (3) 1 */
+
+position: absolute;
+width: 311px;
+height: 223px;
+left: 83px;
+top: 253.88px;
+
+background: url(image-Photoroom (3).png);

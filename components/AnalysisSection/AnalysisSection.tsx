@@ -15,7 +15,7 @@ interface IAnalysis {
     testingLocation: string;
     labCount: number;
     price: number;
-    expressPrice?: number;
+    expressPrice: number;
 }
 
 export const AnalysisSection = () => {
@@ -33,7 +33,6 @@ export const AnalysisSection = () => {
             price: 25000,
             expressPrice: 25000,
         },
-        // Добавьте больше анализов...
     ];
 
     return (

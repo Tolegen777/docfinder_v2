@@ -10,7 +10,7 @@ import {
     CarouselNext,
     CarouselPrevious,
 } from "@/components/shadcn/carousel";
-import doctorImg from '@/assets/images/doctor.png'
+import doctorImg from '@/shared/assets/images/doctor.png'
 import type { EmblaCarouselType } from 'embla-carousel';
 
 // Компонент слайда с врачами

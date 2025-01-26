@@ -30,6 +30,17 @@ const InfoBlock = ({
     </div>
 );
 
+type Props = {
+    title: string;
+    description: string;
+    executionTime: string;
+    location: string;
+    material: string;
+    labCount: number;
+    price: number;
+    expressPrice: number;
+}
+
 const AnalysisCard = ({
                           title,
                           description,
@@ -39,7 +50,7 @@ const AnalysisCard = ({
                           labCount,
                           price,
                           expressPrice
-                      }: any) => {
+                      }: Props) => {
     return (
         <div className="border border-green-500 rounded-2xl p-6">
             {/* Заголовок */}
