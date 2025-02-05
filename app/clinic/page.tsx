@@ -4,7 +4,6 @@ import ClinicContent from "../../components/ClinicDetails/AboutSection/AboutSect
 import MapWithContainer from "../../components/ClinicDetails/MapWithContainer/MapWithContainer";
 // import ReviewCardExample from "../../components/Review/ReviewCardExample/ReviewCardExample";
 import ReviewsList from "../../components/Review/ReviewsList/ReviewsList";
-import AuthTest from "../../components/Auth/AuthTest";
 
 export default function Home() {
     return (
@@ -14,7 +13,6 @@ export default function Home() {
             <ClinicContent/>
             <MapWithContainer/>
             <ReviewsList/>
-            <AuthTest/>
         </div>
     );
 }

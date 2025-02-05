@@ -9,6 +9,7 @@ import {
     SelectValue,
 } from "../../shadcn/select";
 import {ReviewCard} from "../ReviewCardExample/ReviewCardExample";
+import {MaxWidthLayout} from "@/shared/ui/MaxWidthLayout";
 
 // Reusing the ReviewCard component from previous artifact
 interface ReviewCardProps {
@@ -109,7 +110,7 @@ const mockReviews: ReviewCardProps[] = [
 
 const ReviewsList = () => {
     return (
-        <div className="w-full max-w-2xl mx-auto">
+        <MaxWidthLayout className="py-4">
             {/* Header with count and filter */}
             <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-medium">
@@ -144,7 +145,7 @@ const ReviewsList = () => {
                     Написать отзыв
                 </button>
             </div>
-        </div>
+        </MaxWidthLayout>
     );
 };
 

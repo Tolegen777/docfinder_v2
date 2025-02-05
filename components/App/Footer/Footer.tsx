@@ -96,7 +96,7 @@ const Footer = () => {
             </div>
 
             {/* Mobile Layout */}
-            <div className="md:hidden px-4 py-8 space-y-8">
+            <div className="md:hidden px-4 py-8 gap-8 flex flex-col items-center">
                 {/* Patients Section */}
                 <FooterSection title={footerSections.patients.title}>
                     {footerSections.patients.links.map((link, index) => (

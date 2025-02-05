@@ -4,6 +4,7 @@ import { X } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
+import {MaxWidthLayout} from "@/shared/ui/MaxWidthLayout";
 
 // Динамически импортируем компоненты карты
 const MapContainer = dynamic(
@@ -88,7 +89,7 @@ const MapPreview = () => {
     const [isOpen, setIsOpen] = useState(false);
 
     return (
-        <div className="w-full max-w-4xl mx-auto">
+        <MaxWidthLayout className="py-4">
             <div className="relative">
                 {/* Header */}
                 <div className="flex items-center gap-2 mb-3">
@@ -128,7 +129,7 @@ const MapPreview = () => {
                     </Dialog>
                 </div>
             </div>
-        </div>
+        </MaxWidthLayout>
     );
 };
 

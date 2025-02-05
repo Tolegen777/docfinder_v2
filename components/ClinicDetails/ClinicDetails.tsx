@@ -13,7 +13,7 @@ import {
     ChevronRight,
 } from 'lucide-react';
 import clininc1Img from '../../shared/assets/images/img.png'
-// import clininc2Img from '../../shared/assets/images/img.png'
+// import clininc2Img from '../../shared/assets/images/add_search_mobile.png'
 
 const scheduleData = [
     { day: "Понедельник", hours: "08:00-18:00" },

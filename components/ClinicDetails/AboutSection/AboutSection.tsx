@@ -6,6 +6,7 @@ import {
     AccordionItem,
     AccordionTrigger,
 } from "../../shadcn/accordion";
+import {MaxWidthLayout} from "@/shared/ui/MaxWidthLayout";
 
 const features = [
     { id: 'parking', label: 'Есть стационар' },
@@ -180,10 +181,10 @@ const DesktopContent = () => (
 
 const ClinicContent = () => {
     return (
-        <div className="container mx-auto px-4 md:px-6">
+        <MaxWidthLayout>
             <MobileContent />
             <DesktopContent />
-        </div>
+        </MaxWidthLayout>
     );
 };
 

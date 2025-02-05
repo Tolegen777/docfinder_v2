@@ -1,18 +1,6 @@
 import React from 'react';
-// import Image from 'next/image';
-import { Button } from '../shadcn/button';
-import {
-    Video,
-    User2,
-    Home,
-    // MapPin,
-    // Eye,
-    // Heart,
-    ChevronDown,
-    // CalendarDays
-} from 'lucide-react';
-// import doctorImage from '../../shared/assets/images/doctorCard.png';
 import DoctorCard from "./DoctorCard/DoctorCard";
+import {AppointmentTypeFilters} from "@/components/AppointmentTypeFilters/AppointmentTypeFilters";
 
 // const DoctorCard2 = () => {
 //     return (
@@ -266,54 +254,15 @@ import DoctorCard from "./DoctorCard/DoctorCard";
 //     );
 // };
 
-// Компонент фильтров
-const AppointmentTypeFilters = () => {
-    return (
-        <div className="flex flex-wrap gap-2 mb-6">
-            <Button
-                variant="outline"
-                className="flex items-center gap-2 bg-white"
-            >
-                <Video className="w-4 h-4" />
-                Онлайн консультация
-            </Button>
-            <Button
-                variant="outline"
-                className="flex items-center gap-2 bg-white"
-            >
-                <User2 className="w-4 h-4" />
-                Очный прием
-            </Button>
-            <Button
-                variant="outline"
-                className="flex items-center gap-2 bg-white"
-            >
-                <Home className="w-4 h-4" />
-                Выезд на дом
-            </Button>
-            <Button className="bg-green-500 hover:bg-green-600 text-white">
-                На карте
-            </Button>
-            <div className="ml-auto">
-                <Button
-                    variant="outline"
-                    className="flex items-center gap-2 bg-white"
-                >
-                    Сортировка
-                    <ChevronDown className="w-4 h-4" />
-                </Button>
-            </div>
-        </div>
-    );
-};
-
 // Контейнер со списком врачей
 export const DoctorsList = () => {
     return (
         <div className="max-w-[1200px] mx-auto px-4 py-8">
             <AppointmentTypeFilters />
             <div className="space-y-4">
-                <DoctorCard />
+                {[...Array(10)].map((_, i) => (
+                    <DoctorCard key={i} />
+                ))}
                 {/* Можно добавить больше карточек */}
             </div>
         </div>

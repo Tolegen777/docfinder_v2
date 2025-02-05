@@ -9,6 +9,19 @@ export default {
   ],
   theme: {
   	extend: {
+		maxWidth: {
+			container: '1592px',
+		},
+		container: {
+			center: true,
+			screens: {
+				xs: '640px',
+				sm: '768px',
+				md: '1024px',
+				lg: '1280px',
+				xl: '1560px',
+			},
+		},
   		colors: {
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
@@ -49,7 +62,12 @@ export default {
   				'3': 'hsl(var(--chart-3))',
   				'4': 'hsl(var(--chart-4))',
   				'5': 'hsl(var(--chart-5))'
-  			}
+  			},
+			green: {
+				  light: {
+					  1: '#F0FDF4'
+				  }
+			}
   		},
   		borderRadius: {
   			lg: 'var(--radius)',

@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { MapPin, ChevronLeft, ChevronRight, Train, Bus } from 'lucide-react';
 import clininc1Img from '../../../shared/assets/images/img.png';
 import clininc2Img from '../../../shared/assets/images/img.png';
+import {MaxWidthLayout} from "@/shared/ui/MaxWidthLayout";
 
 const images = [clininc1Img, clininc2Img];
 
@@ -27,7 +28,7 @@ const ClinicHeader = () => {
     };
 
     return (
-        <div className="container mx-auto px-4 md:px-6">
+        <MaxWidthLayout className="py-4">
             {/* Мобильная версия */}
             <div className="md:hidden space-y-4">
                 {/* Карусель */}
@@ -158,7 +159,7 @@ const ClinicHeader = () => {
                     </div>
                 </div>
             </div>
-        </div>
+        </MaxWidthLayout>
     );
 };
 

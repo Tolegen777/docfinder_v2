@@ -2,7 +2,6 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import { Button } from "@/components/shadcn/button";
-import { Checkbox } from "@/components/shadcn/checkbox";
 import {
     Carousel,
     CarouselContent,
@@ -12,78 +11,54 @@ import {
 } from "@/components/shadcn/carousel";
 import doctorImg from '@/shared/assets/images/doctor.png'
 import type { EmblaCarouselType } from 'embla-carousel';
+import {CheckboxGroup} from "@/components/HomeCarousel/CheckboxOption";
 
 // Компонент слайда с врачами
 const DoctorsSlide = () => {
     return (
-        <div className="relative w-full h-[500px] bg-green-500 rounded-lg overflow-hidden">
-            <div className="absolute inset-0">
-                <div className="container mx-auto px-4 h-full flex flex-col justify-center">
-                    <div className="max-w-2xl">
-                        <h1 className="text-white text-4xl font-bold mb-4">
+        <div className="w-full h-[660px] md:h-[500px] bg-primary rounded-lg flex flex-col md:flex-row justify-between px-4 md:px-20">
+                <div className="flex flex-col justify-center items-center md:items-start pt-5 md:pt-0">
+                        <h2 className="text-white h3-28-36-600 md:h2-40-56-600 mb-4 text-center md:text-start">
                             Врачи которым вы доверяете
-                        </h1>
-                        <h2 className="text-white text-2xl mb-4">
-                            Средний стаж от 7 лет
                         </h2>
-                        <p className="text-white text-lg mb-8">
+                        <h4 className="text-white h4-20-28-600 md:h3-28-36-600 mb-4">
+                            Средний стаж от 7 лет
+                        </h4>
+                        <p className="hidden md:inline text-white p-16-24-400 mb-8">
                             Наша команда – это высококвалифицированные специалисты с проверенным
                             опытом. Мы гордимся тем, что наши врачи имеют средний стаж работы более
                             7 лет, что гарантирует вам лучшее медицинское обслуживание.
                         </p>
 
                         <div className="space-y-4">
-                            <div className="flex">
-                                <div className="relative flex-1 max-w-2xl">
+                            <div className="flex flex-col md:flex-row gap-2">
                                     <input
                                         type="text"
                                         placeholder="Врач, услуга, болезнь, клиника"
-                                        className="w-full px-4 py-3 rounded-l-md border-0 focus:outline-none focus:ring-2 focus:ring-green-600 bg-green-50"
+                                        className="w-full px-4 py-3 rounded-md border-0 focus:outline-none focus:ring-2 focus:ring-green-600 bg-green-50"
                                     />
                                     <Button
-                                        className="absolute right-0 top-0 h-full px-8 bg-yellow-400 hover:bg-yellow-500 text-black font-medium rounded-l-none"
+                                        className="h-12 bg-yellow-400 hover:bg-yellow-500 text-black font-medium"
                                     >
                                         Найти
                                     </Button>
-                                </div>
                             </div>
 
-                            <div className="flex items-center space-x-6">
-                                <div className="flex items-center space-x-2">
-                                    <Checkbox id="pediatrician" className="border-white data-[state=checked]:bg-white data-[state=checked]:text-green-500" />
-                                    <label htmlFor="pediatrician" className="text-white cursor-pointer">
-                                        Детский врач
-                                    </label>
-                                </div>
-                                <div className="flex items-center space-x-2">
-                                    <Checkbox id="homeVisit" className="border-white data-[state=checked]:bg-white data-[state=checked]:text-green-500" />
-                                    <label htmlFor="homeVisit" className="text-white cursor-pointer">
-                                        На дом
-                                    </label>
-                                </div>
-                                <div className="flex items-center space-x-2">
-                                    <Checkbox id="online" className="border-white data-[state=checked]:bg-white data-[state=checked]:text-green-500" />
-                                    <label htmlFor="online" className="text-white cursor-pointer">
-                                        Прием онлайн
-                                    </label>
-                                </div>
-                            </div>
+                            <CheckboxGroup/>
                         </div>
-                    </div>
                 </div>
 
                 {/* Background image */}
-                <div className="absolute right-0 bottom-0 h-full w-1/3">
-                    <div className="relative h-full">
-                        <Image
-                            src={doctorImg} // Замените на реальный путь к изображению
-                            alt="Doctor"
-                            fill
-                            className="object-cover"
-                            priority
-                        />
-                    </div>
-                </div>
+            <div
+                className="w-full md:w-[1000px] h-[400px] md:h-[100%] relative flex md:items-end justify-center">
+                <Image
+                    src={doctorImg}
+                    alt="Doctor"
+                    // width={400}
+                    // height={500}
+                    className="w-[350px] md:w-[500px] h-[400px] md:h-[470px] object-cover m:object-contain"
+                    priority
+                />
             </div>
         </div>
     );
@@ -101,7 +76,7 @@ const SLIDES = [
     { id: 1, component: <ExampleSlide /> },
 ];
 
-const HomeCarousel = () => {
+export const HomeCarousel = () => {
     const [api, setApi] = useState<EmblaCarouselType>();
     const [activeIndex, setActiveIndex] = useState(0);
 
@@ -120,11 +95,9 @@ const HomeCarousel = () => {
     }, [api, onSelect]);
 
     return (
-        <div className="container mx-auto px-4 py-8">
             <Carousel
                 setApi={setApi}
-                className="relative"
-            >
+                className="relative mt-5 md:mt-10">
                 <CarouselContent>
                     {SLIDES.map((slide) => (
                         <CarouselItem key={slide.id}>
@@ -152,8 +125,5 @@ const HomeCarousel = () => {
                     ))}
                 </div>
             </Carousel>
-        </div>
     );
 };
-
-export default HomeCarousel;

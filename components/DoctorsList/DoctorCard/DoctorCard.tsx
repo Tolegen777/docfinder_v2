@@ -1,7 +1,7 @@
 'use client'
 import React from 'react';
-import { Star, Eye, MapPin, Heart, Home, Headphones, Car, ChevronDown } from 'lucide-react';
-import { Card } from '../../shadcn/card';
+import {Star, Eye, MapPin, Heart, Home, Headphones, Car, ChevronDown, Pen} from 'lucide-react';
+import {Card} from '../../shadcn/card';
 import {
     Sheet,
     SheetContent,
@@ -9,6 +9,11 @@ import {
     SheetTitle,
     SheetTrigger,
 } from "../../shadcn/sheet"
+import Image from "next/image";
+import doctorCard from '@/shared/assets/images/doctorCard.png'
+import {Breadcrumb} from "@/shared/ui/Breadcrumb";
+import {DiscountBanner} from "@/components/DoctorsList/DoctorCard/DiscountBanner";
+import {Button} from "@/components/shadcn/button";
 
 interface DoctorCardProps {
     name: string;
@@ -59,6 +64,8 @@ const DoctorCard = ({
                             house: 1000
                         }
                     }: Partial<DoctorCardProps>) => {
+
+    console.log(specialties,experience,category );
     const renderStars = (count: number) => {
         return Array(5).fill(0).map((_, index) => (
             <Star
@@ -93,19 +100,28 @@ const DoctorCard = ({
                 ))}
             </div>
 
-            <button className="w-full flex items-center justify-center gap-2.5 px-5 py-2.5 border border-[#16A34A] rounded-lg bg-white hover:bg-[#F0FDF4] transition-colors">
-                <Eye className="w-5 h-5 text-[#16A34A]" />
+            <button
+                className="w-full flex items-center justify-center gap-2.5 px-5 py-2.5 border border-[#16A34A] rounded-lg bg-white hover:bg-[#F0FDF4] transition-colors">
+                <Eye className="w-5 h-5 text-[#16A34A]"/>
                 <span className="text-base font-semibold text-[#16A34A]">Показать еще</span>
             </button>
+            <Button
+                // className="w-full flex items-center justify-center gap-2.5 px-5 py-2.5 border border-[#16A34A] rounded-lg bg-white hover:bg-[#F0FDF4] transition-colors"
+            >
+
+                <Pen className="w-5 h-5 text-[#ffffff]"/>
+                <span className="text-base font-semibold">Записаться онлайн</span>
+            </Button>
         </>
     );
 
     const MobileSchedule = () => (
         <Sheet>
             <SheetTrigger asChild>
-                <button className="w-full flex items-center justify-center gap-2.5 px-5 py-2.5 border border-[#16A34A] rounded-lg bg-white">
+                <button
+                    className="w-full flex items-center justify-center gap-2.5 px-5 py-2.5 border border-[#16A34A] rounded-lg bg-white">
                     <span className="text-base font-semibold text-[#16A34A]">Выберите дату</span>
-                    <ChevronDown className="w-5 h-5 text-[#16A34A]" />
+                    <ChevronDown className="w-5 h-5 text-[#16A34A]"/>
                 </button>
             </SheetTrigger>
             <SheetContent side="bottom" className="h-[80vh] rounded-t-[20px]">
@@ -115,80 +131,68 @@ const DoctorCard = ({
                     </SheetTitle>
                 </SheetHeader>
                 <div className="mt-6 space-y-5 overflow-auto">
-                    <ScheduleContent />
+                    <ScheduleContent/>
                 </div>
             </SheetContent>
         </Sheet>
     );
 
     return (
-        <Card className="w-full max-w-[1181px] p-6 md:p-7 bg-white">
+        <Card className="w-full max-w-[1181px] p-4 md:p-5 bg-white">
+            <div className="mb-2 -mt-2">
+                <Breadcrumb/>
+            </div>
+            <h4 className="h4-20-28-600 my-5 md:hidden">{name}</h4>
+            <p className="p-14-18-400 md:hidden mb-4">
+                Онкодерматологдиетолог, Стаж 20 лет, Высшая категория
+            </p>
             <div className="flex flex-col lg:flex-row gap-5">
                 {/* Left Column - Photo and Rating */}
-                <div className="flex flex-col items-center space-y-2.5">
+                <div className="flex flex-row md:flex-col items-center space-y-2.5">
                     <div className="relative">
-                        <img
-                            src="/api/placeholder/150/150"
-                            alt={name}
-                            className="w-[104px] h-[104px] lg:w-[150px] lg:h-[150px] rounded-full border-2 border-[#16A34A]"
-                        />
+                        <Image src={doctorCard} width={104} height={104} alt="" className="rounded-full"/>
                     </div>
-                    <div className="flex flex-col items-center">
-                        <div className="flex space-x-0.5">
-                            {renderStars(rating.stars)}
-                        </div>
+                    <div className="flex flex-col items-center gap-2">
                         <p className="text-sm font-bold text-[#94A3B8] text-center max-w-[160px]">
                             {rating.percentage}% пациентов рекомендует врача
                         </p>
                         <p className="text-sm text-[#4B81EC] hover:underline cursor-pointer">
                             {rating.reviewCount} отзывов
                         </p>
-                    </div>
-                    <div className="w-full px-5 py-2.5 border border-[#CBD5E1] rounded-lg text-center">
-                        <p className="text-sm">
-                            Скидка <span className="text-[#16A34A] font-semibold">{discount.percentage}%</span> {discount.text}
-                        </p>
+                        <div className="flex space-x-0.5">
+                            {renderStars(rating.stars)}
+                        </div>
+                        <DiscountBanner className="hidden md:flex flex-wrap max-w-40">
+                            Скидка <span className="text-green-600 font-semibold">20%</span> {discount?.text}
+                        </DiscountBanner>
                     </div>
                 </div>
+                <DiscountBanner className="md:hidden">
+                    Скидка <span className="text-green-600 font-semibold">20%</span> {discount?.text}
+                </DiscountBanner>
+                <DiscountBanner className="md:hidden">
+                    +7 701 234...
+                    <span className="text-[#4B81EC]">Показать телефоны</span>
+                </DiscountBanner>
 
                 {/* Middle Column - Main Info */}
                 <div className="flex-1 space-y-5">
-                    <div className="space-y-2.5">
-                        <div className="flex flex-wrap gap-2.5 text-sm">
-                            {specialties.map((specialty, index) => (
-                                <React.Fragment key={specialty}>
-                  <span className={specialty === "Онкодерматологдиетолог" ? "text-[#16A34A]" : "text-[#94A3B8]"}>
-                    {specialty}
-                  </span>
-                                    {index < specialties.length - 1 && (
-                                        <span className="w-1.5 h-1.5 rounded-full bg-[#16A34A] self-center"/>
-                                    )}
-                                </React.Fragment>
-                            ))}
-                        </div>
-                        <h2 className="text-xl md:text-2xl lg:text-[28px] font-semibold leading-tight text-[#212121]">
-                            {name}
-                        </h2>
-                        <p className="text-sm text-[#94A3B8]">{specialties[2]}</p>
-                    </div>
-
-                    <div className="flex flex-wrap gap-2.5">
-            <span className="px-5 py-2.5 border border-[#CBD5E1] rounded-lg text-sm bg-white">
-              Стаж {experience}
-            </span>
-                        <span className="px-5 py-2.5 border border-[#CBD5E1] rounded-lg text-sm bg-white">
-              {category}
-            </span>
-                    </div>
-
-                    <div className="space-y-2.5">
+                    <h4 className="h4-20-28-600 my-5 hidden md:block">{name}</h4>
+                    <p className="p-14-18-400 hidden md:inline">
+                        Онкодерматологдиетолог, Стаж 20 лет, Высшая категория
+                    </p>
+                    <DiscountBanner className="hidden md:flex w-[300px]">
+                        +7 701 234...
+                        <span className="text-[#4B81EC]">Показать телефоны</span>
+                    </DiscountBanner>
+                    <div className="space-y-2.5 md:max-w-[370px]">
                         {[
-                            { icon: Home, text: "В клинике", price: prices.clinic },
-                            { icon: Headphones, text: "Онлайн консультация", price: prices.online },
-                            { icon: Car, text: "Выезд на дом", price: prices.house },
-                        ].map(({ icon: Icon, text, price }) => (
+                            {icon: Home, text: "В клинике", price: prices.clinic},
+                            {icon: Headphones, text: "Онлайн консультация", price: prices.online},
+                            {icon: Car, text: "Выезд на дом", price: prices.house},
+                        ].map(({icon: Icon, text, price}) => (
                             <div key={text} className="flex items-center gap-2.5 px-5 py-2.5 bg-[#F0FDF4] rounded-lg">
-                                <Icon className="w-5 h-5 text-[#16A34A]" />
+                                <Icon className="w-5 h-5 text-[#16A34A]"/>
                                 <span className="text-sm flex-1">{text}</span>
                                 <div className="text-sm">
                                     <span>От </span>
@@ -202,24 +206,22 @@ const DoctorCard = ({
 
                     <div className="space-y-2.5">
                         <div className="flex items-center gap-2.5">
-                            <MapPin className="w-5 h-5 text-[#16A34A]" />
-                            <span className="text-base text-[#4B81EC] hover:underline cursor-pointer">{clinic.name}</span>
+                            <MapPin className="w-5 h-5 text-[#16A34A]"/>
+                            <span
+                                className="text-base text-[#4B81EC] hover:underline cursor-pointer">{clinic.name}</span>
                         </div>
                         <p className="text-sm text-[#94A3B8]">{clinic.address}</p>
                     </div>
 
-                    <div className="flex flex-wrap gap-2.5">
-                        <button className="flex items-center gap-2.5 px-5 py-2.5 border border-[#16A34A] rounded-lg bg-white hover:bg-[#F0FDF4] transition-colors">
-                            <Eye className="w-5 h-5 text-[#16A34A]" />
-                            <span className="text-base font-semibold text-[#16A34A]">Показать номер</span>
-                        </button>
-                        <button className="flex items-center gap-2.5 px-5 py-2.5 border border-[#16A34A] rounded-lg bg-white hover:bg-[#F0FDF4] transition-colors">
-                            <MapPin className="w-5 h-5 text-[#16A34A]" />
+                    <div className="flex flex-wrap gap-2.5 flex-col md:flex-row">
+                        <Button variant="outline">
+                            <MapPin className="w-5 h-5 text-[#16A34A]"/>
                             <span className="text-base font-semibold text-[#16A34A]">На карте</span>
-                        </button>
-                        <button className="p-2.5 border border-[#16A34A] rounded-lg bg-white hover:bg-[#F0FDF4] transition-colors">
-                            <Heart className="w-5 h-5 text-[#16A34A]" />
-                        </button>
+                        </Button>
+                        <Button variant="outline">
+                            <Heart className="w-5 h-5 text-[#16A34A]"/>
+                            <span className="text-base font-semibold text-[#16A34A]">В избранное</span>
+                        </Button>
                     </div>
                 </div>
 
@@ -231,12 +233,12 @@ const DoctorCard = ({
 
                     {/* Desktop Schedule */}
                     <div className="hidden lg:flex lg:flex-col gap-5">
-                        <ScheduleContent />
+                        <ScheduleContent/>
                     </div>
 
                     {/* Mobile Schedule */}
                     <div className="lg:hidden">
-                        <MobileSchedule />
+                        <MobileSchedule/>
                     </div>
                 </div>
             </div>

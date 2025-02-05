@@ -3,6 +3,7 @@ import React from 'react';
 import dynamic from 'next/dynamic';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import {MaxWidthLayout} from "@/shared/ui/MaxWidthLayout";
 
 // Динамический импорт компонентов карты
 const MapContainer = dynamic(
@@ -73,9 +74,9 @@ const ClinicMap = () => {
 
 // Контейнер для карты с фиксированной высотой
 const MapWithContainer = () => (
-    <div className="w-full h-[200px] rounded-xl overflow-hidden">
+    <MaxWidthLayout className="w-full h-[400px] rounded-xl overflow-hidden">
         <ClinicMap />
-    </div>
+    </MaxWidthLayout>
 );
 
 export default MapWithContainer;

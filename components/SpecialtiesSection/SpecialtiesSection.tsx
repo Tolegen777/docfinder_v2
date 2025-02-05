@@ -2,10 +2,13 @@
 import React from 'react';
 import Link from 'next/link';
 import { useSearchParams, usePathname } from 'next/navigation';
-import { LayoutGrid, LayoutList, User2, Stethoscope, Building2, Activity, Factory } from 'lucide-react';
+import { User2, Stethoscope, Building2, Activity, Factory } from 'lucide-react';
 import { cn } from '@/shared/lib/utils';
 import {ServicesSection} from "../ServicesSection/ServicesSection";
 import {HomeClinicsContent} from "../Clinic/HomeClinicsContent/HomeClinicsContent";
+import {MaxWidthLayout} from "@/shared/ui/MaxWidthLayout";
+import {ViewToggle} from "@/components/SpecialtiesSection/ViewToggle";
+import {AlphabeticalServices} from "@/components/ServicesSection/AlphabeticalServices";
 
 const NavItem = ({
                      icon: Icon,
@@ -22,47 +25,13 @@ const NavItem = ({
         href={href}
         scroll={false}
         className={cn(
-            "flex items-center gap-2 px-6 py-3 rounded-full transition-colors",
-            active
-                ? "bg-green-100 text-green-600"
-                : "bg-white hover:bg-gray-50"
+            "h-14 flex items-center gap-2 px-6 py-3 rounded-[10px] transition-colors text-gray-900 border border-gray-300 hover:border-primary hover:text-primary",
+            active && "border-primary text-primary"
         )}
     >
         <Icon className="w-5 h-5" />
         <span className="text-sm font-medium">{text}</span>
     </Link>
-);
-
-// ViewToggle component remains the same
-const ViewToggle = ({
-                        view,
-                        onViewChange
-                    }: {
-    view: 'grid' | 'list';
-    onViewChange: (view: 'grid' | 'list') => void;
-}) => (
-    <div className="flex items-center gap-4 border-b pb-4">
-        <button
-            onClick={() => onViewChange('list')}
-            className={cn(
-                "flex items-center gap-2",
-                view === 'list' ? "text-green-600" : "text-gray-600"
-            )}
-        >
-            <LayoutList className="w-5 h-5" />
-            <span>Списком</span>
-        </button>
-        <button
-            onClick={() => onViewChange('grid')}
-            className={cn(
-                "flex items-center gap-2",
-                view === 'grid' ? "text-green-600" : "text-gray-600"
-            )}
-        >
-            <LayoutGrid className="w-5 h-5" />
-            <span>Плиткой</span>
-        </button>
-    </div>
 );
 
 const SpecialtyCard = ({
@@ -80,15 +49,15 @@ const SpecialtyCard = ({
         href={href}
         scroll={false}
         className={cn(
-            "flex flex-col items-center justify-center p-6 rounded-2xl transition-colors",
-            active ? "bg-green-500 text-white" : "bg-white hover:bg-gray-50"
+            "flex flex-col items-center justify-center p-6 rounded-2xl transition-colors border border-gray-300",
+            active ? "bg-primary text-white border-primary" : "bg-white hover:bg-gray-50"
         )}
     >
         <Icon className={cn(
-            "w-8 h-8 mb-2",
-            active ? "text-white" : "text-green-500"
+            "size-12 mb-2",
+            active ? "text-white" : "text-primary"
         )} />
-        <span className="text-sm font-medium">{name}</span>
+        <span className="p-16-24-400">{name}</span>
     </Link>
 );
 
@@ -142,15 +111,14 @@ export const SpecialtiesSection = () => {
                         <ViewToggle view={view} onViewChange={setView} />
 
                         <div className="mt-8 mb-6">
-                            <h2 className="text-2xl font-semibold">
+                            <h2 className="h3-28-36-600 text-center md:text-left">
                                 Популярные специальности{' '}
-                                <span className="text-green-500">для взрослых</span>
+                                <span className="text-primary">для взрослых</span>
                             </h2>
                         </div>
 
-                        <div className={cn(
-                            "grid gap-4",
-                            view === 'grid' ? "grid-cols-2 md:grid-cols-4 lg:grid-cols-6" : "grid-cols-1"
+                        {view === 'grid' ? <div className={cn(
+                            "grid gap-4 grid-cols-2 md:grid-cols-4 lg:grid-cols-6",
                         )}>
                             {specialties.map((specialty) => (
                                 <SpecialtyCard
@@ -161,7 +129,7 @@ export const SpecialtiesSection = () => {
                                     href={`${pathname}?${createQueryString('specialty', specialty.id)}`}
                                 />
                             ))}
-                        </div>
+                        </div> : <AlphabeticalServices />}
                     </>
                 );
             case 'services':
@@ -178,7 +146,7 @@ export const SpecialtiesSection = () => {
     };
 
     return (
-        <div className="container mx-auto px-4 py-8">
+        <MaxWidthLayout className="py-10">
             {/* Navigation */}
             <div className="flex gap-4 overflow-x-auto pb-4 mb-8 no-scrollbar">
                 <NavItem
@@ -215,6 +183,6 @@ export const SpecialtiesSection = () => {
 
             {/* Content */}
             {renderContent()}
-        </div>
+        </MaxWidthLayout>
     );
 };

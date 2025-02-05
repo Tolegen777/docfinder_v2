@@ -1,0 +1,1 @@
+export { MaxWidthLayout } from './MaxWidthLayout';
