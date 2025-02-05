@@ -5,7 +5,7 @@ import MapWithContainer from "../../components/ClinicDetails/MapWithContainer/Ma
 // import ReviewCardExample from "../../components/Review/ReviewCardExample/ReviewCardExample";
 import ReviewsList from "../../components/Review/ReviewsList/ReviewsList";
 
-export default function Home() {
+export default function Clinic() {
     return (
         <div>
             {/*<ClinicDetails/>*/}
