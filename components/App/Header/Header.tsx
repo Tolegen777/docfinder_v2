@@ -1,58 +1,14 @@
 'use client'
 import React, {useState} from 'react';
-import {ChevronDown, Globe, MapPin, Search} from 'lucide-react';
+import {Search} from 'lucide-react';
 import {Button} from "../../shadcn/button";
 import {Input} from "../../shadcn/input";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger
-} from "../../shadcn/dropdown-menu";
 import Image from "next/image";
 import logoImg from '../../../shared/assets/images/logo.png'
 import {MaxWidthLayout} from "@/shared/ui/MaxWidthLayout";
 import RegisterModal from "@/components/Auth/AuthModal/RegisterModal";
-
-const LanguageSelector = () => (
-    <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-            <Button
-                variant="ghost"
-                className="flex items-center gap-2 h-9"
-            >
-                <Globe className="!size-7 text-primary"/>
-                <span className="text-base">RU</span>
-                <ChevronDown className="!size-5"/>
-            </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-            <DropdownMenuItem>Русский</DropdownMenuItem>
-            <DropdownMenuItem>Қазақша</DropdownMenuItem>
-            <DropdownMenuItem>English</DropdownMenuItem>
-        </DropdownMenuContent>
-    </DropdownMenu>
-);
-
-const CitySelector = () => (
-    <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-            <Button
-                variant="ghost"
-                className="flex items-center gap-2 h-9"
-            >
-                <MapPin className="!size-7 text-primary"/>
-                <span className="text-base">Алматы</span>
-                <ChevronDown className="!size-5"/>
-            </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-            <DropdownMenuItem>Алматы</DropdownMenuItem>
-            <DropdownMenuItem>Астана</DropdownMenuItem>
-            <DropdownMenuItem>Шымкент</DropdownMenuItem>
-        </DropdownMenuContent>
-    </DropdownMenu>
-);
+import {LanguageSelector} from "@/components/App/LanguageSelector/LanguageSelector";
+import {CitySelector} from "@/components/App/CitySelector/CitySelector";
 
 const SearchBar = () => {
     return <div className="w-full md:max-w-2xl relative">

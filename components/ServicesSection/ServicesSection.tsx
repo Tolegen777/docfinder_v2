@@ -5,7 +5,7 @@ import {AnalysisSection} from "@/components/AnalysisSection/AnalysisSection";
 import {useServicesStore} from "@/stores/useServicesStore";
 import {ServiceNav} from "@/components/ServicesSection/ServiceNav";
 import {DiagnosticsNav} from "@/components/ServicesSection/DiagnosticsNav";
-import {AlphabeticalServices} from "@/components/ServicesSection/AlphabeticalServices";
+import {AlphabeticalServices} from "@/components/SpecialtiesSection/AlphabeticalServices";
 import {CategoryServices} from "@/components/ServicesSection/CategoryServices";
 
 const SearchBar = () => (
@@ -84,7 +84,7 @@ export const ServicesSection = () => {
                 );
             default:
                 return (
-                    <AlphabeticalServices />
+                    <AlphabeticalServices specialtyGroups={[]} />
                 );
         }
     };
