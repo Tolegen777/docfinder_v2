@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { cn } from '@/shared/lib/utils';
 
@@ -32,7 +32,7 @@ export const AlphabeticalProcedures = ({ procedures }: AlphabeticalProceduresPro
     const availableChars = Object.keys(groupedProcedures).sort();
 
     // Инициализируем активные буквы при первой загрузке
-    React.useEffect(() => {
+    useEffect(() => {
         const initialActiveChars = availableChars.reduce((acc, char) => {
             acc[char] = true;
             return acc;
@@ -52,13 +52,18 @@ export const AlphabeticalProcedures = ({ procedures }: AlphabeticalProceduresPro
         }));
     };
 
+    // Генерация уникального ключа
+    const generateKey = (prefix: string, id: number | string, suffix?: string) => {
+        return `${prefix}-${id}-${suffix || Math.random().toString(36).substring(2, 7)}`;
+    };
+
     return (
         <div>
             {/* Алфавитная навигация */}
             <div className="flex flex-wrap gap-2 mb-6">
                 {russianAlphabet.map((char) => (
                     <button
-                        key={char}
+                        key={generateKey('char', char)}
                         onClick={() => availableChars.includes(char) && toggleChar(char)}
                         className={cn(
                             "w-8 h-8 flex items-center justify-center rounded-md",
@@ -79,12 +84,12 @@ export const AlphabeticalProcedures = ({ procedures }: AlphabeticalProceduresPro
             {availableChars
                 .filter(char => activeChars[char])
                 .map(char => (
-                    <div key={char} className="mb-8">
+                    <div key={generateKey('section', char)} className="mb-8">
                         <h2 className="text-xl font-semibold mb-4">{char}</h2>
                         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-x-8 gap-y-4">
                             {groupedProcedures[char].map((procedure) => (
                                 <Link
-                                    key={procedure.medical_procedure_id}
+                                    key={generateKey('procedure', procedure.medical_procedure_id, procedure.medical_procedure_slug)}
                                     href={`/procedure/${procedure.medical_procedure_slug}`}
                                     className="text-blue-500 hover:text-blue-600"
                                 >

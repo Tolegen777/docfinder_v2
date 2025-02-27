@@ -1,16 +1,15 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search } from 'lucide-react';
 import { Button } from '@/components/shadcn/button';
 import { useQuery } from '@tanstack/react-query';
 import { ProceduresAPI } from '@/shared/api/proceduresApi';
-import { useProceduresStore } from '@/stores/useProceduresStore';
 import { AnalysisSection } from "@/components/AnalysisSection/AnalysisSection";
-import { cn } from '@/shared/lib/utils';
 import { ProcedureGroup } from './ProcedureGroup';
-import { ProceduresSkeleton } from "@/components/ServicesSection/ProceduresSkeleton";
+import { ProceduresSkeleton } from './ProceduresSkeleton';
 import { AlphabeticalProcedures } from './AlphabeticalProcedures';
+import { CategoryTabs } from './CategoryTabs';
 
 const SearchBar = () => (
     <div className="relative">
@@ -23,211 +22,142 @@ const SearchBar = () => (
     </div>
 );
 
-const CategoryNav = ({ categories }: { categories: any[] }) => {
-    const { activeCategoryId, setActiveCategory } = useProceduresStore();
+// Компонент скелетона для табов
+const CategoryTabsSkeleton = ({ level = 0 }) => {
+    const count = level === 0 ? 6 : 4; // Разное количество для разных уровней
+
+    // Стили в зависимости от уровня
+    const containerStyle =
+        level === 0 ? "border-b pb-4" :
+            level === 1 ? "border rounded-md border-gray-200 py-4 my-4 bg-gray-50" :
+                "border rounded-md py-4 mb-6 bg-gray-100";
 
     return (
-        <div className="flex gap-6 overflow-x-auto pb-4 no-scrollbar border-b">
-            {categories.map((category) => (
-                <button
-                    key={category.procedure_category_id}
-                    onClick={() => setActiveCategory(category.procedure_category_id)}
-                    className={cn(
-                        "text-sm whitespace-nowrap pb-4 -mb-4",
-                        category.procedure_category_id === activeCategoryId
-                            ? "text-green-500 border-b-2 border-green-500"
-                            : "text-gray-600 hover:text-gray-900"
-                    )}
-                >
-                    {category.procedure_category_title}
-                </button>
-            ))}
-            <button
-                onClick={() => setActiveCategory(-1)}
-                className={cn(
-                    "text-sm whitespace-nowrap pb-4 -mb-4",
-                    -1 === activeCategoryId
-                        ? "text-green-500 border-b-2 border-green-500"
-                        : "text-gray-600 hover:text-gray-900"
-                )}
-            >
-                Анализы
-            </button>
-        </div>
-    );
-};
-
-const SubCategoryNav = ({ columns }: { columns: any[] }) => {
-    const { activeColumnId, setActiveColumn } = useProceduresStore();
-
-    return (
-        <div className="flex gap-6 overflow-x-auto pb-4 no-scrollbar border-b mt-6">
-            {columns.map((column) => (
-                <button
-                    key={column.procedure_category_id}
-                    onClick={() => setActiveColumn(column.procedure_category_id)}
-                    className={cn(
-                        "text-sm whitespace-nowrap pb-4 -mb-4",
-                        column.procedure_category_id === activeColumnId
-                            ? "text-green-500 border-b-2 border-green-500"
-                            : "text-gray-600 hover:text-gray-900"
-                    )}
-                >
-                    {column.procedure_category_title}
-                </button>
+        <div className={`flex flex-wrap gap-x-6 gap-y-4 ${containerStyle}`}>
+            {Array(count).fill(0).map((_, i) => (
+                <div
+                    key={`tab-skeleton-${level}-${i}`}
+                    className="h-6 bg-gray-200 rounded-md animate-pulse"
+                    style={{ width: `${Math.random() * 60 + 60}px` }}
+                />
             ))}
         </div>
     );
 };
+
+// Интерфейс для отслеживания активных категорий на каждом уровне
+interface ActiveCategories {
+    [level: number]: number | null;
+}
 
 // ServicesSection.tsx
 export const ServicesSection = () => {
-    const { activeCategoryId, activeColumnId, activeChildCategoryId } = useProceduresStore();
+    // Состояние для хранения активных категорий на каждом уровне
+    const [activeCategories, setActiveCategories] = useState<ActiveCategories>({});
+
+    // Храним загруженные категории для каждого уровня
+    const [loadedCategories, setLoadedCategories] = useState<{ [key: string]: any }>({});
+
+    // Отслеживаем загрузки для каждого уровня
+    const [loadingStates, setLoadingStates] = useState<{ [level: number]: boolean }>({});
+
+    // Флаг для отображения алфавитного списка (только на верхнем уровне)
+    const [showAlphabeticalList, setShowAlphabeticalList] = useState(true);
 
     // Загружаем основные категории
-    const { data: categories = [] } = useQuery({
+    const { data: topLevelCategories = [], isLoading: isTopLevelLoading } = useQuery({
         queryKey: ['procedureCategories'],
         queryFn: ProceduresAPI.getTopLevelCategories,
     });
 
-    // Загружаем детали активной категории
-    const { data: categoryDetails, isLoading: isCategoryLoading } = useQuery({
-        queryKey: ['categoryDetails', activeCategoryId],
-        queryFn: () => activeCategoryId ? ProceduresAPI.getCategoryDetails(activeCategoryId) : null,
-        enabled: !!activeCategoryId && activeCategoryId !== -1,
-    });
+    // Функция для установки активной категории на указанном уровне
+    const setActiveCategoryAtLevel = (level: number, categoryId: number) => {
+        setActiveCategories(prev => {
+            const newState = { ...prev, [level]: categoryId };
 
-    // Загружаем детали активной дочерней категории
-    const { data: childCategoryDetails, isLoading: isChildCategoryLoading } = useQuery({
-        queryKey: ['childCategoryDetails', activeChildCategoryId],
-        queryFn: () => activeChildCategoryId ? ProceduresAPI.getCategoryDetails(activeChildCategoryId) : null,
-        enabled: !!activeChildCategoryId,
-    });
+            // Очищаем все более глубокие уровни
+            Object.keys(prev).forEach(key => {
+                if (parseInt(key) > level) {
+                    delete newState[parseInt(key)];
+                }
+            });
 
-    const renderContent = () => {
-        if (activeCategoryId === -1) {
-            return <AnalysisSection />;
-        }
+            return newState;
+        });
 
-        // Показываем скелетон только когда идет реальная загрузка
-        if ((activeCategoryId && isCategoryLoading) ||
-            (activeChildCategoryId && isChildCategoryLoading)) {
-            return <ProceduresSkeleton />;
-        }
+        // Показываем алфавитный список только если выбрана категория верхнего уровня
+        setShowAlphabeticalList(level === 0);
+    };
 
-        // Если нет активной категории, возвращаем пустой контент
-        if (!activeCategoryId || !categoryDetails) {
-            return null;
-        }
+    // Загрузка данных для категории на каждом уровне
+    useEffect(() => {
+        const loadCategoryDataForLevel = async (level: number) => {
+            const categoryId = activeCategories[level];
 
-        // Определяем, какие данные показывать
-        // let proceduresToShow = [];
-        let showAlphabeticalList = true;
-
-        // Если выбрана дочерняя категория и есть её данные
-        if (activeChildCategoryId && childCategoryDetails) {
-            // proceduresToShow = childCategoryDetails.medical_procedures_list || [];
-            // Для дочерней категории не показываем алфавитный список снизу
-            showAlphabeticalList = false;
-        } else {
-            // Находим активную колонку
-            const columns = categoryDetails.child_procedure_categories_columns || [];
-            const activeColumn = columns.find(col => col.procedure_category_id === activeColumnId) ||
-                (columns.length > 0 ? columns[0] : null);
-
-            if (activeColumn) {
-                // proceduresToShow = activeColumn.procedures || [];
+            if (!categoryId || categoryId === -1) {
+                return;
             }
-        }
 
-        return (
-            <>
-                {/* Отображаем табы колонок */}
-                {categoryDetails.child_procedure_categories_columns?.length > 0 && (
-                    <SubCategoryNav columns={categoryDetails.child_procedure_categories_columns} />
-                )}
+            // Устанавливаем состояние загрузки для этого уровня
+            setLoadingStates(prev => ({ ...prev, [level]: true }));
 
-                {/* Отображаем активную колонку */}
-                {!activeChildCategoryId && activeColumnId && categoryDetails.child_procedure_categories_columns && (
-                    <div className="mt-6">
-                        {/* Активная колонка */}
-                        {(() => {
-                            const activeColumn = categoryDetails.child_procedure_categories_columns.find(
-                                col => col.procedure_category_id === activeColumnId
-                            ) || (categoryDetails.child_procedure_categories_columns.length > 0
-                                ? categoryDetails.child_procedure_categories_columns[0]
-                                : null);
+            try {
+                const data = await ProceduresAPI.getCategoryDetails(categoryId);
+                setLoadedCategories(prev => ({
+                    ...prev,
+                    [categoryId]: data
+                }));
+            } catch (error) {
+                console.error(`Error loading data for category ${categoryId}:`, error);
+            } finally {
+                // Завершаем состояние загрузки
+                setLoadingStates(prev => ({ ...prev, [level]: false }));
+            }
+        };
 
-                            if (!activeColumn) return null;
+        // Загружаем данные для всех активных категорий
+        Object.keys(activeCategories).forEach(level => {
+            const categoryId = activeCategories[parseInt(level)];
+            if (categoryId && categoryId !== -1 && !loadedCategories[categoryId]) {
+                loadCategoryDataForLevel(parseInt(level));
+            }
+        });
+    }, [activeCategories, loadedCategories]);
 
-                            return (
-                                <>
-                                    {/* Показываем дочерние категории как табы */}
-                                    {activeColumn.child_categories && activeColumn.child_categories.length > 0 && (
-                                        <div className="flex gap-6 overflow-x-auto pb-4 no-scrollbar border-b mb-6">
-                                            {activeColumn.child_categories.map((childCategory) => (
-                                                <button
-                                                    key={childCategory.procedure_category_id}
-                                                    onClick={() => useProceduresStore.getState().setActiveChildCategory(childCategory.procedure_category_id)}
-                                                    className={cn(
-                                                        "text-sm whitespace-nowrap pb-4 -mb-4",
-                                                        useProceduresStore.getState().activeChildCategoryId === childCategory.procedure_category_id
-                                                            ? "text-green-500 border-b-2 border-green-500"
-                                                            : "text-gray-600 hover:text-gray-900"
-                                                    )}
-                                                >
-                                                    {childCategory.procedure_category_title}
-                                                </button>
-                                            ))}
-                                        </div>
-                                    )}
+    // Обработчик для верхнего уровня категорий
+    const handleTopLevelClick = (id: number) => {
+        setActiveCategoryAtLevel(0, id);
+    };
 
-                                    {/* Отображаем процедуры из активной колонки */}
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                                        {activeColumn.procedures?.map(procedure => (
-                                            <ProcedureGroup
-                                                key={procedure.medical_procedure_id}
-                                                procedure={procedure}
-                                            />
-                                        ))}
-                                    </div>
-                                </>
-                            );
-                        })()}
-                    </div>
-                )}
+    // Обработчик для любого другого уровня
+    const handleCategoryClick = (level: number, id: number) => {
+        setActiveCategoryAtLevel(level, id);
+    };
 
-                {/* Отображаем контент дочерней категории, если она выбрана */}
-                {activeChildCategoryId && childCategoryDetails && (
-                    <div className="mt-6">
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                            {childCategoryDetails.medical_procedures_list?.map(procedure => (
-                                <ProcedureGroup
-                                    key={procedure.medical_procedure_id}
-                                    procedure={procedure}
-                                />
-                            ))}
-                        </div>
-                    </div>
-                )}
-
-                {/* Группируем и отображаем medical_procedures_list по алфавиту */}
-                {showAlphabeticalList && categoryDetails.medical_procedures_list &&
-                    categoryDetails.medical_procedures_list.length > 0 && (
-                        <div className="mt-12">
-                            <h2 className="text-xl font-semibold mb-6">Медицинские услуги</h2>
-                            <AlphabeticalProcedures
-                                procedures={categoryDetails.medical_procedures_list}
-                            />
-                        </div>
-                    )}
-            </>
-        );
+    // Генерация уникального ключа для элемента
+    const generateUniqueKey = (prefix: string, id: number | string, suffix?: string) => {
+        return `${prefix}-${id}-${suffix || Math.random().toString(36).substring(2, 7)}`;
     };
 
     return (
         <div className="container mx-auto px-4 py-8">
-            <CategoryNav categories={categories} />
+            {/* Основная навигация по категориям верхнего уровня */}
+            {isTopLevelLoading ? (
+                <CategoryTabsSkeleton level={0} />
+            ) : (
+                <CategoryTabs
+                    items={[
+                        ...topLevelCategories.map(cat => ({
+                            id: cat.procedure_category_id,
+                            title: cat.procedure_category_title
+                        })),
+                        { id: -1, title: 'Анализы' }
+                    ]}
+                    activeId={activeCategories[0] || null}
+                    onSelect={handleTopLevelClick}
+                    level={0}
+                />
+            )}
 
             <div className="flex gap-4 items-center my-6">
                 <div className="flex-1 max-w-xl">
@@ -238,7 +168,96 @@ export const ServicesSection = () => {
                 </Button>
             </div>
 
-            {renderContent()}
+            {/* Отображение категорий и их содержимого уровень за уровнем */}
+            {activeCategories[0] === -1 ? (
+                <AnalysisSection />
+            ) : (
+                <>
+                    {/* Рендерим каждый активный уровень и его дочерние категории */}
+                    {Object.keys(activeCategories)
+                        .map(levelStr => parseInt(levelStr))
+                        .sort((a, b) => a - b)
+                        .map(level => {
+                            const categoryId = activeCategories[level];
+                            if (!categoryId || categoryId === -1) return null;
+
+                            // Если данные для этой категории загружаются, показываем скелетон
+                            if (loadingStates[level]) {
+                                return (
+                                    <div key={generateUniqueKey('loading', level)}>
+                                        <CategoryTabsSkeleton level={level + 1} />
+                                        <ProceduresSkeleton />
+                                    </div>
+                                );
+                            }
+
+                            const categoryData = loadedCategories[categoryId];
+                            if (!categoryData) return null;
+
+                            // Отображаем дочерние категории текущего уровня (если есть)
+                            const hasChildColumns = categoryData.child_procedure_categories_columns &&
+                                categoryData.child_procedure_categories_columns.length > 0;
+
+                            return (
+                                <div key={generateUniqueKey('level', level, `cat-${categoryId}`)}>
+                                    {/* Дочерние категории в виде табов */}
+                                    {hasChildColumns && (
+                                        <CategoryTabs
+                                            items={categoryData.child_procedure_categories_columns.map(column => ({
+                                                id: column.procedure_category_id,
+                                                title: column.procedure_category_title
+                                            }))}
+                                            activeId={activeCategories[level + 1] || null}
+                                            onSelect={(id) => handleCategoryClick(level + 1, id)}
+                                            level={level + 1}
+                                        />
+                                    )}
+
+                                    {/* Если это самый нижний уровень, отображаем процедуры */}
+                                    {(level === Math.max(...Object.keys(activeCategories).map(k => parseInt(k)))) && (
+                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-6">
+                                            {/* Показываем процедуры из активной категории */}
+                                            {categoryData.medical_procedures_list?.map(procedure => (
+                                                <ProcedureGroup
+                                                    key={generateUniqueKey('proc', procedure.medical_procedure_id, procedure.medical_procedure_slug)}
+                                                    procedure={procedure}
+                                                />
+                                            ))}
+
+                                            {/* Показываем процедуры из активной колонки, если она выбрана */}
+                                            {activeCategories[level + 1] && categoryData.child_procedure_categories_columns && (
+                                                <>
+                                                    {categoryData.child_procedure_categories_columns
+                                                        .filter(col => col.procedure_category_id === activeCategories[level + 1])
+                                                        .flatMap(col => col.procedures || [])
+                                                        .map(procedure => (
+                                                            <ProcedureGroup
+                                                                key={generateUniqueKey('col-proc', procedure.medical_procedure_id, procedure.medical_procedure_slug)}
+                                                                procedure={procedure}
+                                                            />
+                                                        ))
+                                                    }
+                                                </>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+                            );
+                        })}
+
+                    {/* Алфавитный список медицинских услуг (только для верхнего уровня) */}
+                    {showAlphabeticalList && activeCategories[0] && loadedCategories[activeCategories[0]] &&
+                        loadedCategories[activeCategories[0]].medical_procedures_list &&
+                        loadedCategories[activeCategories[0]].medical_procedures_list.length > 0 && (
+                            <div className="mt-12">
+                                <h2 className="text-xl font-semibold mb-6">Медицинские услуги</h2>
+                                <AlphabeticalProcedures
+                                    procedures={loadedCategories[activeCategories[0]].medical_procedures_list}
+                                />
+                            </div>
+                        )}
+                </>
+            )}
         </div>
     );
 };
