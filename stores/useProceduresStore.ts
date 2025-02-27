@@ -3,27 +3,25 @@ import { create } from 'zustand';
 
 interface ProceduresState {
     activeCategoryId: number | null;
-    activeSubCategoryId: number | null;
-    setActiveCategory: (id: number | null) => void;
-    setActiveSubCategory: (id: number | null) => void;
-    reset: () => void;
+    activeColumnId: number | null;
+    activeChildCategoryId: number | null;
+    setActiveCategory: (id: number) => void;
+    setActiveColumn: (id: number) => void;
+    setActiveChildCategory: (id: number) => void;
 }
 
 export const useProceduresStore = create<ProceduresState>((set) => ({
     activeCategoryId: null,
-    activeSubCategoryId: null,
-
-    setActiveCategory: (id) => set(() => ({
+    activeColumnId: null,
+    activeChildCategoryId: null,
+    setActiveCategory: (id) => set({
         activeCategoryId: id,
-        activeSubCategoryId: null // Сбрасываем активную подкатегорию при смене основной категории
-    })),
-
-    setActiveSubCategory: (id) => set(() => ({
-        activeSubCategoryId: id
-    })),
-
-    reset: () => set(() => ({
-        activeCategoryId: null,
-        activeSubCategoryId: null
-    })),
+        activeColumnId: null,
+        activeChildCategoryId: null
+    }),
+    setActiveColumn: (id) => set({
+        activeColumnId: id,
+        activeChildCategoryId: null
+    }),
+    setActiveChildCategory: (id) => set({ activeChildCategoryId: id }),
 }));

@@ -7,20 +7,24 @@ export interface TopLevelCategory {
     procedure_category_slug: string;
 }
 
-export interface Description {
-    id: number;
-    title: string;
-    content: string;
+export interface ChildCategory {
+    procedure_category_id: number;
+    procedure_category_title: string;
+    procedure_category_slug: string;
 }
 
-export interface MedicalProcedure {
+export interface Procedure {
     medical_procedure_id: number;
     medical_procedure_title: string;
     medical_procedure_slug: string;
-    is_for_children: boolean;
-    child_age_from: any;
-    child_age_to: any;
-    descriptions: Description[];
+}
+
+export interface ColumnCategory {
+    procedure_category_id: number;
+    procedure_category_title: string;
+    procedure_category_slug: string;
+    child_categories: ChildCategory[];
+    procedures: Procedure[];
 }
 
 export interface CategoryDetails {
@@ -32,7 +36,8 @@ export interface CategoryDetails {
         procedure_category_title: string;
         procedure_category_slug: string;
     }[];
-    medical_procedures_list: MedicalProcedure[];
+    child_procedure_categories_columns: ColumnCategory[];
+    medical_procedures_list: Procedure[];
 }
 
 export const ProceduresAPI = {
