@@ -9,7 +9,6 @@ export const HomeClinicsContent = () => {
         <div>
             <SpecialistsSelection/>
             <MapPreview />
-            <ClinicCard />
             <ClinicsPage />
         </div>
     );
