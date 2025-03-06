@@ -3,38 +3,49 @@ import {useClinicsStore} from "@/stores/clinicsStore";
 import {cn} from "@/shared/lib/utils";
 import {Accordion, AccordionContent, AccordionItem, AccordionTrigger} from "@/components/shadcn/accordion";
 import {Checkbox} from "@/components/shadcn/checkbox";
-import React from "react";
+import React, { useEffect } from "react";
 
 export const FiltersSection = ({ className }) => {
     const { currentCityId } = useCityStore();
     const {
         amenities,
+        specialties,
         filters,
         toggleOpenNow,
         toggle24Hours,
         toggleAmenity,
+        toggleSpeciality,
         applyFilters,
-        loading
+        loading,
+        fetchSpecialties,
+        currentPage
     } = useClinicsStore();
+
+    // Загружаем специальности при инициализации компонента
+    useEffect(() => {
+        fetchSpecialties(currentCityId);
+    }, [fetchSpecialties, currentCityId]);
 
     const handleCheckboxChange = async (type: string, id?: number) => {
         if (type === "24h") {
             toggle24Hours();
         } else if (type === "open-now") {
             toggleOpenNow();
-        } else if (id) {
+        } else if (type === "amenity" && id) {
             toggleAmenity(id);
+        } else if (type === "specialty" && id) {
+            toggleSpeciality(id);
         }
 
-        // Apply filters after any change
-        await applyFilters(currentCityId);
+        // Apply filters after any change and reset to page 1
+        await applyFilters(currentCityId, 1);
     };
 
     return (
         <div className={cn("bg-white rounded-xl p-4 shadow-sm", className)}>
             <h2 className="text-lg font-medium mb-4">Фильтр</h2>
 
-            <Accordion type="multiple" defaultValue={["time", "amenities"]} className="space-y-4">
+            <Accordion type="multiple" defaultValue={["time", "amenities", "specialties"]} className="space-y-4">
                 <AccordionItem value="time" className="border-none">
                     <AccordionTrigger className="hover:no-underline p-0">
                         <span className="text-base font-medium">Время работы</span>
@@ -106,12 +117,46 @@ export const FiltersSection = ({ className }) => {
                     </AccordionContent>
                 </AccordionItem>
 
-                <AccordionItem value="filter3" className="border-none">
+                <AccordionItem value="specialties" className="border-none">
                     <AccordionTrigger className="hover:no-underline p-0">
-                        <span className="text-base font-medium">Фильтр 3 (нет)</span>
+                        <span className="text-base font-medium">Специальности</span>
                     </AccordionTrigger>
-                    <AccordionContent>
-                        <div className="text-sm text-gray-500 italic">Функциональность не реализована на бэкенде</div>
+                    <AccordionContent className="pt-4 pb-0">
+                        <div className="space-y-3">
+                            {specialties.length > 0 ? (
+                                specialties.map((specialty) => (
+                                    <label key={specialty.id} className="flex items-center space-x-2">
+                                        <Checkbox
+                                            id={`specialty-${specialty.id}`}
+                                            checked={filters.specialities.includes(specialty.id)}
+                                            onCheckedChange={() => handleCheckboxChange("specialty", specialty.id)}
+                                            disabled={loading}
+                                        />
+                                        <span className="text-sm text-gray-600">{specialty.title}</span>
+                                    </label>
+                                ))
+                            ) : (
+                                // Fallback to mocked specialties if API doesn't return any
+                                [
+                                    { id: 1, title: "Терапевт" },
+                                    { id: 2, title: "Кардиолог" },
+                                    { id: 3, title: "Невролог" },
+                                    { id: 4, title: "Гастроэнтеролог" },
+                                    { id: 5, title: "Эндокринолог" },
+                                    { id: 6, title: "Педиатр" },
+                                ].map((specialty) => (
+                                    <label key={specialty.id} className="flex items-center space-x-2">
+                                        <Checkbox
+                                            id={`specialty-${specialty.id}`}
+                                            checked={filters.specialities.includes(specialty.id)}
+                                            onCheckedChange={() => handleCheckboxChange("specialty", specialty.id)}
+                                            disabled={loading}
+                                        />
+                                        <span className="text-sm text-gray-600">{specialty.title} (мок)</span>
+                                    </label>
+                                ))
+                            )}
+                        </div>
                     </AccordionContent>
                 </AccordionItem>
 

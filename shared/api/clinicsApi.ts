@@ -53,11 +53,22 @@ export interface ClinicsResponse {
 }
 
 export const ClinicsAPI = {
-    getClinics: (cityId: number, filters?: { specialities?: number[], amenities?: number[] }) => {
+    getClinics: (
+        cityId: number,
+        page: number = 1,
+        pageSize: number = 10,
+        filters?: {
+            specialities?: number[],
+            amenities?: number[]
+        }
+    ) => {
         const url = `/patients_endpoints/clinics/city_id:${cityId}/all-clinics/`;
 
         // Создаем объект с query параметрами, которые не пустые
-        const params: Record<string, any> = {};
+        const params: Record<string, any> = {
+            page,
+            page_size: pageSize
+        };
 
         if (filters?.specialities && filters.specialities.length > 0) {
             params.specialities = filters.specialities;
