@@ -1,12 +1,15 @@
 import React, {useEffect} from 'react';
 import ClinicCard from "../ClinicCard/ClinicCard";
 import {useClinicsStore} from '@/stores/clinicsStore';
+
+import {useCityStore} from '@/stores/cityStore';
 import {ClinicCardSkeleton} from "@/components/Clinic/ClinicCard/ClinicCardSkeleton";
 import {FiltersSection} from "@/components/Clinic/ClinicsFilterPage/FiltersSection";
 
-export const DEFAULT_CITY_ID = 1;
+// Loading skeleton for clinic cards
 
 const ClinicsPage = () => {
+    const { currentCityId } = useCityStore();
     const {
         fetchClinics,
         fetchAmenities,
@@ -17,9 +20,9 @@ const ClinicsPage = () => {
 
     useEffect(() => {
         // Fetch initial data
-        fetchClinics(DEFAULT_CITY_ID);
-        fetchAmenities(DEFAULT_CITY_ID);
-    }, [fetchClinics, fetchAmenities]);
+        fetchClinics(currentCityId);
+        fetchAmenities(currentCityId);
+    }, [fetchClinics, fetchAmenities, currentCityId]);
 
     return (
         <div className="container mx-auto py-6 px-4 md:px-6">
@@ -28,7 +31,7 @@ const ClinicsPage = () => {
                 <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-4">
                     <p className="text-red-700">{error}</p>
                     <button
-                        onClick={() => fetchClinics(DEFAULT_CITY_ID)}
+                        onClick={() => fetchClinics(currentCityId)}
                         className="text-red-600 underline mt-2"
                     >
                         Попробовать снова
@@ -47,20 +50,20 @@ const ClinicsPage = () => {
                             <ClinicCardSkeleton key={index} />
                         ))
                     ) : filteredClinics.length > 0 ? (
-                        // Show filtered results
+                        // Show filtered results with mapped data from cardProps
                         filteredClinics.map((clinic) => (
                             <ClinicCard
                                 key={clinic.id}
-                                name={clinic.title}
-                                address={clinic.address}
-                                rating={clinic.rating}
-                                discount={clinic.discount}
-                                schedule={clinic.schedule}
-                                specialists={clinic.specialists}
-                                price={clinic.price}
-                                timeUntilClose={clinic.timeUntilClose}
-                                phoneNumber={clinic.phoneNumber}
-                                isHideSchedule
+                                id={clinic.id}
+                                name={clinic.cardProps.name}
+                                address={clinic.cardProps.address}
+                                rating={clinic.cardProps.rating}
+                                discount={clinic.cardProps.discount}
+                                schedule={clinic.cardProps.schedule}
+                                specialists={clinic.cardProps.specialists}
+                                price={clinic.cardProps.price}
+                                timeUntilClose={clinic.cardProps.timeUntilClose}
+                                phoneNumber={clinic.cardProps.phoneNumber}
                             />
                         ))
                     ) : (
@@ -85,20 +88,20 @@ const ClinicsPage = () => {
                             <ClinicCardSkeleton key={index} />
                         ))
                     ) : filteredClinics.length > 0 ? (
-                        // Show filtered results
+                        // Show filtered results with mapped data from cardProps
                         filteredClinics.map((clinic) => (
                             <ClinicCard
                                 key={clinic.id}
-                                name={clinic.title}
-                                address={clinic.address}
-                                rating={clinic.rating}
-                                discount={clinic.discount}
-                                schedule={clinic.schedule}
-                                specialists={clinic.specialists}
-                                price={clinic.price}
-                                timeUntilClose={clinic.timeUntilClose}
-                                phoneNumber={clinic.phoneNumber}
-                                isHideSchedule
+                                id={clinic.id}
+                                name={clinic.cardProps.name}
+                                address={clinic.cardProps.address}
+                                rating={clinic.cardProps.rating}
+                                discount={clinic.cardProps.discount}
+                                schedule={clinic.cardProps.schedule}
+                                specialists={clinic.cardProps.specialists}
+                                price={clinic.cardProps.price}
+                                timeUntilClose={clinic.cardProps.timeUntilClose}
+                                phoneNumber={clinic.cardProps.phoneNumber}
                             />
                         ))
                     ) : (

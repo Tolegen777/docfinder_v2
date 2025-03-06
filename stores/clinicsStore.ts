@@ -14,9 +14,39 @@ const mockSchedule = {
     sunday: "Выходной"
 };
 
+// Расширенный тип клиники с данными для карточки
+interface EnrichedClinic extends Clinic {
+    cardProps: {
+        id: number;
+        name: string;
+        address: string;
+        rating: {
+            stars: number;
+            reviewCount: number;
+        };
+        schedule: {
+            monday: string;
+            tuesday: string;
+            wednesday: string;
+            thursday: string;
+            friday: string;
+            saturday: string;
+            sunday: string;
+        };
+        timeUntilClose: string;
+        discount: {
+            percentage: number;
+            text: string;
+        };
+        specialists: number;
+        price: number;
+        phoneNumber: string;
+    };
+}
+
 interface ClinicsState {
-    clinics: Clinic[];
-    filteredClinics: Clinic[];
+    clinics: EnrichedClinic[];
+    filteredClinics: EnrichedClinic[];
     amenities: Amenity[];
     loading: boolean;
     error: string | null;
@@ -41,25 +71,8 @@ interface ClinicsState {
     applyFilters: (cityId: number) => Promise<void>;
 }
 
-// Helper to enrich API data with mock data for UI
-const enrichClinicsWithMockData = (clinics: Clinic[]): Clinic[] => {
-    return clinics.map(clinic => ({
-        ...clinic,
-        rating: {
-            stars: Math.floor(Math.random() * 3) + 3, // Random 3-5 stars
-            reviewCount: Math.floor(Math.random() * 500) + 100, // Random 100-600 reviews
-        },
-        discount: {
-            percentage: Math.floor(Math.random() * 20) + 10, // Random 10-30% discount
-            text: "на первый прием",
-        },
-        schedule: mockSchedule,
-        specialists: Math.floor(Math.random() * 20) + 5, // Random 5-25 specialists
-        price: Math.floor(Math.random() * 30000) + 10000, // Random 10000-40000 price
-        timeUntilClose: Math.floor(Math.random() * 180) + 30, // Random 30-210 minutes until close
-        phoneNumber: "+7 701 234...", // Mock phone number
-    }));
-};
+// Импортируем функцию для маппинга данных API в формат для компонента
+import { mapClinicToCardProps } from '@/shared/api/clinicsApi';
 
 export const useClinicsStore = create<ClinicsState>((set, get) => ({
     clinics: [],
@@ -82,12 +95,19 @@ fetchClinics: async (cityId: number) => {
         set({ loading: true, error: null });
         const response = await ClinicsAPI.getClinics(cityId);
 
-        // Enrich with mock data for UI
-        const enrichedClinics = enrichClinicsWithMockData(response.results);
+        // Сохраняем оригинальные данные из API
+        const originalClinics = response.results;
+
+        // Преобразуем данные для UI компонентов, сохраняя оригинальные данные для фильтрации
+        const mappedClinics = originalClinics.map(clinic => ({
+            ...clinic,
+            // Добавляем преобразованные данные для ClinicCard
+            cardProps: mapClinicToCardProps(clinic)
+        }));
 
         set({
-            clinics: enrichedClinics,
-            filteredClinics: enrichedClinics,
+            clinics: mappedClinics,
+            filteredClinics: mappedClinics,
             totalCount: response.count,
             loading: false
         });
@@ -177,26 +197,39 @@ fetchClinics: async (cityId: number) => {
             amenities: filters.amenities,
         });
 
-        let filteredResults = enrichClinicsWithMockData(response.results);
+        // Сохраняем оригинальные данные из API
+        const originalClinics = response.results;
+
+        // Преобразуем данные для UI компонентов
+        let mappedClinics = originalClinics.map(clinic => ({
+            ...clinic,
+            // Добавляем преобразованные данные для ClinicCard
+            cardProps: mapClinicToCardProps(clinic)
+        }));
 
         // Apply client-side filters that don't exist on the backend (мок)
         if (filters.openNow) {
-            // Mock implementation for "open now" filter
-            filteredResults = filteredResults.filter(clinic =>
-                clinic.timeUntilClose && clinic.timeUntilClose > 0
+            // Фильтруем клиники, которые сейчас открыты (имеют time_until_closing)
+            mappedClinics = mappedClinics.filter(clinic =>
+                clinic.time_until_closing && clinic.time_until_closing.includes("до закрытия")
             );
         }
 
         if (filters["24hours"]) {
-            // Mock implementation for "24 hours" filter
-            filteredResults = filteredResults.filter(clinic =>
-                // Randomly select some clinics to be 24h for mock purposes
-                clinic.id % 3 === 0
-            );
+            // Фильтруем клиники, которые работают круглосуточно
+            // Это все еще моковый фильтр, так как в API нет прямого указания на круглосуточную работу
+            // Но можно попробовать определить по расписанию
+            mappedClinics = mappedClinics.filter(clinic => {
+                const has24hSchedule = clinic.working_hours.some(hour =>
+                    hour.open_time === "00:00" && hour.close_time === "23:59"
+                );
+                // Если не нашли 24-часовое расписание, используем моковый подход
+                return has24hSchedule || clinic.id % 3 === 0;
+            });
         }
 
         set({
-            filteredClinics: filteredResults,
+            filteredClinics: mappedClinics,
             totalCount: response.count,
             loading: false
         });
