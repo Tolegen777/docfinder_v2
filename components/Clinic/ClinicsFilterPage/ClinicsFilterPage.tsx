@@ -1,105 +1,75 @@
-import React from 'react';
-import {
-    Accordion,
-    AccordionContent,
-    AccordionItem,
-    AccordionTrigger,
-} from "../../shadcn/accordion";
-import { Checkbox } from "../../shadcn/checkbox";
-import { cn } from "@/shared/lib/utils";
+import React, {useEffect} from 'react';
 import ClinicCard from "../ClinicCard/ClinicCard";
+import {useClinicsStore} from '@/stores/clinicsStore';
+import {ClinicCardSkeleton} from "@/components/Clinic/ClinicCard/ClinicCardSkeleton";
+import {FiltersSection} from "@/components/Clinic/ClinicsFilterPage/FiltersSection";
 
-// Импорт компонента карточки клиники
-
-const filters = {
-    "Время работы": [
-        { id: "24h", label: "Круглосуточно" },
-        { id: "open-now", label: "Сейчас открыто" },
-    ],
-    "Удобства": [
-        { id: "parking", label: "Парковка" },
-        { id: "wifi", label: "Вайфай" },
-        { id: "kids-room", label: "Детская игровая комната" },
-        { id: "waiting-room", label: "Комната ожидания" },
-        { id: "kids-corner", label: "Детская игровая комната" },
-        { id: "cafe", label: "Кафе" },
-        { id: "pharmacy", label: "Аптека" },
-    ]
-};
-
-// Моковые данные для клиник
-const clinics = Array(5).fill(null);
-
-const FiltersSection = ({ className }) => {
-    return (
-        <div className={cn("bg-white rounded-xl p-4 shadow-sm", className)}>
-            <h2 className="text-lg font-medium mb-4">Фильтр</h2>
-
-            <Accordion type="multiple" defaultValue={["time", "amenities"]} className="space-y-4">
-                <AccordionItem value="time" className="border-none">
-                    <AccordionTrigger className="hover:no-underline p-0">
-                        <span className="text-base font-medium">Время работы</span>
-                    </AccordionTrigger>
-                    <AccordionContent className="pt-4 pb-0">
-                        <div className="space-y-3">
-                            {filters["Время работы"].map((item) => (
-                                <label key={item.id} className="flex items-center space-x-2">
-                                    <Checkbox id={item.id} />
-                                    <span className="text-sm text-gray-600">{item.label}</span>
-                                </label>
-                            ))}
-                        </div>
-                    </AccordionContent>
-                </AccordionItem>
-
-                <AccordionItem value="amenities" className="border-none">
-                    <AccordionTrigger className="hover:no-underline p-0">
-                        <span className="text-base font-medium">Удобства</span>
-                    </AccordionTrigger>
-                    <AccordionContent className="pt-4 pb-0">
-                        <div className="space-y-3">
-                            {filters["Удобства"].map((item) => (
-                                <label key={item.id} className="flex items-center space-x-2">
-                                    <Checkbox id={item.id} />
-                                    <span className="text-sm text-gray-600">{item.label}</span>
-                                </label>
-                            ))}
-                        </div>
-                    </AccordionContent>
-                </AccordionItem>
-
-                <AccordionItem value="filter3" className="border-none">
-                    <AccordionTrigger className="hover:no-underline p-0">
-                        <span className="text-base font-medium">Фильтр 3</span>
-                    </AccordionTrigger>
-                    <AccordionContent>
-                        {/* Содержимое фильтра 3 */}
-                    </AccordionContent>
-                </AccordionItem>
-
-                <AccordionItem value="filter4" className="border-none">
-                    <AccordionTrigger className="hover:no-underline p-0">
-                        <span className="text-base font-medium">Фильтр 4</span>
-                    </AccordionTrigger>
-                    <AccordionContent>
-                        {/* Содержимое фильтра 4 */}
-                    </AccordionContent>
-                </AccordionItem>
-            </Accordion>
-        </div>
-    );
-};
+export const DEFAULT_CITY_ID = 1;
 
 const ClinicsPage = () => {
+    const {
+        fetchClinics,
+        fetchAmenities,
+        filteredClinics,
+        loading,
+        error
+    } = useClinicsStore();
+
+    useEffect(() => {
+        // Fetch initial data
+        fetchClinics(DEFAULT_CITY_ID);
+        fetchAmenities(DEFAULT_CITY_ID);
+    }, [fetchClinics, fetchAmenities]);
+
     return (
         <div className="container mx-auto py-6 px-4 md:px-6">
+            {/* Error state */}
+            {error && (
+                <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-4">
+                    <p className="text-red-700">{error}</p>
+                    <button
+                        onClick={() => fetchClinics(DEFAULT_CITY_ID)}
+                        className="text-red-600 underline mt-2"
+                    >
+                        Попробовать снова
+                    </button>
+                </div>
+            )}
+
             {/* Мобильная версия */}
             <div className="md:hidden space-y-4">
                 <FiltersSection className="w-full" />
+
                 <div className="space-y-4">
-                    {clinics.map((_, index) => (
-                        <ClinicCard key={index} />
-                    ))}
+                    {loading ? (
+                        // Show skeletons while loading
+                        Array(3).fill(null).map((_, index) => (
+                            <ClinicCardSkeleton key={index} />
+                        ))
+                    ) : filteredClinics.length > 0 ? (
+                        // Show filtered results
+                        filteredClinics.map((clinic) => (
+                            <ClinicCard
+                                key={clinic.id}
+                                name={clinic.title}
+                                address={clinic.address}
+                                rating={clinic.rating}
+                                discount={clinic.discount}
+                                schedule={clinic.schedule}
+                                specialists={clinic.specialists}
+                                price={clinic.price}
+                                timeUntilClose={clinic.timeUntilClose}
+                                phoneNumber={clinic.phoneNumber}
+                                isHideSchedule
+                            />
+                        ))
+                    ) : (
+                        // No results state
+                        <div className="text-center py-8">
+                            <p className="text-gray-500 mb-2">Клиники не найдены</p>
+                            <p className="text-sm text-gray-400">Попробуйте изменить параметры поиска</p>
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -109,9 +79,35 @@ const ClinicsPage = () => {
                     <FiltersSection className="" />
                 </aside>
                 <main className="flex-1 space-y-4">
-                    {clinics.map((_, index) => (
-                        <ClinicCard key={index} />
-                    ))}
+                    {loading ? (
+                        // Show skeletons while loading
+                        Array(3).fill(null).map((_, index) => (
+                            <ClinicCardSkeleton key={index} />
+                        ))
+                    ) : filteredClinics.length > 0 ? (
+                        // Show filtered results
+                        filteredClinics.map((clinic) => (
+                            <ClinicCard
+                                key={clinic.id}
+                                name={clinic.title}
+                                address={clinic.address}
+                                rating={clinic.rating}
+                                discount={clinic.discount}
+                                schedule={clinic.schedule}
+                                specialists={clinic.specialists}
+                                price={clinic.price}
+                                timeUntilClose={clinic.timeUntilClose}
+                                phoneNumber={clinic.phoneNumber}
+                                isHideSchedule
+                            />
+                        ))
+                    ) : (
+                        // No results state
+                        <div className="text-center py-8 bg-white rounded-xl shadow-sm p-8">
+                            <p className="text-gray-500 mb-2">Клиники не найдены</p>
+                            <p className="text-sm text-gray-400">Попробуйте изменить параметры поиска</p>
+                        </div>
+                    )}
                 </main>
             </div>
         </div>

@@ -24,8 +24,10 @@ const MapComponent = dynamic(() => import('../MapPreview/MapComponent'), {
 });
 
 interface ClinicCardProps {
+    id?: number;
     name?: string;
     address?: string;
+    // Моковые данные
     rating?: {
         stars: number;
         reviewCount: number;
@@ -51,6 +53,7 @@ interface ClinicCardProps {
 }
 
 const ClinicCard: React.FC<ClinicCardProps> = ({
+                                                   id,
                                                    name = "Эмирмед на Манаса 55",
                                                    address = "Улица Манаса, 55, 1-этаж, 9 филиалов, Бостандыкский район, Алматы, 050057/ A15H7T2",
                                                    rating = {
@@ -106,7 +109,7 @@ const ClinicCard: React.FC<ClinicCardProps> = ({
             <span className="text-gray-500">•</span>
             <span className="text-gray-500">МРТ</span>
             <span className="text-gray-500">•</span>
-            <span className="text-gray-700">МРТ головного мозга с контрастом</span>
+            <span className="text-gray-700">МРТ головного мозга с контрастом (м)</span>
         </div>
     );
 
@@ -126,7 +129,7 @@ const ClinicCard: React.FC<ClinicCardProps> = ({
                             <Heart className="w-6 h-6 text-green-600 stroke-green-600 fill-none" />
                         </div>
 
-                        {/* Clinic image */}
+                        {/* Clinic image (м) */}
                         <div className="relative w-full max-w-[160px] h-[160px] mx-auto md:mx-0 mb-4">
                             <Image
                                 src={clinicImg}
@@ -135,15 +138,19 @@ const ClinicCard: React.FC<ClinicCardProps> = ({
                                 alt={name}
                                 className="rounded-full"
                             />
+                            <span className="absolute bottom-0 right-0 bg-green-50 text-green-600 text-xs px-1 rounded">
+                                (м)
+                            </span>
                         </div>
 
-                        {/* Mobile: Rating and reviews */}
+                        {/* Mobile: Rating and reviews (м) */}
                         <div className="flex flex-col items-center md:items-start mb-4">
                             <div className="flex space-x-1 mb-1">
                                 {renderStars(rating.stars)}
+                                <span className="text-xs text-gray-400">(м)</span>
                             </div>
                             <p className="text-sm text-blue-500 hover:underline">
-                                {rating.reviewCount} отзывов
+                                {rating.reviewCount} отзывов (м)
                             </p>
                         </div>
                     </div>
@@ -156,29 +163,31 @@ const ClinicCard: React.FC<ClinicCardProps> = ({
                             <Heart className="w-6 h-6 text-green-600 stroke-green-600 fill-none" />
                         </div>
 
-                        {/* MRI Service Info - Desktop Only */}
+                        {/* MRI Service Info - Desktop Only (м) */}
                         <div className="hidden md:block mb-4">
                             <p className="text-gray-800">
                                 МРТ головного мозга с контрастом: <span className="text-green-600 font-medium">от {price.toLocaleString()} тенге</span>
+                                <span className="text-xs text-gray-400 ml-1">(м)</span>
                             </p>
                         </div>
 
-                        {/* Discount - Full width on mobile */}
+                        {/* Discount - Full width on mobile (м) */}
                         <div className="bg-white border border-gray-200 rounded-lg p-3 text-center mb-4">
                             <p>
                                 Скидка <span className="text-green-600 font-semibold">{discount.percentage}%</span> {discount.text}
+                                <span className="text-xs text-gray-400 ml-1">(м)</span>
                             </p>
                         </div>
 
-                        {/* Phone button - Full width on mobile */}
+                        {/* Phone button - Full width on mobile (м) */}
                         <div className="bg-white border border-gray-200 rounded-lg p-3 mb-4">
                             <div className="flex justify-between items-center">
-                                <span>{phoneNumber}</span>
+                                <span>{phoneNumber} <span className="text-xs text-gray-400">(м)</span></span>
                                 <span className="text-blue-500">Показать телефоны</span>
                             </div>
                         </div>
 
-                        {/* Specialists */}
+                        {/* Specialists (м) */}
                         <div className="flex items-center gap-2 mb-4">
                             <div className="flex -space-x-2">
                                 {[1, 2, 3, 4, 5].map((i) => (
@@ -187,18 +196,18 @@ const ClinicCard: React.FC<ClinicCardProps> = ({
                                     </div>
                                 ))}
                             </div>
-                            <p className="text-sm text-blue-500">{specialists} специалистов</p>
+                            <p className="text-sm text-blue-500">{specialists} специалистов <span className="text-xs text-gray-400">(м)</span></p>
                         </div>
 
-                        {/* Mobile: Closing time notice */}
+                        {/* Mobile: Closing time notice (м) */}
                         <div className="bg-red-50 text-red-500 rounded-lg p-2 mb-4">
-                            <p>Закроется через {timeUntilClose} мин</p>
+                            <p>Закроется через {timeUntilClose} мин <span className="text-xs text-gray-400">(м)</span></p>
                         </div>
 
-                        {/* Mobile: Simplified schedule */}
+                        {/* Mobile: Simplified schedule (м) */}
                         <div className="md:hidden mb-4">
-                            <p className="mb-1">Пн-Пт {schedule.monday}</p>
-                            <p>Сб-Вс {schedule.saturday}</p>
+                            <p className="mb-1">Пн-Пт {schedule.monday} <span className="text-xs text-gray-400">(м)</span></p>
+                            <p>Сб-Вс {schedule.saturday} <span className="text-xs text-gray-400">(м)</span></p>
                         </div>
 
                         {/* Address */}
@@ -238,14 +247,14 @@ const ClinicCard: React.FC<ClinicCardProps> = ({
                                 }}
                             >
                                 <Calendar className="w-5 h-5 mr-2" />
-                                Показать расписание
+                                Показать расписание <span className="text-xs text-gray-400">(м)</span>
                             </Button>
                         </div>
 
                         <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
                             <SheetContent side="bottom" className="px-6 py-6 rounded-t-xl max-h-[80vh] overflow-y-auto">
                                 <SheetHeader className="mb-4">
-                                    <SheetTitle>Расписание работы</SheetTitle>
+                                    <SheetTitle>Расписание работы <span className="text-xs text-gray-400">(м)</span></SheetTitle>
                                     <SheetClose className="absolute right-4 top-4 rounded-sm opacity-70 hover:opacity-100">
                                         <X className="h-4 w-4" />
                                         <span className="sr-only">Close</span>
@@ -253,12 +262,12 @@ const ClinicCard: React.FC<ClinicCardProps> = ({
                                 </SheetHeader>
 
                                 <div className="space-y-4">
-                                    {/* Closing time notice */}
+                                    {/* Closing time notice (м) */}
                                     <div className="bg-red-50 text-red-500 rounded-lg p-2">
-                                        <p>Закроется через {timeUntilClose} мин</p>
+                                        <p>Закроется через {timeUntilClose} мин <span className="text-xs text-gray-400">(м)</span></p>
                                     </div>
 
-                                    {/* Full Schedule in Sheet */}
+                                    {/* Full Schedule in Sheet (м) */}
                                     <div className="space-y-3">
                                         {Object.entries({
                                             "Понедельник": schedule.monday,
@@ -271,7 +280,7 @@ const ClinicCard: React.FC<ClinicCardProps> = ({
                                         }).map(([day, hours], index) => (
                                             <div key={day} className="flex justify-between py-2 border-b border-gray-100 last:border-b-0">
                                                 <span className={`text-sm ${index < 5 ? 'text-green-600' : 'text-gray-600'}`}>{day}</span>
-                                                <span className="text-sm font-medium">{hours}</span>
+                                                <span className="text-sm font-medium">{hours} <span className="text-xs text-gray-400">(м)</span></span>
                                             </div>
                                         ))}
                                     </div>
@@ -288,12 +297,12 @@ const ClinicCard: React.FC<ClinicCardProps> = ({
                                 <MapComponent isPreview={true} />
                             </div>
 
-                            {/* Closing time notice */}
+                            {/* Closing time notice (м) */}
                             <div className="bg-red-50 text-red-500 rounded-lg p-2 mb-4">
-                                <p>Закроется через {timeUntilClose} мин</p>
+                                <p>Закроется через {timeUntilClose} мин <span className="text-xs text-gray-400">(м)</span></p>
                             </div>
 
-                            {/* Weekly schedule */}
+                            {/* Weekly schedule (м) */}
                             <div className="space-y-2">
                                 {Object.entries({
                                     "Понедельник": schedule.monday,
@@ -306,7 +315,7 @@ const ClinicCard: React.FC<ClinicCardProps> = ({
                                 }).map(([day, hours], index) => (
                                     <div key={day} className="flex justify-between">
                                         <span className={`text-sm ${index < 5 ? 'text-green-600' : 'text-gray-600'}`}>{day}</span>
-                                        <span className="text-sm font-medium">{hours}</span>
+                                        <span className="text-sm font-medium">{hours} <span className="text-xs text-gray-400">(м)</span></span>
                                     </div>
                                 ))}
                             </div>
