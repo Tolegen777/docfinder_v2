@@ -4,17 +4,6 @@ import { ClinicsAPI, Clinic } from '@/shared/api/clinicsApi';
 import { AmenitiesAPI, Amenity } from '@/shared/api/amenitiesApi';
 import { SpecialtiesAPI, Specialty } from '@/shared/api/specialtiesApi';
 
-// Mock data
-const mockSchedule = {
-    monday: "09:00-18:00",
-    tuesday: "09:00-18:00",
-    wednesday: "09:00-18:00",
-    thursday: "09:00-18:00",
-    friday: "09:00-18:00",
-    saturday: "Выходной",
-    sunday: "Выходной"
-};
-
 // Расширенный тип клиники с данными для карточки
 interface EnrichedClinic extends Clinic {
     cardProps: {

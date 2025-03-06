@@ -11,9 +11,10 @@ interface CityState {
     // Actions
     fetchCities: () => Promise<void>;
     setCurrentCity: (cityId: number) => void;
+    getCurrentCityName: () => string;
 }
 
-export const useCityStore = create<CityState>((set) => ({
+export const useCityStore = create<CityState>((set, get) => ({
     cities: [],
     currentCityId: 1, // Default to first city (Алматы in most cases)
     loading: false,
@@ -40,5 +41,11 @@ export const useCityStore = create<CityState>((set) => ({
 
     setCurrentCity: (cityId: number) => {
         set({ currentCityId: cityId });
+    },
+
+    getCurrentCityName: () => {
+        const { cities, currentCityId } = get();
+        const currentCity = cities.find(city => city.id === currentCityId);
+        return currentCity ? currentCity.title : 'Алматы'; // Используем Алматы как дефолт
     }
 }));

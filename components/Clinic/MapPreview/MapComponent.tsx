@@ -1,7 +1,8 @@
 import dynamic from 'next/dynamic';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
-import {useEffect, useState} from "react";
+import { useEffect, useState, useMemo } from "react";
+import { useClinicsStore } from '@/stores/clinicsStore';
 
 // Динамически импортируем компоненты карты
 const MapContainer = dynamic(
@@ -24,18 +25,51 @@ const Popup = dynamic(
 // Координаты центра Алматы
 const ALMATY_CENTER = [43.238949, 76.889709];
 
-// Моковые данные клиник
-const clinics = [
-    { id: 1, name: 'Клиника 1', position: [43.238949, 76.889709] },
-    { id: 2, name: 'Клиника 2', position: [43.235949, 76.892709] },
-    { id: 3, name: 'Клиника 3', position: [43.240949, 76.885709] },
-    { id: 4, name: 'Клиника 4', position: [43.233949, 76.888709] },
-    { id: 5, name: 'Клиника 5', position: [43.236949, 76.891709] },
-];
+interface MapComponentProps {
+    isPreview?: boolean;
+    selectedClinicId?: number;
+}
 
-const MapComponent = ({ isPreview = false }) => {
+const MapComponent = ({ isPreview = false, selectedClinicId }: MapComponentProps) => {
+    const { filteredClinics } = useClinicsStore();
     const [customIcon, setCustomIcon] = useState(null);
+    const [selectedIcon, setSelectedIcon] = useState(null);
+    const [centerCoords, setCenterCoords] = useState(ALMATY_CENTER);
 
+    // Преобразуем данные клиник для карты только когда filteredClinics изменяется
+    const clinicMarkers = useMemo(() => {
+        return filteredClinics
+            .filter(clinic => clinic.latitude && clinic.longitude) // Убеждаемся, что у клиники есть координаты
+            .map(clinic => ({
+                id: clinic.id,
+                name: clinic.title,
+                address: clinic.address,
+                position: [
+                    parseFloat(clinic.latitude),
+                    parseFloat(clinic.longitude)
+                ] as [number, number]
+            }));
+    }, [filteredClinics]);
+
+    // Определяем центр карты на основе клиник
+    useEffect(() => {
+        if (clinicMarkers.length > 0) {
+            // Если выбрана конкретная клиника, центрируем на ней
+            if (selectedClinicId) {
+                const selectedClinic = clinicMarkers.find(c => c.id === selectedClinicId);
+                if (selectedClinic) {
+                    setCenterCoords(selectedClinic.position);
+                    return;
+                }
+            }
+
+            // Иначе центрируем на всех клиниках
+            // Для простоты используем первую клинику как центр
+            setCenterCoords(clinicMarkers[0].position);
+        }
+    }, [clinicMarkers, selectedClinicId]); // Зависимости включают только мемоизированные данные и selectedClinicId
+
+    // Инициализируем иконки маркеров только один раз
     useEffect(() => {
         const icon = L.divIcon({
             className: 'custom-marker',
@@ -45,18 +79,37 @@ const MapComponent = ({ isPreview = false }) => {
             iconSize: [24, 24],
             iconAnchor: [12, 12],
         });
+
+        const selectedMarkerIcon = L.divIcon({
+            className: 'selected-marker',
+            html: `<div class="w-8 h-8 bg-white rounded-full border-2 border-emerald-600 flex items-center justify-center">
+               <div class="w-3 h-3 bg-emerald-600 rounded-full"></div>
+             </div>`,
+            iconSize: [32, 32],
+            iconAnchor: [16, 16],
+        });
+
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-expect-error
         setCustomIcon(icon);
-    }, []);
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-expect-error
+        setSelectedIcon(selectedMarkerIcon);
+    }, []); // Пустой массив зависимостей - выполняется только при монтировании
 
-    if (typeof window === 'undefined' || !customIcon) return null;
+    if (typeof window === 'undefined' || !customIcon || !selectedIcon) return null;
 
+    // Если нет координат, используем моковые данные
+    const markersToRender = clinicMarkers.length > 0 ? clinicMarkers : [
+        { id: 1, name: 'Центр Алматы', address: 'Алматы', position: ALMATY_CENTER as [number, number] }
+    ];
+
+    // @ts-ignore
     return (
         <MapContainer
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-expect-error
-            center={ALMATY_CENTER}
+            center={centerCoords}
             zoom={isPreview ? 12 : 13}
             className={isPreview ? 'h-full w-full' : 'h-[80vh] w-full'}
             zoomControl={!isPreview}
@@ -67,15 +120,18 @@ const MapComponent = ({ isPreview = false }) => {
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
-            {clinics.map((clinic) => (
+            {markersToRender.map((clinic) => (
                 <Marker
                     key={clinic.id}
-                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                    // @ts-expect-error
-                    position={clinic.position}
-                    icon={customIcon}
+                    position={clinic?.position}
+                    icon={clinic.id === selectedClinicId ? selectedIcon : customIcon}
                 >
-                    <Popup>{clinic.name}</Popup>
+                    <Popup>
+                        <div className="p-1">
+                            <h3 className="font-medium text-emerald-700">{clinic.name}</h3>
+                            <p className="text-sm text-gray-600">{clinic.address || ''}</p>
+                        </div>
+                    </Popup>
                 </Marker>
             ))}
         </MapContainer>

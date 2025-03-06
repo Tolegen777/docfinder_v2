@@ -6,12 +6,14 @@ import { useCityStore } from '@/stores/cityStore';
 import { ClinicCardSkeleton } from "@/components/Clinic/ClinicCard/ClinicCardSkeleton";
 import { FiltersSection } from "@/components/Clinic/ClinicsFilterPage/FiltersSection";
 import { ClinicsPagination } from './ClinicsPagination';
+import ClinicMapPreview from "@/components/Clinic/ClinicCard/ClinicMapPreview";
 
 const ClinicsPage = () => {
     const { currentCityId } = useCityStore();
     const {
         fetchClinics,
         fetchAmenities,
+        fetchSpecialties,
         filteredClinics,
         loading,
         error,
@@ -22,10 +24,11 @@ const ClinicsPage = () => {
     } = useClinicsStore();
 
     useEffect(() => {
-        // Fetch initial data
+        // Загружаем исходные данные
         fetchClinics(currentCityId);
         fetchAmenities(currentCityId);
-    }, [fetchClinics, fetchAmenities, currentCityId]);
+        fetchSpecialties(currentCityId);
+    }, [fetchClinics, fetchAmenities, fetchSpecialties, currentCityId]);
 
     // Вычисляем общее количество страниц
     const totalPages = Math.ceil(totalCount / pageSize);
@@ -47,6 +50,9 @@ const ClinicsPage = () => {
 
     return (
         <div className="container mx-auto py-6 px-4 md:px-6">
+            {/* Карта клиник */}
+            <ClinicMapPreview />
+
             {/* Error state */}
             {error && (
                 <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-4">

@@ -14,6 +14,7 @@ import {
 } from "@/components/shadcn/sheet";
 import clinicImg from '@/shared/assets/images/clinic.png';
 import dynamic from 'next/dynamic';
+import {Dialog, DialogClose, DialogContent} from "@/components/shadcn/dialog";
 
 // Dynamically import the MapComponent to prevent SSR issues
 const MapComponent = dynamic(() => import('../MapPreview/MapComponent'), {
@@ -73,13 +74,21 @@ const ClinicCard: React.FC<ClinicCardProps> = ({
                                                        saturday: "Выходной",
                                                        sunday: "Выходной"
                                                    },
-                                                   specialists = 14,
+                                                   specialists = 0,
                                                    price = 25000,
                                                    timeUntilClose = 45,
                                                    phoneNumber = "+7 701 234...",
                                                    isHideSchedule = false
                                                }) => {
     const [isSheetOpen, setIsSheetOpen] = useState(false);
+    const [isMapOpen, setIsMapOpen] = useState(false);
+
+    const handleMapButtonClick = (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsMapOpen(true);
+    };
+
     const renderStars = (count: number) => {
         return Array(5).fill(0).map((_, index) => (
             <svg
@@ -101,23 +110,23 @@ const ClinicCard: React.FC<ClinicCardProps> = ({
     };
 
     // Breadcrumb rendering for desktop view
-    const renderBreadcrumb = () => (
-        <div className="hidden md:flex items-center gap-2 text-sm mb-4">
-            <span className="text-gray-500">Услуги</span>
-            <span className="text-gray-500">•</span>
-            <span className="text-gray-500">Диагностика</span>
-            <span className="text-gray-500">•</span>
-            <span className="text-gray-500">МРТ</span>
-            <span className="text-gray-500">•</span>
-            <span className="text-gray-700">МРТ головного мозга с контрастом (м)</span>
-        </div>
-    );
+    // const renderBreadcrumb = () => (
+    //     <div className="hidden md:flex items-center gap-2 text-sm mb-4">
+    //         <span className="text-gray-500">Услуги</span>
+    //         <span className="text-gray-500">•</span>
+    //         <span className="text-gray-500">Диагностика</span>
+    //         <span className="text-gray-500">•</span>
+    //         <span className="text-gray-500">МРТ</span>
+    //         <span className="text-gray-500">•</span>
+    //         <span className="text-gray-700">МРТ головного мозга с контрастом (м)</span>
+    //     </div>
+    // );
 
     return (
         <Card className="w-full max-w-full p-4 md:p-6 bg-white relative">
             <div className="relative z-10">
                 {/* Breadcrumb - Desktop only */}
-                {renderBreadcrumb()}
+                {/*{renderBreadcrumb()}*/}
 
                 {/* Main content */}
                 <div className="flex flex-col md:flex-row md:gap-6">
@@ -163,31 +172,31 @@ const ClinicCard: React.FC<ClinicCardProps> = ({
                         </div>
 
                         {/* MRI Service Info - Desktop Only (м) */}
-                        <div className="hidden md:block mb-4">
-                            <p className="text-gray-800">
-                                МРТ головного мозга с контрастом: <span className="text-green-600 font-medium">от {price.toLocaleString()} тенге</span>
-                                <span className="text-xs text-gray-400 ml-1">(м)</span>
-                            </p>
-                        </div>
+                        {/*<div className="hidden md:block mb-4">*/}
+                        {/*    <p className="text-gray-800">*/}
+                        {/*        МРТ головного мозга с контрастом: <span className="text-green-600 font-medium">от {price.toLocaleString()} тенге</span>*/}
+                        {/*        <span className="text-xs text-gray-400 ml-1">(м)</span>*/}
+                        {/*    </p>*/}
+                        {/*</div>*/}
 
                         {/* Discount - Full width on mobile (м) */}
-                        <div className="bg-white border border-gray-200 rounded-lg p-3 text-center mb-4">
-                            <p>
-                                Скидка <span className="text-green-600 font-semibold">{discount.percentage}%</span> {discount.text}
-                                <span className="text-xs text-gray-400 ml-1">(м)</span>
-                            </p>
-                        </div>
+                        {/*<div className="bg-white border border-gray-200 rounded-lg p-3 text-center mb-4">*/}
+                        {/*    <p>*/}
+                        {/*        Скидка <span className="text-green-600 font-semibold">{discount.percentage}%</span> {discount.text}*/}
+                        {/*        <span className="text-xs text-gray-400 ml-1">(м)</span>*/}
+                        {/*    </p>*/}
+                        {/*</div>*/}
 
                         {/* Phone button - Full width on mobile (м) */}
-                        <div className="bg-white border border-gray-200 rounded-lg p-3 mb-4">
-                            <div className="flex justify-between items-center">
-                                <span>{phoneNumber} <span className="text-xs text-gray-400">(м)</span></span>
-                                <span className="text-blue-500">Показать телефоны</span>
-                            </div>
-                        </div>
+                        {/*<div className="bg-white border border-gray-200 rounded-lg p-3 mb-4">*/}
+                        {/*    <div className="flex justify-between items-center">*/}
+                        {/*        <span>{phoneNumber} <span className="text-xs text-gray-400">(м)</span></span>*/}
+                        {/*        <span className="text-blue-500">Показать телефоны</span>*/}
+                        {/*    </div>*/}
+                        {/*</div>*/}
 
                         {/* Specialists (м) */}
-                        <div className="flex items-center gap-2 mb-4">
+                        <div className="flex items-center gap-2 mb-4 flex-col">
                             <div className="flex -space-x-2">
                                 {[1, 2, 3, 4, 5].map((i) => (
                                     <div key={i} className="w-8 h-8 rounded-full bg-gray-200 border-2 border-white overflow-hidden">
@@ -195,11 +204,11 @@ const ClinicCard: React.FC<ClinicCardProps> = ({
                                     </div>
                                 ))}
                             </div>
-                            <p className="text-sm text-blue-500">{specialists} специалистов <span className="text-xs text-gray-400">(м)</span></p>
+                            <p className="text-sm text-blue-500">{specialists} специалистов</p>
                         </div>
 
                         {/* Mobile: Closing time notice */}
-                        <div className="bg-red-50 text-red-500 rounded-lg p-2 mb-4">
+                        <div className="bg-red-50 text-red-500 rounded-lg p-2 mb-4 block sm:hidden">
                             <p>{timeUntilClose}</p>
                         </div>
 
@@ -214,7 +223,7 @@ const ClinicCard: React.FC<ClinicCardProps> = ({
                             <MapPin className="w-5 h-5 text-green-600 mt-1 flex-shrink-0" />
                             <div>
                                 <Link href="#" className="text-blue-500 hover:underline mb-1 block">
-                                    Эмирмед на Манаса
+                                    {name}
                                 </Link>
                                 <p className="text-sm text-gray-500">{address}</p>
                             </div>
@@ -224,15 +233,26 @@ const ClinicCard: React.FC<ClinicCardProps> = ({
                         <Button
                             variant="outline"
                             className="w-full md:w-auto border-green-600 text-green-600 hover:bg-green-50 mb-4 relative z-10"
-                            onClick={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                // Map button action here
-                            }}
+                            onClick={handleMapButtonClick}
                         >
                             <MapPin className="w-5 h-5 mr-2" />
                             На карте
                         </Button>
+
+                        {/* Диалог с картой */}
+                        <Dialog open={isMapOpen} onOpenChange={setIsMapOpen}>
+                            <DialogContent className="max-w-6xl w-[90vw] h-[80vh] p-0">
+                                <div className="relative h-full">
+                                    <MapComponent selectedClinicId={id} />
+                                    <DialogClose className="absolute top-4 right-4 z-[500]">
+                                        <button className="p-2 bg-white rounded-full shadow-md hover:bg-gray-50
+                                 transition-colors duration-200">
+                                            <X className="w-5 h-5 text-gray-600" />
+                                        </button>
+                                    </DialogClose>
+                                </div>
+                            </DialogContent>
+                        </Dialog>
 
                         {/* Show Schedule Button - Mobile only */}
                         <div className="relative z-10">
@@ -293,7 +313,7 @@ const ClinicCard: React.FC<ClinicCardProps> = ({
                         <div className="hidden md:block md:w-[350px]">
                             {/* Map preview */}
                             <div className="bg-gray-100 rounded-lg h-[200px] mb-4 overflow-hidden">
-                                <MapComponent isPreview={true} />
+                                <MapComponent isPreview={true} selectedClinicId={id} />
                             </div>
 
                             {/* Closing time notice */}

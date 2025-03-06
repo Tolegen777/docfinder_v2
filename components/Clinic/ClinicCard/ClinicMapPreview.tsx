@@ -1,35 +1,44 @@
-'use state'
+'use client';
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogTrigger, DialogClose } from '../../shadcn/dialog';
 import { X } from 'lucide-react';
-
-import {MaxWidthLayout} from "@/shared/ui/MaxWidthLayout";
+import { MaxWidthLayout } from "@/shared/ui/MaxWidthLayout";
 import dynamic from "next/dynamic";
+import { useClinicsStore } from '@/stores/clinicsStore';
+import { useCityStore } from '@/stores/cityStore';
 
-const MapComponent = dynamic(() => import('./MapComponent'), {
+// Динамически импортируем компонент карты для предотвращения проблем с SSR
+const MapComponent = dynamic(() => import('../MapPreview/MapComponent'), {
     ssr: false,
     loading: () => <div className="w-full h-[400px] bg-gray-100 animate-pulse" />
 });
 
+interface ClinicMapPreviewProps {
+    selectedClinicId?: number;
+}
 
-
-const MapPreview = () => {
+const ClinicMapPreview: React.FC<ClinicMapPreviewProps> = ({ selectedClinicId }) => {
     const [isOpen, setIsOpen] = useState(false);
+    const { filteredClinics } = useClinicsStore();
+    const { getCurrentCityName } = useCityStore();
+
+    const cityName = getCurrentCityName();
+    const clinicCount = filteredClinics.length;
 
     return (
         <MaxWidthLayout className="py-4">
             <div className="relative">
                 {/* Header */}
                 <div className="flex items-center gap-2 mb-3">
-                    <span className="text-emerald-600 font-medium">20 клиник</span>
-                    <span className="text-gray-900">в Алматы</span>
+                    <span className="text-emerald-600 font-medium">{clinicCount} {getClinicText(clinicCount)}</span>
+                    <span className="text-gray-900">в {cityName}</span>
                 </div>
 
                 {/* Map Container */}
                 <div className="relative w-full h-48 md:h-64 rounded-xl overflow-hidden">
                     {!isOpen && (
                         <div className="absolute inset-0">
-                            <MapComponent isPreview={true} />
+                            <MapComponent isPreview={true} selectedClinicId={selectedClinicId} />
                         </div>
                     )}
 
@@ -45,7 +54,7 @@ const MapPreview = () => {
                         </DialogTrigger>
                         <DialogContent className="max-w-6xl w-[90vw] h-[80vh] p-0">
                             <div className="relative h-full">
-                                <MapComponent />
+                                <MapComponent selectedClinicId={selectedClinicId} />
                                 <DialogClose className="absolute top-4 right-4 z-[500]">
                                     <button className="p-2 bg-white rounded-full shadow-md hover:bg-gray-50
                                    transition-colors duration-200">
@@ -61,4 +70,15 @@ const MapPreview = () => {
     );
 };
 
-export default MapPreview;
+// Функция для правильного склонения слова "клиника"
+function getClinicText(count: number): string {
+    if (count % 10 === 1 && count % 100 !== 11) {
+        return 'клиника';
+    } else if ([2, 3, 4].includes(count % 10) && ![12, 13, 14].includes(count % 100)) {
+        return 'клиники';
+    } else {
+        return 'клиник';
+    }
+}
+
+export default ClinicMapPreview;

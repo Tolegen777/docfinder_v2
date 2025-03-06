@@ -145,7 +145,7 @@ export const mapClinicToCardProps = (clinic: Clinic) => {
             percentage: Math.floor(Math.random() * 20) + 10, // 10-30%
             text: "на первый прием"
         },
-        specialists: Math.floor(Math.random() * 20) + 5, // 5-25
+        specialists: clinic.specialities?.length, // 5-25
         price: Math.floor(Math.random() * 30000) + 10000, // 10000-40000
         phoneNumber: "+7 701 234..."
     };
