@@ -17,7 +17,7 @@ import dynamic from 'next/dynamic';
 import {Dialog, DialogClose, DialogContent} from "@/components/shadcn/dialog";
 
 // Dynamically import the MapComponent to prevent SSR issues
-const MapComponent = dynamic(() => import('../MapPreview/MapComponent'), {
+const MapComponent = dynamic(() => import('../../../shared/ui/MapContent/MapComponent'), {
     ssr: false,
     loading: () => <div className="w-full h-full bg-gray-100 animate-pulse flex items-center justify-center">
         <MapPin className="w-8 h-8 text-gray-400" />

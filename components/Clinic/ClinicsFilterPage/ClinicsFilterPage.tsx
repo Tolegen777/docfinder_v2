@@ -9,7 +9,7 @@ import { ClinicsPagination } from './ClinicsPagination';
 import ClinicMapPreview from "@/components/Clinic/ClinicCard/ClinicMapPreview";
 
 const ClinicsPage = () => {
-    const { currentCityId } = useCityStore();
+    const { currentCity } = useCityStore();
     const {
         fetchClinics,
         fetchAmenities,
@@ -25,10 +25,10 @@ const ClinicsPage = () => {
 
     useEffect(() => {
         // Загружаем исходные данные
-        fetchClinics(currentCityId);
-        fetchAmenities(currentCityId);
-        fetchSpecialties(currentCityId);
-    }, [fetchClinics, fetchAmenities, fetchSpecialties, currentCityId]);
+        fetchClinics(currentCity?.id as number);
+        fetchAmenities(currentCity?.id as number);
+        fetchSpecialties(currentCity?.id as number);
+    }, [fetchClinics, fetchAmenities, fetchSpecialties, currentCity?.id]);
 
     // Вычисляем общее количество страниц
     const totalPages = Math.ceil(totalCount / pageSize);
@@ -36,7 +36,7 @@ const ClinicsPage = () => {
     // Обработчик для нажатия на номер страницы (с прокруткой)
     const handlePageChange = (page: number) => {
         if (page >= 1 && page <= totalPages) {
-            applyFilters(currentCityId, page);
+            applyFilters(currentCity?.id as number, page);
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     };
@@ -44,7 +44,7 @@ const ClinicsPage = () => {
     // Обработчик для кнопок prev/next (без прокрутки)
     const handlePrevNext = (page: number) => {
         if (page >= 1 && page <= totalPages) {
-            applyFilters(currentCityId, page);
+            applyFilters(currentCity?.id as number, page);
         }
     };
 
@@ -58,7 +58,7 @@ const ClinicsPage = () => {
                 <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-4">
                     <p className="text-red-700">{error}</p>
                     <button
-                        onClick={() => fetchClinics(currentCityId)}
+                        onClick={() => fetchClinics(currentCity?.id as number)}
                         className="text-red-600 underline mt-2"
                     >
                         Попробовать снова

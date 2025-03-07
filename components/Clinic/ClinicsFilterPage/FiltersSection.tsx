@@ -6,7 +6,7 @@ import {Checkbox} from "@/components/shadcn/checkbox";
 import React, { useEffect } from "react";
 
 export const FiltersSection = ({ className }) => {
-    const { currentCityId } = useCityStore();
+    const { currentCity } = useCityStore();
     const {
         amenities,
         specialties,
@@ -23,8 +23,8 @@ export const FiltersSection = ({ className }) => {
 
     // Загружаем специальности при инициализации компонента
     useEffect(() => {
-        fetchSpecialties(currentCityId);
-    }, [fetchSpecialties, currentCityId]);
+        fetchSpecialties(currentCity?.id as number);
+    }, [fetchSpecialties, currentCity?.id as number]);
 
     const handleCheckboxChange = async (type: string, id?: number) => {
         if (type === "24h") {
@@ -38,7 +38,7 @@ export const FiltersSection = ({ className }) => {
         }
 
         // Apply filters after any change and reset to page 1
-        await applyFilters(currentCityId, 1);
+        await applyFilters(currentCity?.id as number, 1);
     };
 
     return (

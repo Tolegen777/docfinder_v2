@@ -3,6 +3,7 @@ import { useClinicsStore } from '@/stores/clinicsStore';
 import { Skeleton } from '@/components/shadcn/skeleton';
 import { useQuery } from '@tanstack/react-query';
 import { SpecialtiesAPI, Specialty } from '@/shared/api/specialtiesApi';
+import {useCityStore} from "@/stores/cityStore";
 
 // Default city ID (should come from user selection or context)
 const DEFAULT_CITY_ID = 1;
@@ -22,10 +23,13 @@ const SpecialistsSelection: React.FC<SpecialistsSelectionProps> = ({ maxVisible 
     const [showAll, setShowAll] = useState(false);
     const { filters, toggleSpeciality, applyFilters } = useClinicsStore();
 
+    const {currentCity} = useCityStore()
+
     // Fetch specialties from API
     const { data: specialtyGroups, isLoading, error } = useQuery({
-        queryKey: ['specialties', DEFAULT_CITY_ID],
-        queryFn: () => SpecialtiesAPI.getSpecialties(DEFAULT_CITY_ID),
+        queryKey: ['specialties', currentCity?.id],
+        queryFn: () => SpecialtiesAPI.getSpecialties(currentCity?.id as number),
+        enabled: !!currentCity?.id
     });
 
     // Flatten specialty groups into a single array of specialties

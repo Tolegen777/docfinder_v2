@@ -8,7 +8,7 @@ import { useClinicsStore } from '@/stores/clinicsStore';
 import { useCityStore } from '@/stores/cityStore';
 
 // Динамически импортируем компонент карты для предотвращения проблем с SSR
-const MapComponent = dynamic(() => import('../MapPreview/MapComponent'), {
+const MapComponent = dynamic(() => import('../../../shared/ui/MapContent/MapComponent'), {
     ssr: false,
     loading: () => <div className="w-full h-[400px] bg-gray-100 animate-pulse" />
 });
@@ -20,9 +20,8 @@ interface ClinicMapPreviewProps {
 const ClinicMapPreview: React.FC<ClinicMapPreviewProps> = ({ selectedClinicId }) => {
     const [isOpen, setIsOpen] = useState(false);
     const { filteredClinics } = useClinicsStore();
-    const { getCurrentCityName } = useCityStore();
+    const { currentCity } = useCityStore();
 
-    const cityName = getCurrentCityName();
     const clinicCount = filteredClinics.length;
 
     return (
@@ -31,7 +30,7 @@ const ClinicMapPreview: React.FC<ClinicMapPreviewProps> = ({ selectedClinicId })
                 {/* Header */}
                 <div className="flex items-center gap-2 mb-3">
                     <span className="text-emerald-600 font-medium">{clinicCount} {getClinicText(clinicCount)}</span>
-                    <span className="text-gray-900">в {cityName}</span>
+                    <span className="text-gray-900">в {currentCity?.title ?? ''}</span>
                 </div>
 
                 {/* Map Container */}

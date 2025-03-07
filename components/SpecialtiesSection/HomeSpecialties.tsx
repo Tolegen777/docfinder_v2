@@ -9,16 +9,17 @@ import {SpecialtyCard} from './SpecialtyCard';
 import {cn} from '@/shared/lib/utils';
 import Cookies from 'js-cookie';
 import {AlphabeticalServices} from "@/components/SpecialtiesSection/AlphabeticalServices";
+import {useCityStore} from "@/stores/cityStore";
 
 export const HomeSpecialties = () => {
     const [view, setView] = React.useState<'grid' | 'list'>('grid');
 
-    // Получаем cityId из кук
-    const cityId = Number(Cookies.get('selectedCity')) || 1;
+    const {currentCity} = useCityStore()
 
     const { data: specialtyGroups = [], isLoading } = useQuery({
-        queryKey: ['specialties', cityId],
-        queryFn: () => SpecialtiesAPI.getSpecialties(cityId),
+        queryKey: ['specialties', currentCity?.id],
+        queryFn: () => SpecialtiesAPI.getSpecialties(currentCity?.id as number),
+        enabled: !!currentCity?.id
     });
 
     // Получаем все специальности в один массив для grid view
