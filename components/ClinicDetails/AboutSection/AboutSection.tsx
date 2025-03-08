@@ -40,7 +40,7 @@ const services = [
 
 // Общий компонент аккордеона для мобильной и десктопной версий
 const AccordionSection = () => (
-    <Accordion type="single" collapsible className="w-full">
+    <Accordion type="multiple" className="w-full">
         <AccordionItem value="about" className="border-b">
             <AccordionTrigger className="hover:no-underline group">
                 <h2 className="text-xl font-medium group-data-[state=open]:text-emerald-600">О клинике</h2>
