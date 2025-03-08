@@ -1,7 +1,7 @@
 // components/services/CategorySidebar.tsx
 'use client';
 
-import {useServicesStore} from '@/stores/useServicesStore';
+import {useServicesStore} from '@/shared/stores/useServicesStore';
 import { cn } from '@/shared/lib/utils';
 
 export function CategorySidebar() {

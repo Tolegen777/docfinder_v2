@@ -9,10 +9,8 @@ const ClinicMap = dynamic(() => import('./ClinicMap'), {
 });
 
 // Контейнер для карты с фиксированной высотой
-const MapWithContainer = () => (
+export const MapWithContainer = () => (
     <MaxWidthLayout className="w-full h-[400px] rounded-xl overflow-hidden">
         <ClinicMap />
     </MaxWidthLayout>
 );
-
-export default MapWithContainer;

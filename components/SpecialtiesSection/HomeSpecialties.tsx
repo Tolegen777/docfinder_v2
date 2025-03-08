@@ -9,7 +9,7 @@ import {SpecialtyCard} from './SpecialtyCard';
 import {cn} from '@/shared/lib/utils';
 import Cookies from 'js-cookie';
 import {AlphabeticalServices} from "@/components/SpecialtiesSection/AlphabeticalServices";
-import {useCityStore} from "@/stores/cityStore";
+import {useCityStore} from "@/shared/stores/cityStore";
 
 export const HomeSpecialties = () => {
     const [view, setView] = React.useState<'grid' | 'list'>('grid');

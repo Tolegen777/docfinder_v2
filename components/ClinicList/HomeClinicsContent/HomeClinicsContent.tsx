@@ -1,12 +1,12 @@
 import React from 'react';
 import SpecialistsSelection from "../SpecialistsSelection/SpecialistsSelection";
-import ClinicsPage from "../ClinicsFilterPage/ClinicsFilterPage";
+import {ClinicsListPage} from "../ClinicsFilterPage/ClinicsListPage";
 
 export const HomeClinicsContent = () => {
     return (
         <div>
             <SpecialistsSelection/>
-            <ClinicsPage />
+            <ClinicsListPage />
         </div>
     );
 };

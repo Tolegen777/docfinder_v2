@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { useClinicsStore } from '@/stores/clinicsStore';
-import { Skeleton } from '@/components/shadcn/skeleton';
+import { useClinicsStore } from '@/shared/stores/clinicsStore';
+import { Skeleton } from '@/shared/ui/shadcn/skeleton';
 import { useQuery } from '@tanstack/react-query';
 import { SpecialtiesAPI, Specialty } from '@/shared/api/specialtiesApi';
-import {useCityStore} from "@/stores/cityStore";
+import {useCityStore} from "@/shared/stores/cityStore";
 
 // Default city ID (should come from user selection or context)
 const DEFAULT_CITY_ID = 1;

@@ -3,8 +3,8 @@ import {
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger
-} from "@/components/shadcn/dropdown-menu";
-import {Button} from "@/components/shadcn/button";
+} from "@/shared/ui/shadcn/dropdown-menu";
+import {Button} from "@/shared/ui/shadcn/button";
 import {ChevronDown, Globe} from "lucide-react";
 import React from "react";
 

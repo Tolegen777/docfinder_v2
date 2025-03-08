@@ -5,9 +5,9 @@ import { useQuery } from '@tanstack/react-query';
 import { DoctorsAPI } from '@/shared/api/doctorsApi';
 import DoctorCard from "./DoctorCard/DoctorCard";
 import { AppointmentTypeFilters } from "@/components/AppointmentTypeFilters/AppointmentTypeFilters";
-import { Skeleton } from '@/components/shadcn/skeleton';
+import { Skeleton } from '@/shared/ui/shadcn/skeleton';
 import { DoctorsPagination } from "@/components/DoctorsList/DoctorsPagination/DoctorsPagination";
-import { useCityStore } from "@/stores/cityStore";
+import { useCityStore } from "@/shared/stores/cityStore";
 
 const PAGE_SIZE = 10;
 

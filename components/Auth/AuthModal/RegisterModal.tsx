@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import {
     Dialog,
     DialogContent,
-} from "../../shadcn/dialog";
-import { Input } from "../../shadcn/input";
-import { Button } from "../../shadcn/button";
+} from "@/shared/ui/shadcn/dialog";
+import { Input } from "@/shared/ui/shadcn/input";
+import { Button } from "@/shared/ui/shadcn/button";
 import { Eye, EyeOff } from "lucide-react";
 
 interface RegisterModalProps {

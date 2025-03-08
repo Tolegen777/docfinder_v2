@@ -1,4 +1,4 @@
-import {Skeleton} from "@/components/shadcn/skeleton";
+import {Skeleton} from "@/shared/ui/shadcn/skeleton";
 import React from "react";
 
 export const ClinicCardSkeleton = () => (

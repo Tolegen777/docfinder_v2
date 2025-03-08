@@ -3,7 +3,7 @@ import React from 'react';
 import {usePathname, useSearchParams} from 'next/navigation';
 import {Activity, Building2, Factory, Stethoscope, User2} from 'lucide-react';
 import {ServicesSection} from "../ServicesSection/ServicesSection";
-import {HomeClinicsContent} from "../Clinic/HomeClinicsContent/HomeClinicsContent";
+import {HomeClinicsContent} from "@/components/ClinicList/HomeClinicsContent/HomeClinicsContent";
 import {MaxWidthLayout} from "@/shared/ui/MaxWidthLayout";
 import {NavItem} from "@/components/SpecialtiesSection/NavItem";
 import {HomeSpecialties} from "@/components/SpecialtiesSection/HomeSpecialties";

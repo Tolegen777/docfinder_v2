@@ -1,14 +1,14 @@
 'use client';
 import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogTrigger, DialogClose } from '../../shadcn/dialog';
+import { Dialog, DialogContent, DialogTrigger, DialogClose } from '@/shared/ui/shadcn/dialog';
 import { X } from 'lucide-react';
 import { MaxWidthLayout } from "@/shared/ui/MaxWidthLayout";
 import dynamic from "next/dynamic";
-import { useClinicsStore } from '@/stores/clinicsStore';
-import { useCityStore } from '@/stores/cityStore';
+import { useClinicsStore } from '@/shared/stores/clinicsStore';
+import { useCityStore } from '@/shared/stores/cityStore';
 
 // Динамически импортируем компонент карты для предотвращения проблем с SSR
-const MapComponent = dynamic(() => import('../../../shared/ui/MapContent/MapComponent'), {
+const MapComponent = dynamic(() => import('./MapClinicComponent'), {
     ssr: false,
     loading: () => <div className="w-full h-[400px] bg-gray-100 animate-pulse" />
 });

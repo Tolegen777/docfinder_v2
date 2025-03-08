@@ -4,7 +4,7 @@ import {
     PaginationEllipsis,
     PaginationItem, PaginationLink, PaginationNext,
     PaginationPrevious
-} from "@/components/shadcn/pagination";
+} from "@/shared/ui/shadcn/pagination";
 import {cn} from "@/shared/lib/utils";
 import React from "react";
 

@@ -8,7 +8,7 @@ import {MaxWidthLayout} from "@/shared/ui/MaxWidthLayout";
 
 const images = [clininc1Img, clininc2Img];
 
-const ClinicHeader = () => {
+export const ClinicHeader = () => {
     const [currentSlide, setCurrentSlide] = useState(0);
 
     useEffect(() => {
@@ -162,5 +162,3 @@ const ClinicHeader = () => {
         </MaxWidthLayout>
     );
 };
-
-export default ClinicHeader;

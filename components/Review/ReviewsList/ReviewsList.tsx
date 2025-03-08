@@ -7,7 +7,7 @@ import {
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from "../../shadcn/select";
+} from "@/shared/ui/shadcn/select";
 import {ReviewCard} from "../ReviewCardExample/ReviewCardExample";
 import {MaxWidthLayout} from "@/shared/ui/MaxWidthLayout";
 
@@ -108,7 +108,7 @@ const mockReviews: ReviewCardProps[] = [
     }
 ];
 
-const ReviewsList = () => {
+export const ReviewsList = () => {
     return (
         <MaxWidthLayout className="py-4">
             {/* Header with count and filter */}
@@ -148,5 +148,3 @@ const ReviewsList = () => {
         </MaxWidthLayout>
     );
 };
-
-export default ReviewsList;

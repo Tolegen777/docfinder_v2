@@ -1,6 +1,6 @@
 import React from 'react';
 import { Percent } from 'lucide-react';
-import { Button } from '../shadcn/button';
+import { Button } from '@/shared/ui/shadcn/button';
 
 const DiscountBanner = () => {
     return (

@@ -1,14 +1,14 @@
 import React, { useEffect } from 'react';
 import ClinicCard from "../ClinicCard/ClinicCard";
-import { useClinicsStore } from '@/stores/clinicsStore';
+import { useClinicsStore } from '@/shared/stores/clinicsStore';
 
-import { useCityStore } from '@/stores/cityStore';
-import { ClinicCardSkeleton } from "@/components/Clinic/ClinicCard/ClinicCardSkeleton";
-import { FiltersSection } from "@/components/Clinic/ClinicsFilterPage/FiltersSection";
+import { useCityStore } from '@/shared/stores/cityStore';
+import { ClinicCardSkeleton } from "@/components/ClinicList/ClinicCard/ClinicCardSkeleton";
+import { FiltersSection } from "@/components/ClinicList/ClinicsFilterPage/FiltersSection";
 import { ClinicsPagination } from './ClinicsPagination';
-import ClinicMapPreview from "@/components/Clinic/ClinicCard/ClinicMapPreview";
+import ClinicMapPreview from "@/components/ClinicList/ClinicCard/ClinicMapPreview";
 
-const ClinicsPage = () => {
+export const ClinicsListPage = () => {
     const { currentCity } = useCityStore();
     const {
         fetchClinics,
@@ -165,5 +165,3 @@ const ClinicsPage = () => {
         </div>
     );
 };
-
-export default ClinicsPage;

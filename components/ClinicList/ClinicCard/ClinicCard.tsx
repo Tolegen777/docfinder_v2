@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { Heart, MapPin, Calendar, X } from 'lucide-react';
 import Image from "next/image";
 import Link from "next/link";
-import { Card } from "@/components/shadcn/card";
-import { Button } from "@/components/shadcn/button";
+import { Card } from "@/shared/ui/shadcn/card";
+import { Button } from "@/shared/ui/shadcn/button";
 import {
     Sheet,
     SheetContent,
@@ -11,13 +11,13 @@ import {
     SheetHeader,
     SheetTitle,
     SheetClose
-} from "@/components/shadcn/sheet";
+} from "@/shared/ui/shadcn/sheet";
 import clinicImg from '@/shared/assets/images/clinic.png';
 import dynamic from 'next/dynamic';
-import {Dialog, DialogClose, DialogContent} from "@/components/shadcn/dialog";
+import {Dialog, DialogClose, DialogContent} from "@/shared/ui/shadcn/dialog";
 
-// Dynamically import the MapComponent to prevent SSR issues
-const MapComponent = dynamic(() => import('../../../shared/ui/MapContent/MapComponent'), {
+// Dynamically import the MapClinicComponent to prevent SSR issues
+const MapComponent = dynamic(() => import('./MapClinicComponent'), {
     ssr: false,
     loading: () => <div className="w-full h-full bg-gray-100 animate-pulse flex items-center justify-center">
         <MapPin className="w-8 h-8 text-gray-400" />
@@ -132,13 +132,13 @@ const ClinicCard: React.FC<ClinicCardProps> = ({
                 <div className="flex flex-col md:flex-row md:gap-6">
                     {/* Left column - Image and info */}
                     <div className="md:flex-none">
-                        {/* Mobile: Clinic name and heart */}
+                        {/* Mobile: ClinicList name and heart */}
                         <div className="flex justify-between items-center mb-4 md:hidden">
                             <h2 className="text-xl font-semibold">{name}</h2>
                             <Heart className="w-6 h-6 text-green-600 stroke-green-600 fill-none" />
                         </div>
 
-                        {/* Clinic image (м) */}
+                        {/* ClinicList image (м) */}
                         <div className="relative w-full max-w-[160px] h-[160px] mx-auto md:mx-0 mb-4">
                             <Image
                                 src={clinicImg}
@@ -165,7 +165,7 @@ const ClinicCard: React.FC<ClinicCardProps> = ({
 
                     {/* Middle column - Main info */}
                     <div className="flex-1">
-                        {/* Desktop: Clinic name and heart */}
+                        {/* Desktop: ClinicList name and heart */}
                         <div className="hidden md:flex justify-between items-center mb-4">
                             <h2 className="text-2xl font-semibold">{name}</h2>
                             <Heart className="w-6 h-6 text-green-600 stroke-green-600 fill-none" />

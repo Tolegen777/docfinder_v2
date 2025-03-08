@@ -2,7 +2,7 @@ import dynamic from 'next/dynamic';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { useEffect, useState, useMemo } from "react";
-import { useClinicsStore } from '@/stores/clinicsStore';
+import { useClinicsStore } from '@/shared/stores/clinicsStore';
 
 // Динамически импортируем компоненты карты
 const MapContainer = dynamic(
@@ -30,7 +30,7 @@ interface MapComponentProps {
     selectedClinicId?: number;
 }
 
-const MapComponent = ({ isPreview = false, selectedClinicId }: MapComponentProps) => {
+const MapClinicComponent = ({ isPreview = false, selectedClinicId }: MapComponentProps) => {
     const { filteredClinics } = useClinicsStore();
     const [customIcon, setCustomIcon] = useState(null);
     const [selectedIcon, setSelectedIcon] = useState(null);
@@ -138,4 +138,4 @@ const MapComponent = ({ isPreview = false, selectedClinicId }: MapComponentProps
     );
 };
 
-export default MapComponent;
+export default MapClinicComponent;

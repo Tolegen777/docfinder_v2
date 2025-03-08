@@ -1,7 +1,7 @@
 'use client';
 
 import { cn } from '@/shared/lib/utils';
-import {useServicesStore} from "@/stores/useServicesStore";
+import {useServicesStore} from "@/shared/stores/useServicesStore";
 
 export const ServiceNav = () => {
     const { activeCategory, setActiveCategory } = useServicesStore();

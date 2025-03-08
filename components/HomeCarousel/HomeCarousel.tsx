@@ -1,14 +1,14 @@
 'use client'
 import React, { useState } from "react";
 import Image from "next/image";
-import { Button } from "@/components/shadcn/button";
+import { Button } from "@/shared/ui/shadcn/button";
 import {
     Carousel,
     CarouselContent,
     CarouselItem,
     CarouselNext,
     CarouselPrevious,
-} from "@/components/shadcn/carousel";
+} from "@/shared/ui/shadcn/carousel";
 import doctorImg from '@/shared/assets/images/doctor.png'
 import type { EmblaCarouselType } from 'embla-carousel';
 import {CheckboxGroup} from "@/components/HomeCarousel/CheckboxOption";

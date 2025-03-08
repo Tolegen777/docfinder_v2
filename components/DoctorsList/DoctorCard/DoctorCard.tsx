@@ -2,24 +2,24 @@
 
 import React, { useState } from 'react';
 import { Star, Eye, MapPin, Heart, ChevronDown, Pen, X } from 'lucide-react';
-import { Card } from '../../shadcn/card';
+import { Card } from '@/shared/ui/shadcn/card';
 import {
     Sheet,
     SheetContent,
     SheetHeader,
     SheetTitle,
     SheetTrigger,
-} from "../../shadcn/sheet";
+} from "@/shared/ui/shadcn/sheet";
 import {
     Dialog,
     DialogContent,
     DialogClose,
-} from "../../shadcn/dialog";
+} from "@/shared/ui/shadcn/dialog";
 import Image from "next/image";
 import doctorCard from '@/shared/assets/images/doctorCard.png';
 import { Breadcrumb } from "@/shared/ui/Breadcrumb";
 import { DiscountBanner } from "@/components/DoctorsList/DoctorCard/DiscountBanner";
-import { Button } from "@/components/shadcn/button";
+import { Button } from "@/shared/ui/shadcn/button";
 import dynamic from "next/dynamic";
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';

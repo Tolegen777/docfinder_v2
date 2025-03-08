@@ -5,14 +5,14 @@ import {
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger
-} from "@/components/shadcn/dropdown-menu";
-import { Button } from "@/components/shadcn/button";
+} from "@/shared/ui/shadcn/dropdown-menu";
+import { Button } from "@/shared/ui/shadcn/button";
 import { ChevronDown, MapPin } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { CitiesAPI, City } from "@/shared/api/cityApi";
 import Cookies from 'js-cookie';
 import { useState, useEffect } from 'react';
-import {useCityStore} from "@/stores/cityStore";
+import {useCityStore} from "@/shared/stores/cityStore";
 
 const SELECTED_CITY_COOKIE = 'selectedCity';
 

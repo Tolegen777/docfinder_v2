@@ -1,8 +1,8 @@
 'use client'
 import React, {useState} from 'react';
 import {Search} from 'lucide-react';
-import {Button} from "../../shadcn/button";
-import {Input} from "../../shadcn/input";
+import {Button} from "@/shared/ui/shadcn/button";
+import {Input} from "@/shared/ui/shadcn/input";
 import Image from "next/image";
 import logoImg from '../../../shared/assets/images/logo.png'
 import {MaxWidthLayout} from "@/shared/ui/MaxWidthLayout";
