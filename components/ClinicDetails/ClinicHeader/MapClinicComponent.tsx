@@ -28,16 +28,33 @@ const ALMATY_CENTER = [43.238949, 76.889709];
 interface MapComponentProps {
     isPreview?: boolean;
     selectedClinicId?: number;
+    customCoordinates?: [number, number]; // Добавлено для прямого указания координат
 }
 
-const MapClinicComponent = ({ isPreview = false, selectedClinicId }: MapComponentProps) => {
+const MapClinicComponent = ({
+                                isPreview = false,
+                                selectedClinicId,
+                                customCoordinates
+                            }: MapComponentProps) => {
     const { filteredClinics } = useClinicsStore();
     const [customIcon, setCustomIcon] = useState(null);
     const [selectedIcon, setSelectedIcon] = useState(null);
-    const [centerCoords, setCenterCoords] = useState(ALMATY_CENTER);
+    const [centerCoords, setCenterCoords] = useState(
+        customCoordinates || ALMATY_CENTER
+    );
 
     // Преобразуем данные клиник для карты только когда filteredClinics изменяется
     const clinicMarkers = useMemo(() => {
+        // Если у нас есть кастомные координаты, создаем маркер с этими координатами
+        if (customCoordinates) {
+            return [{
+                id: selectedClinicId || 999999, // уникальный ID
+                name: 'Местоположение клиники',
+                address: '',
+                position: customCoordinates
+            }];
+        }
+
         return filteredClinics
             .filter(clinic => clinic.latitude && clinic.longitude) // Убеждаемся, что у клиники есть координаты
             .map(clinic => ({
@@ -49,10 +66,15 @@ const MapClinicComponent = ({ isPreview = false, selectedClinicId }: MapComponen
                     parseFloat(clinic.longitude)
                 ] as [number, number]
             }));
-    }, [filteredClinics]);
+    }, [filteredClinics, customCoordinates, selectedClinicId]);
 
     // Определяем центр карты на основе клиник
     useEffect(() => {
+        if (customCoordinates) {
+            setCenterCoords(customCoordinates);
+            return;
+        }
+
         if (clinicMarkers.length > 0) {
             // Если выбрана конкретная клиника, центрируем на ней
             if (selectedClinicId) {
@@ -67,7 +89,7 @@ const MapClinicComponent = ({ isPreview = false, selectedClinicId }: MapComponen
             // Для простоты используем первую клинику как центр
             setCenterCoords(clinicMarkers[0].position);
         }
-    }, [clinicMarkers, selectedClinicId]); // Зависимости включают только мемоизированные данные и selectedClinicId
+    }, [clinicMarkers, selectedClinicId, customCoordinates]); // Зависимости включают только мемоизированные данные и selectedClinicId
 
     // Инициализируем иконки маркеров только один раз
     useEffect(() => {
@@ -149,7 +171,7 @@ const MapClinicComponent = ({ isPreview = false, selectedClinicId }: MapComponen
                 <Marker
                     key={clinic.id}
                     position={clinic?.position}
-                    // icon={clinic.id === selectedClinicId ? selectedIcon : customIcon}
+                    icon={clinic.id === selectedClinicId ? selectedIcon : customIcon}
                 >
                     {!isPreview && (
                         <Popup>

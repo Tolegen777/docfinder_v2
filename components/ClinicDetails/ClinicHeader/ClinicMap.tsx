@@ -14,17 +14,22 @@ const MapClinicPreview = dynamic(
 interface ClinicMapProps {
     clinicId: number;
     isPreview?: boolean;
+    latitude?: number;
+    longitude?: number;
 }
 
 export const ClinicMap: React.FC<ClinicMapProps> = ({
                                                         clinicId,
-                                                        isPreview = true
+                                                        isPreview = true,
+                                                        latitude,
+                                                        longitude
                                                     }) => {
     return (
         <div className="relative w-full h-full overflow-hidden rounded-xl">
             <MapClinicPreview
                 isPreview={isPreview}
                 selectedClinicId={clinicId}
+                customCoordinates={latitude && longitude ? [latitude, longitude] : undefined}
             />
         </div>
     );

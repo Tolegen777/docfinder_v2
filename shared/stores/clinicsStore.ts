@@ -225,12 +225,6 @@ export const useClinicsStore = create<ClinicsState>((set, get) => ({
             }));
 
             // Apply client-side filters that don't exist on the backend (мок)
-            if (filters.openNow) {
-                // Фильтруем клиники, которые сейчас открыты (имеют time_until_closing)
-                mappedClinics = mappedClinics.filter(clinic =>
-                    clinic.time_until_closing && clinic.time_until_closing.includes("до закрытия")
-                );
-            }
 
             if (filters["24hours"]) {
                 // Фильтруем клиники, которые работают круглосуточно

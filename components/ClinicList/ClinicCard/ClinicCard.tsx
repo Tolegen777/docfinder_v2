@@ -15,6 +15,7 @@ import {
 import clinicImg from '@/shared/assets/images/clinic.png';
 import dynamic from 'next/dynamic';
 import {Dialog, DialogClose, DialogContent} from "@/shared/ui/shadcn/dialog";
+import {TimeStatus} from "@/shared/ui/TimeStatus/TimeStatus";
 
 // Dynamically import the MapClinicComponent to prevent SSR issues
 const MapComponent = dynamic(() => import('./MapClinicComponent'), {
@@ -51,10 +52,12 @@ interface ClinicCardProps {
     timeUntilClose?: string; // Изменено на string
     phoneNumber?: string;
     isHideSchedule?: boolean;
+    slug?: string;
 }
 
 const ClinicCard: React.FC<ClinicCardProps> = ({
                                                    id,
+                                                   slug,
                                                    name = "Эмирмед на Манаса 55",
                                                    address = "Улица Манаса, 55, 1-этаж, 9 филиалов, Бостандыкский район, Алматы, 050057/ A15H7T2",
                                                    rating = {
@@ -76,7 +79,7 @@ const ClinicCard: React.FC<ClinicCardProps> = ({
                                                    },
                                                    specialists = 0,
                                                    price = 25000,
-                                                   timeUntilClose = 45,
+                                                   timeUntilClose = '',
                                                    phoneNumber = "+7 701 234...",
                                                    isHideSchedule = false
                                                }) => {
@@ -208,9 +211,7 @@ const ClinicCard: React.FC<ClinicCardProps> = ({
                         </div>
 
                         {/* Mobile: Closing time notice */}
-                        <div className="bg-red-50 text-red-500 rounded-lg p-2 mb-4 block sm:hidden">
-                            <p>{timeUntilClose}</p>
-                        </div>
+                        <TimeStatus timeUntilClosing={timeUntilClose}/>
 
                         {/* Mobile: Simplified schedule */}
                         <div className="md:hidden mb-4">
@@ -282,9 +283,7 @@ const ClinicCard: React.FC<ClinicCardProps> = ({
 
                                 <div className="space-y-4">
                                     {/* Closing time notice */}
-                                    <div className="bg-red-50 text-red-500 rounded-lg p-2">
-                                        <p>Закроется через {timeUntilClose} мин</p>
-                                    </div>
+                                    <TimeStatus timeUntilClosing={timeUntilClose}/>
 
                                     {/* Full Schedule in Sheet */}
                                     <div className="space-y-3">
@@ -344,7 +343,7 @@ const ClinicCard: React.FC<ClinicCardProps> = ({
 
                 {/* Add Link wrapper around entire card for navigation */}
                 <div
-                    onClick={() => window.location.href = '/clinic'}
+                    onClick={() => window.location.href = `/clinic/${slug}`}
                     className="absolute inset-0 z-0 cursor-pointer"
                     aria-hidden="true"
                 ></div>

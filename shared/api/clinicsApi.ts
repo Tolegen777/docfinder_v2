@@ -128,18 +128,15 @@ export const mapClinicToCardProps = (clinic: Clinic) => {
         reviewCount: clinic.rating_info.total_reviews
     };
 
-    // Используем time_until_closing как есть, без преобразования
-    const timeUntilClose = clinic.time_until_closing;
 
     // Возвращаем объект с данными, который можно передать в ClinicCard
     return {
         id: clinic.id,
         name: clinic.title,
         address: clinic.address,
+        timeUntilClose: clinic.time_until_closing,
         rating,
         schedule,
-        timeUntilClose,
-
         // Моковые данные, которых нет в API
         discount: {
             percentage: Math.floor(Math.random() * 20) + 10, // 10-30%

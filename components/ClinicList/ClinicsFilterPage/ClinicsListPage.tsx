@@ -81,6 +81,7 @@ export const ClinicsListPage = () => {
                         filteredClinics.map((clinic) => (
                             <ClinicCard
                                 key={clinic.id}
+                                slug={clinic?.slug}
                                 id={clinic.id}
                                 name={clinic.cardProps.name}
                                 address={clinic.cardProps.address}
@@ -131,6 +132,7 @@ export const ClinicsListPage = () => {
                                 <ClinicCard
                                     key={clinic.id}
                                     id={clinic.id}
+                                    slug={clinic?.slug}
                                     name={clinic.cardProps.name}
                                     address={clinic.cardProps.address}
                                     rating={clinic.cardProps.rating}

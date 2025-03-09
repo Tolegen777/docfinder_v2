@@ -1,88 +1,76 @@
 'use client'
 import React from 'react';
 import { MaxWidthLayout } from "@/shared/ui/MaxWidthLayout";
+import { ClinicDetails } from '@/shared/api/clinicDetailsApi';
 
 import { ClinicBreadcrumbs } from './ClinicBreadcrumbs';
 import { ClinicCarousel } from './ClinicCarousel';
 import { ClinicMap } from './ClinicMap';
 import { ClinicInfoBlock } from './ClinicInfoBlock';
-
-// Импорт изображений
-import clininc1Img from '../../../shared/assets/images/img.png';
-import clininc2Img from '../../../shared/assets/images/img.png';
-import {AboutSection} from "@/components/ClinicDetails/AboutSection/AboutSection";
-
-// Данные клиники - в реальном приложении должны быть получены из API/props
-const clinicData = {
-    id: 1,
-    name: 'Эмирмед на Манаса 59',
-    address: 'улица Абдуллы Розыбакиева, 37В, Алматы',
-    metro: 'СарыАрка - 5 мин пешком',
-    busStop: 'Оптовка - 5 мин пешком',
-    description: '«Эмирмед» — сеть круглосуточных медицинских центров в Алматы, где каждому пациенту доступно обширное количество медицинских услуг, без праздников и выходных. Наша клиника оснащена самым новым оборудованием для проведений точной и быстрой диагностики причин заболеваний, а так же имеет самый...',
-    images: [clininc1Img, clininc2Img],
-    workHours: [
-        {day: 'Пн', time: '09:00-18:00'},
-        {day: 'Вторник', time: '09:00-18:00'},
-        {day: 'Среда', time: '09:00-18:00'},
-        {day: 'Четверг', time: '09:00-18:00'},
-        {day: 'Пятница', time: '09:00-18:00'},
-        {day: 'Суббота', time: 'Выходной'},
-        {day: 'Воскресенье', time: 'Выходной'}
-    ],
-    features: [
-        { id: 'hosp', icon: '🏥', title: 'Есть стационар' },
-        { id: 'tests', icon: '🧪', title: 'Прием анализов' },
-        { id: 'sick-list', icon: '📋', title: 'Оформляем больничный' },
-        { id: 'cards', icon: '💳', title: 'Принимаем Карточки' },
-        { id: 'children', icon: '👶', title: 'Принимаем детей' },
-        { id: 'wifi', icon: '📶', title: 'Бесплатный Wi-Fi' },
-        { id: 'diagnostics', icon: '🔬', title: 'Проводим диагностику' },
-        { id: 'parking', icon: '🅿️', title: 'Есть парковка' },
-        { id: 'playground', icon: '🎮', title: 'Детская игровая зона' },
-        { id: 'pharmacy', icon: '💊', title: 'Аптека на территории' },
-        { id: '24h', icon: '⏰', title: 'Круглосуточно' }
-    ]
-};
+import { AboutSection } from "@/components/ClinicDetails/ClinicHeader/AboutSection";
 
 interface ClinicHeaderProps {
-    clinicId?: number; // Можно использовать для загрузки данных клиники по ID
+    clinic: ClinicDetails;
 }
 
-export const ClinicHeader: React.FC<ClinicHeaderProps> = ({ clinicId = 1 }) => {
-    // В реальном приложении здесь был бы запрос данных по clinicId
+export const ClinicHeader: React.FC<ClinicHeaderProps> = ({ clinic }) => {
+    // Преобразуем формат рабочих часов для компонента
+    const formattedWorkHours = clinic.working_hours.map(hour => ({
+        day: hour.weekday,
+        time: hour.open_time && hour.close_time.slice(0, -3)
+            ? `${hour.open_time}-${hour.close_time.slice(0, -3)}`
+            : 'Выходной'
+    }));
+
+    // Карта ссылок
+    const mapsLinks = {
+        yandex: clinic.yandex_maps_url,
+        google: clinic.google_maps_url,
+        "2gis": clinic.two_gis_url
+    };
 
     return (
         <MaxWidthLayout className="py-4">
             {/* Хлебные крошки */}
-            <ClinicBreadcrumbs clinicName={clinicData.name} />
+            <ClinicBreadcrumbs clinicName={clinic.title} />
 
-            <h1 className="text-2xl font-medium text-emerald-600 mb-4">{clinicData.name}</h1>
+            <h1 className="text-2xl font-medium text-emerald-600 mb-4">{clinic.title}</h1>
 
             {/* Мобильная версия */}
             <div className="md:hidden space-y-4">
                 {/* Блок 1: Карусель */}
                 <div className="relative w-full aspect-[4/3]">
-                    <ClinicCarousel images={clinicData.images} />
+                    <ClinicCarousel images={clinic.images || []} />
                 </div>
 
-                {/* Блок 2: Пустой блок с синим фоном */}
+                {/* Блок 2: Информация о клинике */}
                 <div className="rounded-xl">
-                    {/* Пустой блок, куда вы добавите свой компонент */}
-                    <AboutSection/>
+                    <AboutSection
+                        description={clinic.description_fragments}
+                        features={clinic.features || []}
+                        amenities={clinic.amenities || []}
+                        specializations={clinic.specialities.map(s => s.title)}
+                        procedures={clinic.procedures}
+                    />
                 </div>
 
                 {/* Блок 3: Карта */}
                 <div className="relative w-full aspect-video">
-                    <ClinicMap clinicId={clinicData.id} />
+                    <ClinicMap
+                        clinicId={clinic.id}
+                        latitude={parseFloat(clinic.latitude)}
+                        longitude={parseFloat(clinic.longitude)}
+                    />
                 </div>
 
                 {/* Блок 4: Дополнительные данные */}
                 <ClinicInfoBlock
-                    address={clinicData.address}
-                    metro={clinicData.metro}
-                    busStop={clinicData.busStop}
-                    workHours={clinicData.workHours}
+                    address={clinic.address}
+                    metro={clinic.metro}
+                    busStop={clinic.bus_stop}
+                    workHours={formattedWorkHours}
+                    mapsLinks={mapsLinks}
+                    timeUntilClosing={clinic.time_until_closing}
                     showFullSchedule
                 />
             </div>
@@ -93,11 +81,18 @@ export const ClinicHeader: React.FC<ClinicHeaderProps> = ({ clinicId = 1 }) => {
                     <div className="grid grid-rows-1 gap-6">
                         {/* Блок 1: Карусель */}
                         <div className="relative h-[400px]">
-                            <ClinicCarousel images={clinicData.images} />
+                            <ClinicCarousel images={clinic.images || []} />
                         </div>
 
+                        {/* Блок с информацией о клинике */}
                         <div className="rounded-xl">
-                            <AboutSection/>
+                            <AboutSection
+                                description={clinic.description_fragments}
+                                features={clinic.features || []}
+                                amenities={clinic.amenities || []}
+                                specializations={clinic.specialities.map(s => s.title)}
+                                procedures={clinic.procedures}
+                            />
                         </div>
                     </div>
                 </div>
@@ -106,17 +101,23 @@ export const ClinicHeader: React.FC<ClinicHeaderProps> = ({ clinicId = 1 }) => {
                 <div className="space-y-6">
                     {/* Блок 2: Карта */}
                     <div className="relative h-[400px]">
-                        <ClinicMap clinicId={clinicData.id} />
+                        <ClinicMap
+                            clinicId={clinic.id}
+                            latitude={parseFloat(clinic.latitude)}
+                            longitude={parseFloat(clinic.longitude)}
+                        />
                     </div>
 
                     {/* Блок 4: Дополнительные данные */}
                     <div>
                         <ClinicInfoBlock
-                            address={clinicData.address}
-                            metro={clinicData.metro}
-                            busStop={clinicData.busStop}
-                            workHours={clinicData.workHours}
-                            showFullSchedule={true} // Более компактный вид для десктопа
+                            address={clinic.address}
+                            metro={clinic.metro}
+                            busStop={clinic.bus_stop}
+                            workHours={formattedWorkHours}
+                            mapsLinks={mapsLinks}
+                            timeUntilClosing={clinic.time_until_closing}
+                            showFullSchedule={true}
                         />
                     </div>
                 </div>
