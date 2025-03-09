@@ -25,6 +25,7 @@ import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { MedicalCategory, Schedule, Procedure, Consultation } from '@/shared/api/doctorsApi';
+import {useRouter} from "next/navigation";
 
 // Динамически импортируем DoctorClinicMapContent для предотвращения проблем с SSR
 const DoctorClinicMapContent = dynamic(() => import('./DoctorClinicMapContent'), {
@@ -64,6 +65,7 @@ const mockData = {
 
 const DoctorCard: React.FC<DoctorCardProps> = ({
                                                    full_name,
+    slug,
                                                    medical_categories,
                                                    experience_years,
                                                    review_count,
@@ -76,6 +78,7 @@ const DoctorCard: React.FC<DoctorCardProps> = ({
                                                    procedures = [],
                                                    consultations = []
                                                }) => {
+    const router = useRouter();
     const [selectedDate, setSelectedDate] = useState<'today' | 'tomorrow' | 'day_after'>('today');
     const [showAllTimes, setShowAllTimes] = useState(false);
     const [isMapOpen, setIsMapOpen] = useState(false);
@@ -233,7 +236,7 @@ const DoctorCard: React.FC<DoctorCardProps> = ({
     );
 
     return (
-        <Card className="w-full max-w-[1181px] p-4 md:p-5 bg-white">
+        <Card className="w-full max-w-[1181px] p-4 md:p-5 bg-white cursor-pointer" onClick={() => router.push(`doctor/${slug}`)}>
             {/*<div className="mb-2 -mt-2">*/}
             {/*    <Breadcrumb/>*/}
             {/*</div>*/}
@@ -372,13 +375,13 @@ const DoctorCard: React.FC<DoctorCardProps> = ({
 
                         {/* Диалог с картой */}
                         <Dialog open={isMapOpen} onOpenChange={setIsMapOpen}>
-                            <DialogContent className="max-w-6xl w-[90vw] h-[80vh] p-0">
+                            <DialogContent className="max-w-6xl w-[90vw] h-[80vh] p-0" onClick={e => e.stopPropagation()}>
                                 <div className="relative h-full">
                                     <DoctorClinicMapContent
                                         schedule={scheduleForMap}
                                         doctorName={full_name}
                                     />
-                                    <DialogClose className="absolute top-4 right-4 z-[500]">
+                                    <DialogClose className="absolute top-4 right-4 z-[500]" onClick={e => e.stopPropagation()}>
                                         <button className="p-2 bg-white rounded-full shadow-md hover:bg-gray-50 transition-colors duration-200">
                                             <X className="w-5 h-5 text-gray-600" />
                                         </button>

@@ -36,14 +36,14 @@ export interface Procedure {
     title: string;
     slug: string;
     current_price: CurrentPrice;
-    medical_procedure_id: string;
+    medical_procedure_id?: string;
 }
 
 export interface Consultation {
     title: string;
     slug: string;
     current_price: CurrentPrice;
-    medical_procedure_id: string;
+    medical_procedure_id?: string;
 }
 
 export interface Doctor {

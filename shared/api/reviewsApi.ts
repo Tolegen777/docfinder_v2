@@ -17,11 +17,12 @@ export interface Review {
 }
 
 export const ReviewsAPI = {
-    getClinicReviews: (clinicSlug: string, page: number = 1, pageSize: number = 10, sortBy: string = '') => {
+    getClinicReviews: (clinicSlug: string, page: number = 1, pageSize: number = 10) => {
         let url = `patients_endpoints/clinics/${clinicSlug}/reviews/?page=${page}&page_size=${pageSize}`;
-        if (sortBy) {
-            url += `&ordering=${sortBy}`;
-        }
+        return apiGet<ReviewResponse>(url);
+    },
+    getDoctorReviews: (doctorSlug: string, page: number = 1, pageSize: number = 10) => {
+        let url = `patients_endpoints/doctors/${doctorSlug}/reviews/?page=${page}&page_size=${pageSize}`;
         return apiGet<ReviewResponse>(url);
     },
 } as const;

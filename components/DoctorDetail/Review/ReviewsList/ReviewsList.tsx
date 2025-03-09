@@ -48,13 +48,13 @@ export const ReviewsList = () => {
 
     // Получаем slug клиники из URL
     const pathname = usePathname();
-    const clinicSlug = pathname?.split('/').pop() || '';
+    const doctorSlug = pathname?.split('/').pop() || '';
 
     // Запрос на получение отзывов
     const {data, isLoading, isFetching} = useQuery({
-        queryKey: ['clinicReviews', clinicSlug, currentPage, sortBy],
-        queryFn: () => ReviewsAPI.getClinicReviews(clinicSlug, currentPage, PAGE_SIZE),
-        enabled: !!clinicSlug,
+        queryKey: ['doctorReviews', doctorSlug, currentPage, sortBy],
+        queryFn: () => ReviewsAPI.getDoctorReviews(doctorSlug, currentPage, PAGE_SIZE),
+        enabled: !!doctorSlug,
     });
 
     // Обработчик изменения сортировки
