@@ -1,6 +1,6 @@
 import React from 'react';
-import SpecialistsSelection from "../SpecialistsSelection/SpecialistsSelection";
-import {ClinicsListPage} from "../ClinicsFilterPage/ClinicsListPage";
+import {SpecialistsSelection} from "../SpecialistsSelection/SpecialistsSelection";
+import {ClinicsListPage} from "@/components/ClinicList/ClinicsListPage/ClinicsListPage";
 
 export const HomeClinicsContent = () => {
     return (

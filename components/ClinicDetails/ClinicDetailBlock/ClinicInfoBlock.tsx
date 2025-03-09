@@ -1,7 +1,7 @@
 'use client'
 import React from 'react';
 import { MapPin, Train, Bus, Clock } from 'lucide-react';
-import { WeeklySchedule } from "@/components/ClinicDetails/ClinicHeader/WeeklySchedule";
+import { WeeklySchedule } from "@/components/ClinicDetails/ClinicDetailBlock/WeeklySchedule";
 import {TimeStatus} from "@/shared/ui/TimeStatus/TimeStatus";
 
 interface MapsLinks {

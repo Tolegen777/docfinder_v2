@@ -3,7 +3,7 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { ClinicDetailsAPI, ClinicDetails } from '@/shared/api/clinicDetailsApi';
-import { ClinicHeader } from '@/components/ClinicDetails/ClinicHeader/ClinicHeader';
+import { ClinicHeader } from '@/components/ClinicDetails/ClinicDetailBlock/ClinicHeader';
 import { Skeleton } from '@/components/shadcn/skeleton';
 import { MaxWidthLayout } from '@/shared/ui/MaxWidthLayout';
 import { useParams } from 'next/navigation';
@@ -56,7 +56,7 @@ const ClinicSkeleton = () => (
     </MaxWidthLayout>
 );
 
-export const ClinicDetailsPage = () => {
+export const ClinicDetailsBlock = () => {
     const params = useParams();
     const clinicSlug = params?.slug as string || '';
 
@@ -67,6 +67,7 @@ export const ClinicDetailsPage = () => {
     });
 
     // Дополняем полученные данные моковыми для отсутствующих полей
+    // @ts-ignore
     const enrichedClinic: ClinicDetails | undefined = clinic
         ? {
             ...clinic,
@@ -96,4 +97,4 @@ export const ClinicDetailsPage = () => {
     return <ClinicHeader clinic={enrichedClinic} />;
 };
 
-export default ClinicDetailsPage;
+export default ClinicDetailsBlock;

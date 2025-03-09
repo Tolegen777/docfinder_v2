@@ -1,12 +1,10 @@
-import {MapWithContainer} from "@/components/ClinicDetails/MapWithContainer/MapWithContainer";
-import {ReviewsList} from "@/components/Review/ReviewsList/ReviewsList";
-import ClinicDetailsPage from "@/components/ClinicDetails/ClinicHeader/ClinicDetailsPage";
+import {ReviewsList} from "@/components/ClinicDetails/Review/ReviewsList/ReviewsList";
+import ClinicDetailsBlock from "@/components/ClinicDetails/ClinicDetailBlock/ClinicDetailsBlock";
 
 export default function Clinic() {
     return (
         <div>
-            <ClinicDetailsPage/>
-            <MapWithContainer/>
+            <ClinicDetailsBlock/>
             <ReviewsList/>
         </div>
     );

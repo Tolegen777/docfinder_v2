@@ -7,7 +7,7 @@ import { ClinicBreadcrumbs } from './ClinicBreadcrumbs';
 import { ClinicCarousel } from './ClinicCarousel';
 import { ClinicMap } from './ClinicMap';
 import { ClinicInfoBlock } from './ClinicInfoBlock';
-import { AboutSection } from "@/components/ClinicDetails/ClinicHeader/AboutSection";
+import { AboutSection } from "@/components/ClinicDetails/ClinicDetailBlock/AboutSection";
 
 interface ClinicHeaderProps {
     clinic: ClinicDetails;

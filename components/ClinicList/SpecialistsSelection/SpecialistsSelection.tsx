@@ -19,7 +19,7 @@ interface SpecialistsSelectionProps {
     maxVisible?: number;
 }
 
-const SpecialistsSelection: React.FC<SpecialistsSelectionProps> = ({ maxVisible = 25 }) => {
+export const SpecialistsSelection: React.FC<SpecialistsSelectionProps> = ({ maxVisible = 25 }) => {
     const [showAll, setShowAll] = useState(false);
     const { filters, toggleSpeciality, applyFilters } = useClinicsStore();
 
@@ -76,53 +76,6 @@ const SpecialistsSelection: React.FC<SpecialistsSelectionProps> = ({ maxVisible 
         );
     }
 
-    if (specialties.length === 0) {
-        // Fallback to mock data if API returns empty
-        const mockSpecialists: SpecialistType[] = [
-            { id: 1, name: 'Аллерголог' },
-            { id: 2, name: 'Андролог' },
-            { id: 3, name: 'Анестезиолог' },
-            { id: 4, name: 'Аритмолог' },
-            { id: 5, name: 'Венеролог' },
-            { id: 6, name: 'Вертебролог' },
-            { id: 7, name: 'Гастроэнтеролог' },
-            { id: 8, name: 'Гематолог' },
-            { id: 9, name: 'Генетик' },
-            { id: 10, name: 'Гепатолог' },
-            { id: 11, name: 'Гинеколог' },
-            { id: 12, name: 'Гирудотерапевт' },
-            { id: 13, name: 'Дерматолог' },
-            { id: 14, name: 'Диетолог' },
-            { id: 15, name: 'Иммунолог' },
-        ];
-
-        return (
-            <div className="flex flex-wrap gap-2 max-w-4xl">
-                {mockSpecialists.map((specialist) => (
-                    <button
-                        key={specialist.id}
-                        className={`px-4 py-2 rounded-full ${
-                            filters.specialities.includes(specialist.id)
-                                ? 'bg-emerald-500 text-white'
-                                : 'bg-white hover:bg-gray-50 border border-gray-200 text-gray-700'
-                        } text-sm transition-colors duration-200 ease-in-out`}
-                        onClick={() => handleSpecialtyClick(specialist.id)}
-                    >
-                        {specialist.name} (мок)
-                    </button>
-                ))}
-                <button
-                    className="px-4 py-2 rounded-full bg-white hover:bg-gray-50
-                    border border-gray-200 text-emerald-600 text-sm
-                    transition-colors duration-200 ease-in-out"
-                    onClick={() => setShowAll(!showAll)}
-                >
-                    {showAll ? 'Скрыть' : 'Ещё...'}
-                </button>
-            </div>
-        );
-    }
-
     return (
         <div className="flex flex-wrap gap-2 max-w-4xl">
             {visibleSpecialties.map((specialty) => (
@@ -155,5 +108,3 @@ const SpecialistsSelection: React.FC<SpecialistsSelectionProps> = ({ maxVisible 
         </div>
     );
 };
-
-export default SpecialistsSelection;

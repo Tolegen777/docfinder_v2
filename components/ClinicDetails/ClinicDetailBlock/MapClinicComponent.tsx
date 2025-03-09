@@ -171,7 +171,7 @@ const MapClinicComponent = ({
                 <Marker
                     key={clinic.id}
                     position={clinic?.position}
-                    icon={clinic.id === selectedClinicId ? selectedIcon : customIcon}
+                    // icon={clinic.id === selectedClinicId ? selectedIcon : customIcon}
                 >
                     {!isPreview && (
                         <Popup>

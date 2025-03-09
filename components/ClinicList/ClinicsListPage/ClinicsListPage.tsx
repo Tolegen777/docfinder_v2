@@ -4,7 +4,7 @@ import { useClinicsStore } from '@/shared/stores/clinicsStore';
 
 import { useCityStore } from '@/shared/stores/cityStore';
 import { ClinicCardSkeleton } from "@/components/ClinicList/ClinicCard/ClinicCardSkeleton";
-import { FiltersSection } from "@/components/ClinicList/ClinicsFilterPage/FiltersSection";
+import { FiltersSection } from "@/components/ClinicList/ClinicsListPage/FiltersSection";
 import { ClinicsPagination } from './ClinicsPagination';
 import ClinicMapPreview from "@/components/ClinicList/ClinicCard/ClinicMapPreview";
 
