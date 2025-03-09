@@ -53,7 +53,7 @@ export interface ClinicDetails {
     features?: { id: string; icon: string; title: string }[];
 }
 
-export const ClinicsAPI = {
+export const ClinicDetailsAPI = {
     getClinicBySlug: (clinicSlug: string) =>
         apiGet<ClinicDetails>(`/patients_endpoints/clinics/${clinicSlug}/`),
 } as const;

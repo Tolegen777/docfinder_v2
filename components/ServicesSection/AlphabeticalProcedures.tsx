@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { cn } from '@/shared/lib/utils';
+import { cn } from '@/lib/utils';
 
 // Тип процедуры из API
 interface Procedure {

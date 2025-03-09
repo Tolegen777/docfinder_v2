@@ -1,6 +1,6 @@
 'use client';
 import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogTrigger, DialogClose } from '@/shared/ui/shadcn/dialog';
+import { Dialog, DialogContent, DialogTrigger, DialogClose } from '@/components/shadcn/dialog';
 import { X } from 'lucide-react';
 import { MaxWidthLayout } from "@/shared/ui/MaxWidthLayout";
 import dynamic from "next/dynamic";

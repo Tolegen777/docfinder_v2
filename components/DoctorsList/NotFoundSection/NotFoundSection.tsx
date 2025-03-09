@@ -1,6 +1,6 @@
 import React from 'react';
-import { Button } from "@/shared/ui/shadcn/button";
-import { Card } from "@/shared/ui/shadcn/card";
+import { Button } from "@/components/shadcn/button";
+import { Card } from "@/components/shadcn/card";
 
 const NotFoundSection = () => {
     return (

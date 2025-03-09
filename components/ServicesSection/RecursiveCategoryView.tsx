@@ -3,7 +3,7 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { ProceduresAPI } from '@/shared/api/proceduresApi';
-import { cn } from '@/shared/lib/utils';
+import { cn } from '@/lib/utils';
 import { ProcedureGroup } from './ProcedureGroup';
 import { ProceduresSkeleton } from './ProceduresSkeleton';
 

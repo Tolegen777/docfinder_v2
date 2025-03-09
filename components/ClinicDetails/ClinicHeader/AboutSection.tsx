@@ -5,7 +5,7 @@ import {
     AccordionContent,
     AccordionItem,
     AccordionTrigger,
-} from "@/shared/ui/shadcn/accordion";
+} from "@/components/shadcn/accordion";
 import {MaxWidthLayout} from "@/shared/ui/MaxWidthLayout";
 
 interface AboutSectionProps {

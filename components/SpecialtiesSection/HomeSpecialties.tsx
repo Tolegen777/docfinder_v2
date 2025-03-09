@@ -6,7 +6,7 @@ import {useQuery} from '@tanstack/react-query';
 import {SpecialtiesAPI} from '@/shared/api/specialtiesApi';
 import {ViewToggle} from './ViewToggle';
 import {SpecialtyCard} from './SpecialtyCard';
-import {cn} from '@/shared/lib/utils';
+import {cn} from '@/lib/utils';
 import Cookies from 'js-cookie';
 import {AlphabeticalServices} from "@/components/SpecialtiesSection/AlphabeticalServices";
 import {useCityStore} from "@/shared/stores/cityStore";

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Search } from 'lucide-react';
-import { Button } from '@/shared/ui/shadcn/button';
+import { Button } from '@/components/shadcn/button';
 import { useQuery } from '@tanstack/react-query';
 import { ProceduresAPI } from '@/shared/api/proceduresApi';
 import { AnalysisSection } from "@/components/AnalysisSection/AnalysisSection";

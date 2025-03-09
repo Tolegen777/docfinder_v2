@@ -1,5 +1,5 @@
 // components/ServicesSection/ProceduresSkeleton.tsx
-import { Skeleton } from "@/shared/ui/shadcn/skeleton";
+import { Skeleton } from "@/components/shadcn/skeleton";
 
 export const ProceduresSkeleton = () => {
     // Создаем массив из 6 элементов для имитации загрузки

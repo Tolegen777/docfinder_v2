@@ -1,5 +1,5 @@
 import {Search} from "lucide-react";
-import {Checkbox} from "@/shared/ui/shadcn/checkbox";
+import {Checkbox} from "@/components/shadcn/checkbox";
 import {useServicesStore} from "@/shared/stores/useServicesStore";
 import React from "react";
 

@@ -1,6 +1,6 @@
 import { LayoutGrid, LayoutList } from 'lucide-react';
 import {ReactNode} from "react";
-import {cn} from "@/shared/lib/utils";
+import {cn} from "@/lib/utils";
 
 type ViewType = 'grid' | 'list';
 

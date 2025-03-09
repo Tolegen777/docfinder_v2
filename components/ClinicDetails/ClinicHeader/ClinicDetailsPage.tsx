@@ -2,9 +2,9 @@
 
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { ClinicsAPI, ClinicDetails } from '@/shared/api/clinicDetailsApi';
+import { ClinicDetailsAPI, ClinicDetails } from '@/shared/api/clinicDetailsApi';
 import { ClinicHeader } from '@/components/ClinicDetails/ClinicHeader/ClinicHeader';
-import { Skeleton } from '@/shared/ui/shadcn/skeleton';
+import { Skeleton } from '@/components/shadcn/skeleton';
 import { MaxWidthLayout } from '@/shared/ui/MaxWidthLayout';
 import { useParams } from 'next/navigation';
 
@@ -62,7 +62,7 @@ export const ClinicDetailsPage = () => {
 
     const { data: clinic, isLoading, error } = useQuery({
         queryKey: ['clinic', clinicSlug],
-        queryFn: () => ClinicsAPI.getClinicBySlug(clinicSlug),
+        queryFn: () => ClinicDetailsAPI.getClinicBySlug(clinicSlug),
         enabled: !!clinicSlug,
     });
 

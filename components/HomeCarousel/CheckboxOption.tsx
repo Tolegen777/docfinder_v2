@@ -1,5 +1,5 @@
 import React from 'react';
-import {Checkbox} from "@/shared/ui/shadcn/checkbox";
+import {Checkbox} from "@/components/shadcn/checkbox";
 
 const CheckboxOption = ({ id, label }) => (
     <div className="flex items-center space-x-2">

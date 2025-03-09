@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useClinicsStore } from '@/shared/stores/clinicsStore';
-import { Skeleton } from '@/shared/ui/shadcn/skeleton';
+import { Skeleton } from '@/components/shadcn/skeleton';
 import { useQuery } from '@tanstack/react-query';
 import { SpecialtiesAPI, Specialty } from '@/shared/api/specialtiesApi';
 import {useCityStore} from "@/shared/stores/cityStore";

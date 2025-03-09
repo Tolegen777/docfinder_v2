@@ -1,8 +1,8 @@
 import {useCityStore} from "@/shared/stores/cityStore";
 import {useClinicsStore} from "@/shared/stores/clinicsStore";
-import {cn} from "@/shared/lib/utils";
-import {Accordion, AccordionContent, AccordionItem, AccordionTrigger} from "@/shared/ui/shadcn/accordion";
-import {Checkbox} from "@/shared/ui/shadcn/checkbox";
+import {cn} from "@/lib/utils";
+import {Accordion, AccordionContent, AccordionItem, AccordionTrigger} from "@/components/shadcn/accordion";
+import {Checkbox} from "@/components/shadcn/checkbox";
 import React, { useEffect } from "react";
 
 export const FiltersSection = ({ className }) => {

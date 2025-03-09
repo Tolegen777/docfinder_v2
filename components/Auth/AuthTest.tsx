@@ -1,6 +1,6 @@
 'use client'
 import React, {useState} from 'react';
-import {Button} from "@/shared/ui/shadcn/button";
+import {Button} from "@/components/shadcn/button";
 // import LoginModal from "./AuthModal/LoginModal";
 import RegisterModal from "./AuthModal/RegisterModal";
 

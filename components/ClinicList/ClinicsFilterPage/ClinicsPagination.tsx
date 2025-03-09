@@ -4,8 +4,8 @@ import {
     PaginationEllipsis,
     PaginationItem, PaginationLink, PaginationNext,
     PaginationPrevious
-} from "@/shared/ui/shadcn/pagination";
-import {cn} from "@/shared/lib/utils";
+} from "@/components/shadcn/pagination";
+import {cn} from "@/lib/utils";
 import React from "react";
 
 export const ClinicsPagination = ({

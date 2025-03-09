@@ -2,7 +2,7 @@
 'use client';
 
 import {useServicesStore} from '@/shared/stores/useServicesStore';
-import { cn } from '@/shared/lib/utils';
+import { cn } from '@/lib/utils';
 
 export function CategorySidebar() {
     const { activeAnalysisCategory, setActiveAnalysisCategory } = useServicesStore();

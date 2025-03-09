@@ -1,6 +1,6 @@
 'use client'
 import React from 'react';
-import {cn} from "@/shared/lib/utils";
+import {cn} from "@/lib/utils";
 
 interface TimeStatusProps {
     timeUntilClosing?: string;

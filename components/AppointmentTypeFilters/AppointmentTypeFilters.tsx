@@ -1,4 +1,4 @@
-import {Button} from "@/shared/ui/shadcn/button";
+import {Button} from "@/components/shadcn/button";
 import {ChevronDown, Home, User2, Video} from "lucide-react";
 import React from "react";
 

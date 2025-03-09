@@ -5,8 +5,8 @@ import {
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger
-} from "@/shared/ui/shadcn/dropdown-menu";
-import { Button } from "@/shared/ui/shadcn/button";
+} from "@/components/shadcn/dropdown-menu";
+import { Button } from "@/components/shadcn/button";
 import { ChevronDown, MapPin } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { CitiesAPI, City } from "@/shared/api/cityApi";

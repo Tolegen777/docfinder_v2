@@ -7,7 +7,7 @@ import {
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from "@/shared/ui/shadcn/select";
+} from "@/components/shadcn/select";
 import {ReviewCard} from "../ReviewCardExample/ReviewCardExample";
 import {MaxWidthLayout} from "@/shared/ui/MaxWidthLayout";
 

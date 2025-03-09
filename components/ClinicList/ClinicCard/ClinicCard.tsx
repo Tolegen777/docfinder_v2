@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { Heart, MapPin, Calendar, X } from 'lucide-react';
 import Image from "next/image";
 import Link from "next/link";
-import { Card } from "@/shared/ui/shadcn/card";
-import { Button } from "@/shared/ui/shadcn/button";
+import { Card } from "@/components/shadcn/card";
+import { Button } from "@/components/shadcn/button";
 import {
     Sheet,
     SheetContent,
@@ -11,10 +11,10 @@ import {
     SheetHeader,
     SheetTitle,
     SheetClose
-} from "@/shared/ui/shadcn/sheet";
+} from "@/components/shadcn/sheet";
 import clinicImg from '@/shared/assets/images/clinic.png';
 import dynamic from 'next/dynamic';
-import {Dialog, DialogClose, DialogContent} from "@/shared/ui/shadcn/dialog";
+import {Dialog, DialogClose, DialogContent} from "@/components/shadcn/dialog";
 import {TimeStatus} from "@/shared/ui/TimeStatus/TimeStatus";
 
 // Dynamically import the MapClinicComponent to prevent SSR issues
