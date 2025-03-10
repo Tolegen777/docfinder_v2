@@ -17,8 +17,8 @@ export const ClinicHeader: React.FC<ClinicHeaderProps> = ({ clinic }) => {
     // Преобразуем формат рабочих часов для компонента
     const formattedWorkHours = clinic.working_hours.map(hour => ({
         day: hour.weekday,
-        time: hour.open_time && hour.close_time.slice(0, -3)
-            ? `${hour.open_time}-${hour.close_time.slice(0, -3)}`
+        time: hour.open_time && hour.close_time
+            ? `${hour.open_time.slice(0, -3)}-${hour.close_time.slice(0, -3)}`
             : 'Выходной'
     }));
 
