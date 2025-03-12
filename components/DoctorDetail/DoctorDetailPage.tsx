@@ -160,6 +160,7 @@ export default function DoctorDetailPage() {
                     schedule_day_after_tomorrow={doctorData.schedule_day_after_tomorrow}
                     procedures={doctorData.procedures}
                     consultations={doctorData.consultations}
+                    isPreventNavigation
                 />
             </div>
 

@@ -52,6 +52,7 @@ interface DoctorCardProps {
     schedule_day_after_tomorrow: Schedule[];
     procedures?: Procedure[];
     consultations?: Consultation[];
+    isPreventNavigation?: boolean;
 }
 
 // Моковые данные для полей, которых все еще нет в API
@@ -76,7 +77,8 @@ const DoctorCard: React.FC<DoctorCardProps> = ({
                                                    schedule_tomorrow,
                                                    schedule_day_after_tomorrow,
                                                    procedures = [],
-                                                   consultations = []
+                                                   consultations = [],
+                                                   isPreventNavigation
                                                }) => {
     const router = useRouter();
     const [selectedDate, setSelectedDate] = useState<'today' | 'tomorrow' | 'day_after'>('today');
@@ -115,7 +117,7 @@ const DoctorCard: React.FC<DoctorCardProps> = ({
     // Сортируем консультации по цене (от меньшей к большей)
     const sortedConsultations = consultations?.slice() || [];
     sortedConsultations.sort((a, b) =>
-        (a.current_price.final_price || 0) - (b.current_price.final_price || 0)
+        (a?.current_price?.final_price || 0) - (b?.current_price?.final_price || 0)
     );
 
     // Рейтинг из API или 0, если null
@@ -129,7 +131,7 @@ const DoctorCard: React.FC<DoctorCardProps> = ({
     // Находим максимальную скидку среди всех консультаций для отображения на баннере
     const findMaxDiscount = () => {
         if (!consultations?.length) return 0;
-        return Math.max(...consultations.map(c => c.current_price.discount || 0));
+        return Math.max(...consultations.map(c => c?.current_price?.discount || 0));
     };
 
     const maxDiscount = findMaxDiscount();
@@ -236,7 +238,11 @@ const DoctorCard: React.FC<DoctorCardProps> = ({
     );
 
     return (
-        <Card className="w-full max-w-[1181px] p-4 md:p-5 bg-white cursor-pointer" onClick={() => router.push(`doctor/${slug}`)}>
+        <Card className={cn('w-full max-w-[1181px] p-4 md:p-5 bg-white', !isPreventNavigation && 'cursor-pointer')} onClick={() => {
+            if (!isPreventNavigation) {
+                router.push(`doctor/${slug}`)
+            }
+        }}>
             {/*<div className="mb-2 -mt-2">*/}
             {/*    <Breadcrumb/>*/}
             {/*</div>*/}
@@ -325,8 +331,8 @@ const DoctorCard: React.FC<DoctorCardProps> = ({
                                         >
                                             <span className="text-sm flex-1">{consultation.title}</span>
                                             <div className="text-sm">
-                                                <span className="text-[#16A34A]">{consultation.current_price.final_price?.toFixed(0)} тг</span>
-                                                {consultation.current_price.discount > 0 && (
+                                                <span className="text-[#16A34A]">{consultation?.current_price?.final_price?.toFixed(0)} тг</span>
+                                                {consultation?.current_price?.discount > 0 && (
                                                     <span className="line-through ml-1 text-[#94A3B8]">{consultation.current_price.default_price?.toFixed(0)} тг</span>
                                                 )}
                                             </div>
@@ -336,7 +342,10 @@ const DoctorCard: React.FC<DoctorCardProps> = ({
                                     {sortedConsultations.length > 3 && (
                                         <button
                                             className="flex items-center text-[#16A34A] text-sm mt-2 hover:underline"
-                                            onClick={() => setShowAllConsultations(!showAllConsultations)}
+                                            onClick={(event) => {
+                                                event.stopPropagation();
+                                                setShowAllConsultations(!showAllConsultations)
+                                            }}
                                         >
                                             {showAllConsultations ? (
                                                 <span>Скрыть</span>
@@ -397,7 +406,7 @@ const DoctorCard: React.FC<DoctorCardProps> = ({
                 </div>
 
                 {/* Right Column - Appointment */}
-                <div className="lg:w-[453px] space-y-5">
+                <div className="lg:w-[453px] space-y-5" onClick={e => e.stopPropagation()}>
                     <h3 className="text-xl md:text-2xl lg:text-[28px] font-semibold leading-tight text-[#212121]">
                         Выберите время приёма для записи онлайн
                     </h3>
