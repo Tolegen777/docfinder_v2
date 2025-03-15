@@ -17,10 +17,6 @@ export const ProcedureBreadcrumbs: React.FC<ProcedureBreadcrumbsProps> = ({
                 <Link href="/" className="hover:text-emerald-600 transition-colors">
                     Главная
                 </Link>
-                <span className="mx-2">•</span>
-                <Link href="/procedure" className="hover:text-emerald-600 transition-colors">
-                    Процедуры
-                </Link>
                 {procedureName && (
                     <>
                         <span className="mx-2">•</span>
