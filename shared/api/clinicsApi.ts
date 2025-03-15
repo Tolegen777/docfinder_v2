@@ -86,13 +86,13 @@ export const ClinicsAPI = {
 export const mapClinicToCardProps = (clinic: Clinic) => {
     // Преобразуем расписание из API в формат, который ожидает ClinicCard
     const schedule = {
-        monday: "Выходной",
-        tuesday: "Выходной",
-        wednesday: "Выходной",
-        thursday: "Выходной",
-        friday: "Выходной",
-        saturday: "Выходной",
-        sunday: "Выходной"
+        monday: "Данных нет",
+        tuesday: "Данных нет",
+        wednesday: "Данных нет",
+        thursday: "Данных нет",
+        friday: "Данных нет",
+        saturday: "Данных нет",
+        sunday: "Данных нет"
     };
 
     // Преобразуем weekday из API в ключи нашего расписания

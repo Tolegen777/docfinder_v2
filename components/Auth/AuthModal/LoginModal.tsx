@@ -22,8 +22,6 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        // Handle form submission
-        console.log('Form submitted:', formData);
     };
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
