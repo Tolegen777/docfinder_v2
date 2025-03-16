@@ -8,24 +8,6 @@ import { Skeleton } from '@/components/shadcn/skeleton';
 import { MaxWidthLayout } from '@/shared/ui/MaxWidthLayout';
 import { useParams } from 'next/navigation';
 
-// Моковые изображения (м)
-import clinicImg1 from '@/shared/assets/images/img.png';
-import clinicImg2 from '@/shared/assets/images/img.png';
-
-const mockFeatures = [
-    { id: 'hosp', icon: '🏥', title: 'Есть стационар' },
-    { id: 'tests', icon: '🧪', title: 'Прием анализов' },
-    { id: 'sick-list', icon: '📋', title: 'Оформляем больничный' },
-    { id: 'cards', icon: '💳', title: 'Принимаем Карточки' },
-    { id: 'children', icon: '👶', title: 'Принимаем детей' },
-    { id: 'wifi', icon: '📶', title: 'Бесплатный Wi-Fi' },
-    { id: 'diagnostics', icon: '🔬', title: 'Проводим диагностику' },
-    { id: 'parking', icon: '🅿️', title: 'Есть парковка' },
-    { id: 'playground', icon: '🎮', title: 'Детская игровая зона' },
-    { id: 'pharmacy', icon: '💊', title: 'Аптека на территории' },
-    { id: '24h', icon: '⏰', title: 'Круглосуточно' }
-]; // (м)
-
 // Компонент-скелетон для загрузки
 const ClinicSkeleton = () => (
     <MaxWidthLayout className="py-4">
@@ -66,24 +48,11 @@ export const ClinicDetailsBlock = () => {
         enabled: !!clinicSlug,
     });
 
-    // Дополняем полученные данные моковыми для отсутствующих полей
-    // @ts-ignore
-    const enrichedClinic: ClinicDetails | undefined = clinic
-        ? {
-            ...clinic,
-            // Маппинг данных API к формату компонентов
-            metro: 'СарыАрка - 5 мин пешком', // (м)
-            bus_stop: 'Оптовка - 5 мин пешком', // (м)
-            images: [clinicImg1, clinicImg2], // (м)
-            features: mockFeatures, // (м)
-        }
-        : undefined;
-
     if (isLoading) {
         return <ClinicSkeleton />;
     }
 
-    if (error || !enrichedClinic) {
+    if (error || !clinic) {
         return (
             <MaxWidthLayout className="py-4">
                 <div className="p-6 bg-red-50 text-red-600 rounded-lg">
@@ -94,7 +63,7 @@ export const ClinicDetailsBlock = () => {
         );
     }
 
-    return <ClinicHeader clinic={enrichedClinic} />;
+    return <ClinicHeader clinic={clinic} />;
 };
 
 export default ClinicDetailsBlock;

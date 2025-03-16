@@ -2,7 +2,8 @@ import dynamic from 'next/dynamic';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { useEffect, useState, useMemo } from "react";
-import { useClinicsStore } from '@/shared/stores/clinicsStore';
+import { useQueryClient } from '@tanstack/react-query';
+import { clinicKeys } from '@/shared/api/queries/clinicQueries';
 
 // Динамически импортируем компоненты карты
 const MapContainer = dynamic(
@@ -31,14 +32,28 @@ interface MapComponentProps {
 }
 
 const MapClinicComponent = ({ isPreview = false, selectedClinicId }: MapComponentProps) => {
-    const { filteredClinics } = useClinicsStore();
+    // Use React Query's cache to get the current clinics
+    const queryClient = useQueryClient();
+    const cachedData = queryClient.getQueriesData({
+        queryKey: clinicKeys.lists()
+    });
+
     const [customIcon, setCustomIcon] = useState(null);
     const [selectedIcon, setSelectedIcon] = useState(null);
     const [centerCoords, setCenterCoords] = useState(ALMATY_CENTER);
 
-    // Преобразуем данные клиник для карты только когда filteredClinics изменяется
+    // Extract clinics from the cache
+    const clinics = useMemo(() => {
+        if (cachedData && cachedData.length > 0) {
+            const [, data] = cachedData[0];
+            return (data as any)?.clinics || [];
+        }
+        return [];
+    }, [cachedData]);
+
+    // Преобразуем данные клиник для карты
     const clinicMarkers = useMemo(() => {
-        return filteredClinics
+        return clinics
             .filter(clinic => clinic.latitude && clinic.longitude) // Убеждаемся, что у клиники есть координаты
             .map(clinic => ({
                 id: clinic.id,
@@ -49,7 +64,7 @@ const MapClinicComponent = ({ isPreview = false, selectedClinicId }: MapComponen
                     parseFloat(clinic.longitude)
                 ] as [number, number]
             }));
-    }, [filteredClinics]);
+    }, [clinics]);
 
     // Определяем центр карты на основе клиник
     useEffect(() => {
@@ -67,7 +82,7 @@ const MapClinicComponent = ({ isPreview = false, selectedClinicId }: MapComponen
             // Для простоты используем первую клинику как центр
             setCenterCoords(clinicMarkers[0].position);
         }
-    }, [clinicMarkers, selectedClinicId]); // Зависимости включают только мемоизированные данные и selectedClinicId
+    }, [clinicMarkers, selectedClinicId]);
 
     // Инициализируем иконки маркеров только один раз
     useEffect(() => {
@@ -95,7 +110,7 @@ const MapClinicComponent = ({ isPreview = false, selectedClinicId }: MapComponen
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-expect-error
         setSelectedIcon(selectedMarkerIcon);
-    }, []); // Пустой массив зависимостей - выполняется только при монтировании
+    }, []);
 
     if (typeof window === 'undefined' || !customIcon || !selectedIcon) return null;
 

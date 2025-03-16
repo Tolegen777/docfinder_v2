@@ -1,10 +1,10 @@
 'use client'
 import React, { useState, useEffect } from 'react';
-import Image from 'next/image';
+import Image, {StaticImageData} from 'next/image';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface ClinicCarouselProps {
-    images: any[]; // Можно уточнить тип, если используется определенный формат изображений
+    images: string[] | StaticImageData[]; // Можно уточнить тип, если используется определенный формат изображений
     autoSlideInterval?: number; // Интервал автоматического переключения в мс
 }
 
@@ -16,14 +16,14 @@ export const ClinicCarousel: React.FC<ClinicCarouselProps> = ({
 
     // Функция для автоматического переключения слайдов
     useEffect(() => {
-        if (images.length <= 1) return;
+        if (images && images?.length <= 1) return;
 
         const timer = setInterval(() => {
             setCurrentSlide((prev) => (prev + 1) % images.length);
         }, autoSlideInterval);
 
         return () => clearInterval(timer);
-    }, [images.length, autoSlideInterval]);
+    }, [images?.length, autoSlideInterval]);
 
     const nextSlide = () => {
         setCurrentSlide((prev) => (prev + 1) % images.length);

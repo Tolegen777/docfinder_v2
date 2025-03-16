@@ -1,64 +1,93 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import ClinicCard from "../ClinicCard/ClinicCard";
-import { useClinicsStore } from '@/shared/stores/clinicsStore';
-
 import { useCityStore } from '@/shared/stores/cityStore';
 import { ClinicCardSkeleton } from "@/components/ClinicList/ClinicCard/ClinicCardSkeleton";
 import { FiltersSection } from "@/components/ClinicList/ClinicsListPage/FiltersSection";
 import { ClinicsPagination } from './ClinicsPagination';
 import ClinicMapPreview from "@/components/ClinicList/ClinicCard/ClinicMapPreview";
+import { useClinics, ClinicFilters } from '@/shared/api/queries/clinicQueries';
 
 export const ClinicsListPage = () => {
     const { currentCity } = useCityStore();
-    const {
-        fetchClinics,
-        fetchAmenities,
-        fetchSpecialties,
-        filteredClinics,
-        loading,
-        error,
-        totalCount,
-        pageSize,
-        currentPage,
-        applyFilters
-    } = useClinicsStore();
+    const cityId = currentCity?.id as number;
 
+    // State for filters and pagination
+    const [filters, setFilters] = useState<ClinicFilters>({
+        cityId,
+        page: 1,
+        pageSize: 10,
+        specialities: [],
+        amenities: [],
+        isOpenNow: false,
+    });
+
+    // Update cityId in filters whenever it changes
     useEffect(() => {
-        // Загружаем исходные данные
-        fetchClinics(currentCity?.id as number);
-        fetchAmenities(currentCity?.id as number);
-        fetchSpecialties(currentCity?.id as number);
-    }, [fetchClinics, fetchAmenities, fetchSpecialties, currentCity?.id]);
+        if (cityId) {
+            setFilters(prev => ({
+                ...prev,
+                cityId
+            }));
+        }
+    }, [cityId]);
 
-    // Вычисляем общее количество страниц
-    const totalPages = Math.ceil(totalCount / pageSize);
+    // Fetch clinics data with React Query
+    const {
+        data,
+        isLoading,
+        isError,
+        error,
+        refetch
+    } = useClinics(filters);
 
-    // Обработчик для нажатия на номер страницы (с прокруткой)
+    const clinics = data?.clinics || [];
+    const totalCount = data?.totalCount || 0;
+
+    // Calculate total pages for pagination
+    const totalPages = Math.ceil(totalCount / filters.pageSize);
+
+    // Handler for filter changes
+    const handleFilterChange = (filterKey: string, value: any) => {
+        // Reset to page 1 when filters change
+        setFilters(prev => ({
+            ...prev,
+            [filterKey]: value,
+            page: 1
+        }));
+    };
+
+    // Handler for page changes (with scroll)
     const handlePageChange = (page: number) => {
         if (page >= 1 && page <= totalPages) {
-            applyFilters(currentCity?.id as number, page);
+            setFilters(prev => ({
+                ...prev,
+                page
+            }));
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     };
 
-    // Обработчик для кнопок prev/next (без прокрутки)
+    // Handler for prev/next (without scroll)
     const handlePrevNext = (page: number) => {
         if (page >= 1 && page <= totalPages) {
-            applyFilters(currentCity?.id as number, page);
+            setFilters(prev => ({
+                ...prev,
+                page
+            }));
         }
     };
 
     return (
         <div className="container mx-auto py-6 px-4 md:px-6">
-            {/* Карта клиник */}
+            {/* Clinic Map */}
             <ClinicMapPreview />
 
             {/* Error state */}
-            {error && (
+            {isError && (
                 <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-4">
-                    <p className="text-red-700">{error}</p>
+                    <p className="text-red-700">{error instanceof Error ? error.message : 'Произошла ошибка при загрузке данных'}</p>
                     <button
-                        onClick={() => fetchClinics(currentCity?.id as number)}
+                        onClick={() => refetch()}
                         className="text-red-600 underline mt-2"
                     >
                         Попробовать снова
@@ -66,19 +95,29 @@ export const ClinicsListPage = () => {
                 </div>
             )}
 
-            {/* Мобильная версия */}
+            {/* Mobile version */}
             <div className="md:hidden space-y-4">
-                <FiltersSection className="w-full" />
+                <FiltersSection
+                    className="w-full"
+                    filters={{
+                        specialities: filters.specialities || [],
+                        amenities: filters.amenities || [],
+                        isOpenNow: filters.isOpenNow || false,
+                        is24hours: false // Not implemented in backend
+                    }}
+                    onFilterChange={handleFilterChange}
+                    isLoading={isLoading}
+                />
 
                 <div className="space-y-4">
-                    {loading ? (
+                    {isLoading ? (
                         // Show skeletons while loading
                         Array(3).fill(null).map((_, index) => (
                             <ClinicCardSkeleton key={index} />
                         ))
-                    ) : filteredClinics.length > 0 ? (
-                        // Show filtered results with mapped data from cardProps
-                        filteredClinics.map((clinic) => (
+                    ) : clinics.length > 0 ? (
+                        // Show clinic results
+                        clinics.map((clinic) => (
                             <ClinicCard
                                 key={clinic.id}
                                 slug={clinic?.slug}
@@ -86,12 +125,9 @@ export const ClinicsListPage = () => {
                                 name={clinic.cardProps.name}
                                 address={clinic.cardProps.address}
                                 rating={clinic.cardProps.rating}
-                                discount={clinic.cardProps.discount}
                                 schedule={clinic.cardProps.schedule}
                                 specialists={clinic.cardProps.specialists}
-                                price={clinic.cardProps.price}
                                 timeUntilClose={clinic.cardProps.timeUntilClose}
-                                phoneNumber={clinic.cardProps.phoneNumber}
                             />
                         ))
                     ) : (
@@ -103,10 +139,10 @@ export const ClinicsListPage = () => {
                     )}
                 </div>
 
-                {/* Пагинация для мобильной версии */}
-                {!loading && totalPages > 1 && (
+                {/* Mobile pagination */}
+                {!isLoading && totalPages > 1 && (
                     <ClinicsPagination
-                        currentPage={currentPage}
+                        currentPage={filters.page}
                         totalPages={totalPages}
                         onPageChange={handlePageChange}
                         onPrevNext={handlePrevNext}
@@ -114,21 +150,31 @@ export const ClinicsListPage = () => {
                 )}
             </div>
 
-            {/* Десктопная версия */}
+            {/* Desktop version */}
             <div className="hidden md:flex gap-6">
                 <aside className="w-[280px] shrink-0">
-                    <FiltersSection className="" />
+                    <FiltersSection
+                        className=""
+                        filters={{
+                            specialities: filters.specialities || [],
+                            amenities: filters.amenities || [],
+                            isOpenNow: filters.isOpenNow || false,
+                            is24hours: false // Not implemented in backend
+                        }}
+                        onFilterChange={handleFilterChange}
+                        isLoading={isLoading}
+                    />
                 </aside>
                 <main className="flex-1">
                     <div className="space-y-4">
-                        {loading ? (
+                        {isLoading ? (
                             // Show skeletons while loading
                             Array(3).fill(null).map((_, index) => (
                                 <ClinicCardSkeleton key={index} />
                             ))
-                        ) : filteredClinics.length > 0 ? (
-                            // Show filtered results with mapped data from cardProps
-                            filteredClinics.map((clinic) => (
+                        ) : clinics.length > 0 ? (
+                            // Show clinic results
+                            clinics.map((clinic) => (
                                 <ClinicCard
                                     key={clinic.id}
                                     id={clinic.id}
@@ -136,12 +182,9 @@ export const ClinicsListPage = () => {
                                     name={clinic.cardProps.name}
                                     address={clinic.cardProps.address}
                                     rating={clinic.cardProps.rating}
-                                    discount={clinic.cardProps.discount}
                                     schedule={clinic.cardProps.schedule}
                                     specialists={clinic.cardProps.specialists}
-                                    price={clinic.cardProps.price}
                                     timeUntilClose={clinic.cardProps.timeUntilClose}
-                                    phoneNumber={clinic.cardProps.phoneNumber}
                                 />
                             ))
                         ) : (
@@ -153,10 +196,10 @@ export const ClinicsListPage = () => {
                         )}
                     </div>
 
-                    {/* Пагинация для десктопной версии */}
-                    {!loading && totalPages > 1 && (
+                    {/* Desktop pagination */}
+                    {!isLoading && totalPages > 1 && (
                         <ClinicsPagination
-                            currentPage={currentPage}
+                            currentPage={filters.page}
                             totalPages={totalPages}
                             onPageChange={handlePageChange}
                             onPrevNext={handlePrevNext}

@@ -1,8 +1,9 @@
 import dynamic from 'next/dynamic';
 import 'leaflet/dist/leaflet.css';
-import L, {LatLngExpression} from 'leaflet';
-import { useEffect, useState, useMemo } from "react";
-import { useClinicsStore } from '@/shared/stores/clinicsStore';
+import L, { LatLngExpression } from 'leaflet';
+import { useEffect, useState } from "react";
+import { useQueryClient } from '@tanstack/react-query';
+import { clinicKeys } from '@/shared/api/queries/clinicQueries';
 
 // Динамически импортируем компоненты карты
 const MapContainer = dynamic(
@@ -28,68 +29,91 @@ const ALMATY_CENTER = [43.238949, 76.889709];
 interface MapComponentProps {
     isPreview?: boolean;
     selectedClinicId?: number;
-    customCoordinates?: [number, number]; // Добавлено для прямого указания координат
+    customCoordinates?: [number, number]; // Для прямого указания координат
+    clinicName?: string; // Добавляем название клиники для отображения в попапе
+    clinicAddress?: string; // Добавляем адрес клиники для отображения в попапе
+}
+
+interface ClinicMarker {
+    id: number;
+    name: string;
+    address: string;
+    position: [number, number];
 }
 
 const MapClinicComponent = ({
                                 isPreview = false,
                                 selectedClinicId,
-                                customCoordinates
+                                customCoordinates,
+                                clinicName = 'Клиника',
+                                clinicAddress = ''
                             }: MapComponentProps) => {
-    const { filteredClinics } = useClinicsStore();
-    const [customIcon, setCustomIcon] = useState(null);
-    const [selectedIcon, setSelectedIcon] = useState(null);
-    const [centerCoords, setCenterCoords] = useState(
-        customCoordinates || ALMATY_CENTER
+    const queryClient = useQueryClient();
+    const [customIcon, setCustomIcon] = useState<any>(null);
+    const [selectedIcon, setSelectedIcon] = useState<any>(null);
+    const [centerCoords, setCenterCoords] = useState<[number, number]>(
+        customCoordinates || ALMATY_CENTER as [number, number]
     );
+    const [clinicMarkers, setClinicMarkers] = useState<ClinicMarker[]>([]);
 
-    // Преобразуем данные клиник для карты только когда filteredClinics изменяется
-    const clinicMarkers = useMemo(() => {
-        // Если у нас есть кастомные координаты, создаем маркер с этими координатами
-        if (customCoordinates) {
-            return [{
-                id: selectedClinicId || 999999, // уникальный ID
-                name: 'Местоположение клиники',
-                address: '',
-                position: customCoordinates
-            }];
-        }
-
-        return filteredClinics
-            .filter(clinic => clinic.latitude && clinic.longitude) // Убеждаемся, что у клиники есть координаты
-            .map(clinic => ({
-                id: clinic.id,
-                name: clinic.title,
-                address: clinic.address,
-                position: [
-                    parseFloat(clinic.latitude),
-                    parseFloat(clinic.longitude)
-                ] as [number, number]
-            }));
-    }, [filteredClinics, customCoordinates, selectedClinicId]);
-
-    // Определяем центр карты на основе клиник
+    // Получаем клиники из кэша React Query или формируем свои маркеры
     useEffect(() => {
+        // Если есть кастомные координаты, используем их (страница деталей клиники)
         if (customCoordinates) {
+            setClinicMarkers([{
+                id: selectedClinicId || 999999,
+                name: clinicName,
+                address: clinicAddress,
+                position: customCoordinates
+            }]);
             setCenterCoords(customCoordinates);
             return;
         }
 
-        if (clinicMarkers.length > 0) {
-            // Если выбрана конкретная клиника, центрируем на ней
-            if (selectedClinicId) {
-                const selectedClinic = clinicMarkers.find(c => c.id === selectedClinicId);
-                if (selectedClinic) {
-                    setCenterCoords(selectedClinic.position);
-                    return;
-                }
-            }
+        // Иначе пытаемся получить клиники из кэша React Query (список клиник)
+        const cachedData = queryClient.getQueriesData({
+            queryKey: clinicKeys.lists()
+        });
 
-            // Иначе центрируем на всех клиниках
-            // Для простоты используем первую клинику как центр
-            setCenterCoords(clinicMarkers[0].position);
+        if (cachedData && cachedData.length > 0) {
+            const [, data] = cachedData[0];
+            const clinics = (data as any)?.clinics || [];
+
+            const markers = clinics
+                .filter((clinic: any) => clinic.latitude && clinic.longitude)
+                .map((clinic: any) => ({
+                    id: clinic.id,
+                    name: clinic.title,
+                    address: clinic.address,
+                    position: [
+                        parseFloat(clinic.latitude),
+                        parseFloat(clinic.longitude)
+                    ] as [number, number]
+                }));
+
+            setClinicMarkers(markers);
+
+            // Определяем центр карты
+            if (markers.length > 0) {
+                if (selectedClinicId) {
+                    const selectedClinic = markers.find(c => c.id === selectedClinicId);
+                    if (selectedClinic) {
+                        setCenterCoords(selectedClinic.position);
+                        return;
+                    }
+                }
+                setCenterCoords(markers[0].position);
+            }
+        } else {
+            // Если клиник нет в кэше и нет кастомных координат, используем фолбэк
+            setClinicMarkers([{
+                id: 1,
+                name: 'Центр Алматы',
+                address: 'Алматы',
+                position: ALMATY_CENTER as [number, number]
+            }]);
         }
-    }, [clinicMarkers, selectedClinicId, customCoordinates]); // Зависимости включают только мемоизированные данные и selectedClinicId
+    }, [queryClient, customCoordinates, selectedClinicId, clinicName, clinicAddress]);
 
     // Инициализируем иконки маркеров только один раз
     useEffect(() => {
@@ -115,14 +139,12 @@ const MapClinicComponent = ({
                 iconAnchor: [16, 16],
             });
 
-            // @ts-ignore - иконки Leaflet и TypeScript не всегда хорошо ладят
             setCustomIcon(icon);
-            // @ts-ignore
             setSelectedIcon(selectedMarkerIcon);
         } catch (error) {
             console.error("Error initializing map icons:", error);
         }
-    }, []); // Пустой массив зависимостей - выполняется только при монтировании
+    }, []);
 
     // Если в браузере, но иконки не готовы, показываем заглушку
     if (typeof window !== 'undefined' && (!customIcon || !selectedIcon)) {
@@ -133,16 +155,6 @@ const MapClinicComponent = ({
     if (typeof window === 'undefined') {
         return <div className="w-full h-full bg-gray-100 rounded-xl" />;
     }
-
-    // Если нет координат, используем моковые данные
-    const markersToRender = clinicMarkers.length > 0 ? clinicMarkers : [
-        {
-            id: 1,
-            name: 'Эмирмед на Манаса 59',
-            address: 'улица Абдуллы Розыбакиева, 37В, Алматы',
-            position: ALMATY_CENTER as [number, number]
-        }
-    ];
 
     const mapOptions = {
         zoom: isPreview ? 15 : 13,
@@ -167,11 +179,11 @@ const MapClinicComponent = ({
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
-            {markersToRender.map((clinic) => (
+            {clinicMarkers.map((clinic) => (
                 <Marker
                     key={clinic.id}
-                    position={clinic?.position}
-                    // icon={clinic.id === selectedClinicId ? selectedIcon : customIcon}
+                    position={clinic.position}
+                    icon={clinic.id === selectedClinicId ? selectedIcon : customIcon}
                 >
                     {!isPreview && (
                         <Popup>

@@ -34,15 +34,6 @@ export interface Clinic {
     working_hours: WorkingHour[];
     time_until_closing: string; // Формат: "8 ч. 50 мин. до закрытия"
     rating_info: RatingInfo;
-
-    // Поля которые все еще отсутствуют в API (мок)
-    discount?: {
-        percentage: number;
-        text: string;
-    };
-    specialists?: number;
-    price?: number;
-    phoneNumber?: string;
 }
 
 export interface ClinicsResponse {
@@ -59,7 +50,8 @@ export const ClinicsAPI = {
         pageSize: number = 10,
         filters?: {
             specialities?: number[],
-            amenities?: number[]
+            amenities?: number[],
+            is_open_now?: boolean,
         }
     ) => {
         const url = `/patients_endpoints/clinics/city_id:${cityId}/all-clinics/`;
@@ -78,6 +70,11 @@ export const ClinicsAPI = {
             params.amenities = filters.amenities;
         }
 
+        // Add is_open_now filter if provided
+        if (filters?.is_open_now !== undefined) {
+            params.is_open_now = filters.is_open_now;
+        }
+
         return apiGet<ClinicsResponse>(url, params);
     }
 } as const;
@@ -86,13 +83,13 @@ export const ClinicsAPI = {
 export const mapClinicToCardProps = (clinic: Clinic) => {
     // Преобразуем расписание из API в формат, который ожидает ClinicCard
     const schedule = {
-        monday: "Данных нет",
-        tuesday: "Данных нет",
-        wednesday: "Данных нет",
-        thursday: "Данных нет",
-        friday: "Данных нет",
-        saturday: "Данных нет",
-        sunday: "Данных нет"
+        monday: "Нет данных",
+        tuesday: "Нет данных",
+        wednesday: "Нет данных",
+        thursday: "Нет данных",
+        friday: "Нет данных",
+        saturday: "Нет данных",
+        sunday: "Нет данных"
     };
 
     // Преобразуем weekday из API в ключи нашего расписания
@@ -124,26 +121,18 @@ export const mapClinicToCardProps = (clinic: Clinic) => {
 
     // Преобразуем rating_info в формат, который ожидает ClinicCard
     const rating = {
-        stars: Math.round(clinic.rating_info.average_rating), // Округляем до целого числа для отображения звезд
-        reviewCount: clinic.rating_info.total_reviews
+        stars: Math.round(clinic.rating_info.average_rating || 0), // Округляем до целого числа для отображения звезд
+        reviewCount: clinic.rating_info.total_reviews || 0
     };
 
-
-    // Возвращаем объект с данными, который можно передать в ClinicCard
+    // Возвращаем объект с данными, который можно передать в ClinicCard, используя только реальные данные
     return {
         id: clinic.id,
         name: clinic.title,
         address: clinic.address,
-        timeUntilClose: clinic.time_until_closing,
+        timeUntilClose: clinic.time_until_closing || "Нет данных о времени закрытия",
         rating,
         schedule,
-        // Моковые данные, которых нет в API
-        discount: {
-            percentage: Math.floor(Math.random() * 20) + 10, // 10-30%
-            text: "на первый прием"
-        },
-        specialists: clinic.specialities?.length, // 5-25
-        price: Math.floor(Math.random() * 30000) + 10000, // 10000-40000
-        phoneNumber: "+7 701 234..."
+        specialists: clinic.specialities?.length || 0,
     };
 };

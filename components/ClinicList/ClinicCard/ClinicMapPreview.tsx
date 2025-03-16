@@ -4,8 +4,9 @@ import { Dialog, DialogContent, DialogTrigger, DialogClose } from '@/components/
 import { X } from 'lucide-react';
 import { MaxWidthLayout } from "@/shared/ui/MaxWidthLayout";
 import dynamic from "next/dynamic";
-import { useClinicsStore } from '@/shared/stores/clinicsStore';
 import { useCityStore } from '@/shared/stores/cityStore';
+import { useQueryClient } from '@tanstack/react-query';
+import { clinicKeys } from '@/shared/api/queries/clinicQueries';
 
 // Динамически импортируем компонент карты для предотвращения проблем с SSR
 const MapComponent = dynamic(() => import('./MapClinicComponent'), {
@@ -19,10 +20,20 @@ interface ClinicMapPreviewProps {
 
 const ClinicMapPreview: React.FC<ClinicMapPreviewProps> = ({ selectedClinicId }) => {
     const [isOpen, setIsOpen] = useState(false);
-    const { filteredClinics } = useClinicsStore();
     const { currentCity } = useCityStore();
 
-    const clinicCount = filteredClinics.length;
+    // Use React Query's cache to get the current clinics
+    const queryClient = useQueryClient();
+    const cachedData = queryClient.getQueriesData({
+        queryKey: clinicKeys.lists()
+    });
+
+    // Extract clinics count from the cache
+    let clinicCount = 0;
+    if (cachedData && cachedData.length > 0) {
+        const [, data] = cachedData[0];
+        clinicCount = (data as any)?.clinics?.length || 0;
+    }
 
     return (
         <MaxWidthLayout className="py-4">

@@ -1,44 +1,51 @@
-import {useCityStore} from "@/shared/stores/cityStore";
-import {useClinicsStore} from "@/shared/stores/clinicsStore";
-import {cn} from "@/lib/utils";
-import {Accordion, AccordionContent, AccordionItem, AccordionTrigger} from "@/components/shadcn/accordion";
-import {Checkbox} from "@/components/shadcn/checkbox";
-import React, { useEffect } from "react";
+import { useCityStore } from "@/shared/stores/cityStore";
+import { cn } from "@/lib/utils";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/shadcn/accordion";
+import { Checkbox } from "@/components/shadcn/checkbox";
+import React from "react";
+import { useAmenities, useSpecialties } from "@/shared/api/queries/clinicQueries";
 
-export const FiltersSection = ({ className }) => {
+interface FiltersSectionProps {
+    className?: string;
+    filters: {
+        specialities: number[];
+        amenities: number[];
+        isOpenNow: boolean;
+        is24hours: boolean;
+    };
+    onFilterChange: (filterKey: string, value: any) => void;
+    isLoading: boolean;
+}
+
+export const FiltersSection = ({
+                                   className,
+                                   filters,
+                                   onFilterChange,
+                                   isLoading
+                               }: FiltersSectionProps) => {
     const { currentCity } = useCityStore();
-    const {
-        amenities,
-        specialties,
-        filters,
-        toggleOpenNow,
-        toggle24Hours,
-        toggleAmenity,
-        toggleSpeciality,
-        applyFilters,
-        loading,
-        fetchSpecialties,
-        currentPage
-    } = useClinicsStore();
+    const cityId = currentCity?.id as number;
 
-    // Загружаем специальности при инициализации компонента
-    useEffect(() => {
-        fetchSpecialties(currentCity?.id as number);
-    }, [fetchSpecialties, currentCity?.id as number]);
+    // Fetch amenities and specialties using React Query
+    const amenitiesQuery = useAmenities(cityId);
+    const specialtiesQuery = useSpecialties(cityId);
 
-    const handleCheckboxChange = async (type: string, id?: number) => {
+    const handleCheckboxChange = (type: string, id?: number) => {
         if (type === "24h") {
-            toggle24Hours();
+            onFilterChange("is24hours", !filters.is24hours);
         } else if (type === "open-now") {
-            toggleOpenNow();
+            onFilterChange("isOpenNow", !filters.isOpenNow);
         } else if (type === "amenity" && id) {
-            toggleAmenity(id);
+            const newAmenities = filters.amenities.includes(id)
+                ? filters.amenities.filter(amenityId => amenityId !== id)
+                : [...filters.amenities, id];
+            onFilterChange("amenities", newAmenities);
         } else if (type === "specialty" && id) {
-            toggleSpeciality(id);
+            const newSpecialities = filters.specialities.includes(id)
+                ? filters.specialities.filter(specId => specId !== id)
+                : [...filters.specialities, id];
+            onFilterChange("specialities", newSpecialities);
         }
-
-        // Apply filters after any change and reset to page 1
-        await applyFilters(currentCity?.id as number, 1);
     };
 
     return (
@@ -52,23 +59,23 @@ export const FiltersSection = ({ className }) => {
                     </AccordionTrigger>
                     <AccordionContent className="pt-4 pb-0">
                         <div className="space-y-3">
-                            <label className="flex items-center space-x-2">
-                                <Checkbox
-                                    id="24h"
-                                    checked={filters["24hours"]}
-                                    onCheckedChange={() => handleCheckboxChange("24h")}
-                                    disabled={loading}
-                                />
-                                <span className="text-sm text-gray-600">Круглосуточно (мок)</span>
-                            </label>
+                            {/*<label className="flex items-center space-x-2">*/}
+                            {/*    <Checkbox*/}
+                            {/*        id="24h"*/}
+                            {/*        checked={filters.is24hours}*/}
+                            {/*        onCheckedChange={() => handleCheckboxChange("24h")}*/}
+                            {/*        disabled={isLoading}*/}
+                            {/*    />*/}
+                            {/*    <span className="text-sm text-gray-600">Круглосуточно</span>*/}
+                            {/*</label>*/}
                             <label className="flex items-center space-x-2">
                                 <Checkbox
                                     id="open-now"
-                                    checked={filters.openNow}
+                                    checked={filters.isOpenNow}
                                     onCheckedChange={() => handleCheckboxChange("open-now")}
-                                    disabled={loading}
+                                    disabled={isLoading}
                                 />
-                                <span className="text-sm text-gray-600">Сейчас открыто (мок)</span>
+                                <span className="text-sm text-gray-600">Сейчас открыто</span>
                             </label>
                         </div>
                     </AccordionContent>
@@ -80,38 +87,24 @@ export const FiltersSection = ({ className }) => {
                     </AccordionTrigger>
                     <AccordionContent className="pt-4 pb-0">
                         <div className="space-y-3">
-                            {amenities.length > 0 ? (
-                                amenities.map((amenity) => (
+                            {amenitiesQuery.isLoading ? (
+                                <div className="text-sm text-gray-500">Загрузка...</div>
+                            ) : amenitiesQuery.error ? (
+                                <div className="text-sm text-red-500">Ошибка загрузки удобств</div>
+                            ) : amenitiesQuery.data && amenitiesQuery.data.length > 0 ? (
+                                amenitiesQuery.data.map((amenity) => (
                                     <label key={amenity.id} className="flex items-center space-x-2">
                                         <Checkbox
                                             id={`amenity-${amenity.id}`}
                                             checked={filters.amenities.includes(amenity.id)}
                                             onCheckedChange={() => handleCheckboxChange("amenity", amenity.id)}
-                                            disabled={loading}
+                                            disabled={isLoading}
                                         />
                                         <span className="text-sm text-gray-600">{amenity.title}</span>
                                     </label>
                                 ))
                             ) : (
-                                // Fallback to mocked amenities if API doesn't return any
-                                [
-                                    { id: 1, title: "Парковка" },
-                                    { id: 2, title: "Вайфай" },
-                                    { id: 3, title: "Детская игровая комната" },
-                                    { id: 4, title: "Комната ожидания" },
-                                    { id: 5, title: "Кафе" },
-                                    { id: 6, title: "Аптека" },
-                                ].map((amenity) => (
-                                    <label key={amenity.id} className="flex items-center space-x-2">
-                                        <Checkbox
-                                            id={`amenity-${amenity.id}`}
-                                            checked={filters.amenities.includes(amenity.id)}
-                                            onCheckedChange={() => handleCheckboxChange("amenity", amenity.id)}
-                                            disabled={loading}
-                                        />
-                                        <span className="text-sm text-gray-600">{amenity.title} (мок)</span>
-                                    </label>
-                                ))
+                                <div className="text-sm text-gray-500">Нет доступных удобств</div>
                             )}
                         </div>
                     </AccordionContent>
@@ -123,49 +116,26 @@ export const FiltersSection = ({ className }) => {
                     </AccordionTrigger>
                     <AccordionContent className="pt-4 pb-0">
                         <div className="space-y-3">
-                            {specialties.length > 0 ? (
-                                specialties.map((specialty) => (
+                            {specialtiesQuery.isLoading ? (
+                                <div className="text-sm text-gray-500">Загрузка...</div>
+                            ) : specialtiesQuery.error ? (
+                                <div className="text-sm text-red-500">Ошибка загрузки специальностей</div>
+                            ) : specialtiesQuery.data && specialtiesQuery.data.length > 0 ? (
+                                specialtiesQuery.data.map((specialty) => (
                                     <label key={specialty.id} className="flex items-center space-x-2">
                                         <Checkbox
                                             id={`specialty-${specialty.id}`}
                                             checked={filters.specialities.includes(specialty.id)}
                                             onCheckedChange={() => handleCheckboxChange("specialty", specialty.id)}
-                                            disabled={loading}
+                                            disabled={isLoading}
                                         />
                                         <span className="text-sm text-gray-600">{specialty.title}</span>
                                     </label>
                                 ))
                             ) : (
-                                // Fallback to mocked specialties if API doesn't return any
-                                [
-                                    { id: 1, title: "Терапевт" },
-                                    { id: 2, title: "Кардиолог" },
-                                    { id: 3, title: "Невролог" },
-                                    { id: 4, title: "Гастроэнтеролог" },
-                                    { id: 5, title: "Эндокринолог" },
-                                    { id: 6, title: "Педиатр" },
-                                ].map((specialty) => (
-                                    <label key={specialty.id} className="flex items-center space-x-2">
-                                        <Checkbox
-                                            id={`specialty-${specialty.id}`}
-                                            checked={filters.specialities.includes(specialty.id)}
-                                            onCheckedChange={() => handleCheckboxChange("specialty", specialty.id)}
-                                            disabled={loading}
-                                        />
-                                        <span className="text-sm text-gray-600">{specialty.title} (мок)</span>
-                                    </label>
-                                ))
+                                <div className="text-sm text-gray-500">Нет доступных специальностей</div>
                             )}
                         </div>
-                    </AccordionContent>
-                </AccordionItem>
-
-                <AccordionItem value="filter4" className="border-none">
-                    <AccordionTrigger className="hover:no-underline p-0">
-                        <span className="text-base font-medium">Фильтр 4 (нет)</span>
-                    </AccordionTrigger>
-                    <AccordionContent>
-                        <div className="text-sm text-gray-500 italic">Функциональность не реализована на бэкенде</div>
                     </AccordionContent>
                 </AccordionItem>
             </Accordion>

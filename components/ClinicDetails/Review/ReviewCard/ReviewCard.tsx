@@ -1,9 +1,7 @@
 import React from 'react';
-import { Check } from 'lucide-react';
-import Link from 'next/link';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
-import {ConfirmationMessage} from "@/components/ClinicDetails/Review/ReviewCard/ConfirmationMessage";
+import { ConfirmationMessage } from "@/components/ClinicDetails/Review/ReviewCard/ConfirmationMessage";
 
 interface ReviewCardProps {
     id: number;
@@ -11,7 +9,6 @@ interface ReviewCardProps {
     text: string;
     rating: number;
     createdAt: string;
-    // Моковые данные, если их нет в API
     isVerified?: boolean;
     clinicName?: string;
     clinicLink?: string;
@@ -21,7 +18,7 @@ interface ReviewCardProps {
 const getInitials = (name: string): string => {
     const parts = name.split(' ');
     if (parts.length >= 2) {
-        return `${parts[0][0]}${parts[1][0]}`;
+        return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
     }
     return name.substring(0, 2).toUpperCase();
 };
@@ -41,9 +38,9 @@ export const ReviewCard = ({
                                text,
                                rating,
                                createdAt,
-                               isVerified = true, // По умолчанию считаем верифицированным
-                               clinicName = 'Эмирмед на Манаса 55', // Моковые данные
-                               clinicLink = '/clinic/emirmed-55' // Моковые данные
+                               isVerified = false, // Если верификация не указана, считаем неверифицированным
+                               clinicName,
+                               clinicLink
                            }: ReviewCardProps) => {
     const initials = getInitials(authorName);
     const ratingText = getRatingText(rating);
@@ -93,16 +90,18 @@ export const ReviewCard = ({
                     {/* Текст отзыва */}
                     <p className="text-gray-600 text-base font-normal my-5">{text}</p>
 
-                    {/* Ссылка на клинику */}
-                    <div>
-                        <h4 className="text-base font-normal text-gray-600 mb-1">Клиника</h4>
-                        <Link
-                            href={clinicLink}
-                            className="text-base font-normal text-blue-600 hover:underline"
-                        >
-                            {clinicName}
-                        </Link>
-                    </div>
+                    {/* Ссылка на клинику, только если она передана */}
+                    {clinicName && clinicLink && (
+                        <div>
+                            <h4 className="text-base font-normal text-gray-600 mb-1">Клиника</h4>
+                            <a
+                                href={clinicLink}
+                                className="text-base font-normal text-blue-600 hover:underline"
+                            >
+                                {clinicName}
+                            </a>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

@@ -1,12 +1,8 @@
 import React, { useState } from 'react';
-import { useClinicsStore } from '@/shared/stores/clinicsStore';
 import { Skeleton } from '@/components/shadcn/skeleton';
 import { useQuery } from '@tanstack/react-query';
-import { SpecialtiesAPI, Specialty } from '@/shared/api/specialtiesApi';
-import {useCityStore} from "@/shared/stores/cityStore";
-
-// Default city ID (should come from user selection or context)
-const DEFAULT_CITY_ID = 1;
+import { SpecialtiesAPI } from '@/shared/api/specialtiesApi';
+import { useCityStore } from "@/shared/stores/cityStore";
 
 interface SpecialistType {
     id: number;
@@ -17,15 +13,19 @@ interface SpecialistType {
 
 interface SpecialistsSelectionProps {
     maxVisible?: number;
+    selectedSpecialities?: number[];
+    onSpecialitySelect?: (id: number) => void;
 }
 
-export const SpecialistsSelection: React.FC<SpecialistsSelectionProps> = ({ maxVisible = 25 }) => {
+export const SpecialistsSelection: React.FC<SpecialistsSelectionProps> = ({
+                                                                              maxVisible = 25,
+                                                                              selectedSpecialities = [],
+                                                                              onSpecialitySelect
+                                                                          }) => {
     const [showAll, setShowAll] = useState(false);
-    const { filters, toggleSpeciality, applyFilters } = useClinicsStore();
+    const { currentCity } = useCityStore();
 
-    const {currentCity} = useCityStore()
-
-    // Fetch specialties from API
+    // Fetch specialties from API using React Query
     const { data: specialtyGroups, isLoading, error } = useQuery({
         queryKey: ['specialties', currentCity?.id],
         queryFn: () => SpecialtiesAPI.getSpecialties(currentCity?.id as number),
@@ -47,9 +47,10 @@ export const SpecialistsSelection: React.FC<SpecialistsSelectionProps> = ({ maxV
     }, [specialtyGroups]);
 
     // Handle specialty selection
-    const handleSpecialtyClick = async (id: number) => {
-        toggleSpeciality(id);
-        await applyFilters(DEFAULT_CITY_ID);
+    const handleSpecialtyClick = (id: number) => {
+        if (onSpecialitySelect) {
+            onSpecialitySelect(id);
+        }
     };
 
     // Determine which specialties to show
@@ -82,7 +83,7 @@ export const SpecialistsSelection: React.FC<SpecialistsSelectionProps> = ({ maxV
                 <button
                     key={specialty.id}
                     className={`px-4 py-2 rounded-full ${
-                        filters.specialities.includes(specialty.id)
+                        selectedSpecialities.includes(specialty.id)
                             ? 'bg-emerald-500 text-white'
                             : 'bg-white hover:bg-gray-50 border border-gray-200 text-gray-700'
                     } text-sm transition-colors duration-200 ease-in-out`}

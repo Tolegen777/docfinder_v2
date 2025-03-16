@@ -1,13 +1,13 @@
 'use client'
 import React from 'react';
-import { MapPin, Train, Bus, Clock } from 'lucide-react';
+import { MapPin } from 'lucide-react';
 import { WeeklySchedule } from "@/components/ClinicDetails/ClinicDetailBlock/WeeklySchedule";
-import {TimeStatus} from "@/shared/ui/TimeStatus/TimeStatus";
+import { TimeStatus } from "@/shared/ui/TimeStatus/TimeStatus";
 
 interface MapsLinks {
-    yandex: string;
-    google: string;
-    "2gis": string;
+    yandex?: string;
+    google?: string;
+    "2gis"?: string;
 }
 
 interface WorkHour {
@@ -34,6 +34,9 @@ export const ClinicInfoBlock: React.FC<ClinicInfoBlockProps> = ({
                                                                     timeUntilClosing,
                                                                     showFullSchedule = true
                                                                 }) => {
+    // Проверяем наличие ссылок на карты
+    const hasMapLinks = mapsLinks && (mapsLinks.yandex || mapsLinks.google || mapsLinks["2gis"]);
+
     return (
         <div className="bg-white rounded-xl overflow-hidden p-4 space-y-3 h-full">
             <div className="flex items-start gap-2">
@@ -41,35 +44,21 @@ export const ClinicInfoBlock: React.FC<ClinicInfoBlockProps> = ({
                 <p className="text-sm">{address}</p>
             </div>
 
-            {/*{metro && (*/}
-            {/*    <div className="flex items-start gap-2">*/}
-            {/*        <Train className="w-4 h-4 mt-1 shrink-0 text-emerald-600" />*/}
-            {/*        <p className="text-sm">Метро: {metro}</p>*/}
-            {/*    </div>*/}
-            {/*)}*/}
-
-            {/*{busStop && (*/}
-            {/*    <div className="flex items-start gap-2">*/}
-            {/*        <Bus className="w-4 h-4 mt-1 shrink-0 text-emerald-600" />*/}
-            {/*        <p className="text-sm">Остановка: {busStop}</p>*/}
-            {/*    </div>*/}
-            {/*)}*/}
-
             {timeUntilClosing && (
                 <TimeStatus timeUntilClosing={timeUntilClosing}/>
             )}
 
-            {/* Используем существующий компонент или новый в зависимости от полученных данных */}
-            {showFullSchedule && (
+            {/* Используем существующий компонент если есть рабочие часы */}
+            {showFullSchedule && workHours && workHours.length > 0 && (
                 <WeeklySchedule workHours={workHours} />
             )}
 
             {/* Добавим ссылки на карты, если они предоставлены */}
-            {mapsLinks && (
+            {hasMapLinks && (
                 <div className="pt-3 border-t border-gray-100">
                     <p className="text-sm font-medium mb-2">Открыть на карте:</p>
                     <div className="flex flex-wrap gap-2">
-                        {mapsLinks.yandex && (
+                        {mapsLinks?.yandex && (
                             <a
                                 href={mapsLinks.yandex}
                                 target="_blank"
@@ -79,7 +68,7 @@ export const ClinicInfoBlock: React.FC<ClinicInfoBlockProps> = ({
                                 Яндекс
                             </a>
                         )}
-                        {mapsLinks.google && (
+                        {mapsLinks?.google && (
                             <a
                                 href={mapsLinks.google}
                                 target="_blank"
@@ -89,7 +78,7 @@ export const ClinicInfoBlock: React.FC<ClinicInfoBlockProps> = ({
                                 Google
                             </a>
                         )}
-                        {mapsLinks["2gis"] && (
+                        {mapsLinks?.["2gis"] && (
                             <a
                                 href={mapsLinks["2gis"]}
                                 target="_blank"

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Heart, MapPin, Calendar, X } from 'lucide-react';
+import { Heart, MapPin, Calendar, X, Info } from 'lucide-react';
 import Image from "next/image";
 import Link from "next/link";
 import { Card } from "@/components/shadcn/card";
@@ -15,6 +15,7 @@ import clinicImg from '@/shared/assets/images/clinic.png';
 import dynamic from 'next/dynamic';
 import {Dialog, DialogClose, DialogContent} from "@/components/shadcn/dialog";
 import {TimeStatus} from "@/shared/ui/TimeStatus/TimeStatus";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/shadcn/tooltip";
 
 // Dynamically import the MapClinicComponent to prevent SSR issues
 const MapComponent = dynamic(() => import('./MapClinicComponent'), {
@@ -32,11 +33,6 @@ interface ClinicCardProps {
         stars: number;
         reviewCount: number;
     };
-    // Моковые данные
-    discount?: {
-        percentage: number;
-        text: string;
-    };
     schedule?: {
         monday: string;
         tuesday: string;
@@ -47,9 +43,7 @@ interface ClinicCardProps {
         sunday: string;
     };
     specialists?: number;
-    price?: number;
-    timeUntilClose?: string; // Изменено на string
-    phoneNumber?: string;
+    timeUntilClose?: string;
     isHideSchedule?: boolean;
     slug?: string;
 }
@@ -57,23 +51,23 @@ interface ClinicCardProps {
 const ClinicCard: React.FC<ClinicCardProps> = ({
                                                    id,
                                                    slug,
-                                                   name = "Эмирмед на Манаса 55",
-                                                   address = "Улица Манаса, 55, 1-этаж, 9 филиалов, Бостандыкский район, Алматы, 050057/ A15H7T2",
+                                                   name = "Нет данных",
+                                                   address = "Адрес не указан",
                                                    rating = {
-                                                       stars: 4,
-                                                       reviewCount: 467
+                                                       stars: 0,
+                                                       reviewCount: 0
                                                    },
                                                    schedule = {
-                                                       monday: "09:00-18:00",
-                                                       tuesday: "09:00-18:00",
-                                                       wednesday: "09:00-18:00",
-                                                       thursday: "09:00-18:00",
-                                                       friday: "09:00-18:00",
-                                                       saturday: "Выходной",
-                                                       sunday: "Выходной"
+                                                       monday: "Нет данных",
+                                                       tuesday: "Нет данных",
+                                                       wednesday: "Нет данных",
+                                                       thursday: "Нет данных",
+                                                       friday: "Нет данных",
+                                                       saturday: "Нет данных",
+                                                       sunday: "Нет данных"
                                                    },
                                                    specialists = 0,
-                                                   timeUntilClose = '',
+                                                   timeUntilClose = "Нет данных о времени закрытия",
                                                    isHideSchedule = false
                                                }) => {
     const [isSheetOpen, setIsSheetOpen] = useState(false);
@@ -128,9 +122,19 @@ const ClinicCard: React.FC<ClinicCardProps> = ({
                                 alt={name}
                                 className="rounded-full"
                             />
-                            <span className="absolute bottom-0 right-0 bg-green-50 text-green-600 text-xs px-1 rounded">
-                                (м)
-                            </span>
+                            <TooltipProvider>
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <span className="absolute bottom-0 right-0 bg-gray-200 text-gray-600 text-xs px-1 rounded flex items-center">
+                                            <Info className="w-3 h-3 mr-1" />
+                                            Фото
+                                        </span>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        <p>Изображение является заглушкой</p>
+                                    </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
                         </div>
 
                         {/* Mobile: Rating and reviews */}
@@ -139,7 +143,7 @@ const ClinicCard: React.FC<ClinicCardProps> = ({
                                 {renderStars(rating.stars)}
                             </div>
                             <p className="text-sm text-blue-500 hover:underline">
-                                {rating.reviewCount} отзывов
+                                {rating.reviewCount > 0 ? `${rating.reviewCount} отзывов` : "Нет отзывов"}
                             </p>
                         </div>
                     </div>
@@ -152,20 +156,26 @@ const ClinicCard: React.FC<ClinicCardProps> = ({
                             <Heart className="w-6 h-6 text-green-600 stroke-green-600 fill-none" />
                         </div>
 
-                        {/* Specialists (м) */}
+                        {/* Specialists */}
                         <div className="flex items-center gap-2 mb-4 flex-col">
                             <div className="flex -space-x-2">
-                                {[1, 2, 3, 4, 5].map((i) => (
+                                {Array(Math.min(5, specialists > 0 ? specialists : 1)).fill(0).map((_, i) => (
                                     <div key={i} className="w-8 h-8 rounded-full bg-gray-200 border-2 border-white overflow-hidden">
-                                        {/* You can add actual specialist images here */}
+                                        {/* Placeholder for specialist images */}
                                     </div>
                                 ))}
                             </div>
-                            <p className="text-sm text-blue-500">{specialists} специалистов</p>
+                            <p className="text-sm text-blue-500">{specialists > 0 ? `${specialists} специалистов` : "Нет данных о специалистах"}</p>
                         </div>
 
                         {/* Mobile: Closing time notice */}
-                        <TimeStatus timeUntilClosing={timeUntilClose}/>
+                        {timeUntilClose !== "Нет данных о времени закрытия" ? (
+                            <TimeStatus timeUntilClosing={timeUntilClose}/>
+                        ) : (
+                            <div className="md:hidden mb-4 px-3 py-2 rounded-lg bg-gray-100 text-gray-500 text-sm">
+                                Нет данных о времени закрытия
+                            </div>
+                        )}
 
                         {/* Mobile: Simplified schedule */}
                         <div className="md:hidden mb-4">
@@ -237,7 +247,13 @@ const ClinicCard: React.FC<ClinicCardProps> = ({
 
                                 <div className="space-y-4">
                                     {/* Closing time notice */}
-                                    <TimeStatus timeUntilClosing={timeUntilClose}/>
+                                    {timeUntilClose !== "Нет данных о времени закрытия" ? (
+                                        <TimeStatus timeUntilClosing={timeUntilClose} />
+                                    ) : (
+                                        <div className="px-3 py-2 rounded-lg bg-gray-100 text-gray-500 text-sm">
+                                            Нет данных о времени закрытия
+                                        </div>
+                                    )}
 
                                     {/* Full Schedule in Sheet */}
                                     <div className="space-y-3">
@@ -270,9 +286,15 @@ const ClinicCard: React.FC<ClinicCardProps> = ({
                             </div>
 
                             {/* Closing time notice */}
-                            <div className="bg-red-50 text-red-500 rounded-lg p-2 mb-4">
-                                <p>{timeUntilClose}</p>
-                            </div>
+                            {timeUntilClose !== "Нет данных о времени закрытия" ? (
+                                <div className="bg-red-50 text-red-500 rounded-lg p-2 mb-4">
+                                    <p>{timeUntilClose}</p>
+                                </div>
+                            ) : (
+                                <div className="bg-gray-50 text-gray-500 rounded-lg p-2 mb-4 text-sm">
+                                    Нет данных о времени закрытия
+                                </div>
+                            )}
 
                             {/* Weekly schedule */}
                             <div className="space-y-2">
@@ -296,11 +318,13 @@ const ClinicCard: React.FC<ClinicCardProps> = ({
                 </div>
 
                 {/* Add Link wrapper around entire card for navigation */}
-                <div
-                    onClick={() => window.location.href = `/clinic/${slug}`}
-                    className="absolute inset-0 z-0 cursor-pointer"
-                    aria-hidden="true"
-                ></div>
+                {slug && (
+                    <div
+                        onClick={() => window.location.href = `/clinic/${slug}`}
+                        className="absolute inset-0 z-0 cursor-pointer"
+                        aria-hidden="true"
+                    ></div>
+                )}
             </div>
         </Card>
     );
