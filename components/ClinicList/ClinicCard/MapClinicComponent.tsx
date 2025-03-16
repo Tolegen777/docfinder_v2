@@ -29,9 +29,15 @@ const ALMATY_CENTER = [43.238949, 76.889709];
 interface MapComponentProps {
     isPreview?: boolean;
     selectedClinicId?: number;
+    customMarkers?: Array<{
+        id: number;
+        name: string;
+        address: string;
+        position: [number, number];
+    }>;
 }
 
-const MapClinicComponent = ({ isPreview = false, selectedClinicId }: MapComponentProps) => {
+const MapClinicComponent = ({ isPreview = false, selectedClinicId, customMarkers }: MapComponentProps) => {
     // Use React Query's cache to get the current clinics
     const queryClient = useQueryClient();
     const cachedData = queryClient.getQueriesData({
@@ -42,29 +48,32 @@ const MapClinicComponent = ({ isPreview = false, selectedClinicId }: MapComponen
     const [selectedIcon, setSelectedIcon] = useState(null);
     const [centerCoords, setCenterCoords] = useState(ALMATY_CENTER);
 
-    // Extract clinics from the cache
-    const clinics = useMemo(() => {
+    // Extract clinics from the cache or use customMarkers if provided
+    const clinicMarkers = useMemo(() => {
+        // If customMarkers are provided, use them instead of cache
+        if (customMarkers && customMarkers.length > 0) {
+            return customMarkers;
+        }
+
+        // Otherwise use the existing cache logic
         if (cachedData && cachedData.length > 0) {
             const [, data] = cachedData[0];
-            return (data as any)?.clinics || [];
+            const clinics = (data as any)?.clinics || [];
+
+            return clinics
+                .filter(clinic => clinic.latitude && clinic.longitude) // Убеждаемся, что у клиники есть координаты
+                .map(clinic => ({
+                    id: clinic.id,
+                    name: clinic.title || clinic.cardProps?.name,
+                    address: clinic.address || clinic.cardProps?.address,
+                    position: [
+                        parseFloat(clinic.latitude),
+                        parseFloat(clinic.longitude)
+                    ] as [number, number]
+                }));
         }
         return [];
-    }, [cachedData]);
-
-    // Преобразуем данные клиник для карты
-    const clinicMarkers = useMemo(() => {
-        return clinics
-            .filter(clinic => clinic.latitude && clinic.longitude) // Убеждаемся, что у клиники есть координаты
-            .map(clinic => ({
-                id: clinic.id,
-                name: clinic.title,
-                address: clinic.address,
-                position: [
-                    parseFloat(clinic.latitude),
-                    parseFloat(clinic.longitude)
-                ] as [number, number]
-            }));
-    }, [clinics]);
+    }, [cachedData, customMarkers]);
 
     // Определяем центр карты на основе клиник
     useEffect(() => {
