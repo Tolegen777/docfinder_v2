@@ -7,7 +7,6 @@ import { Button } from "@/components/shadcn/button";
 import {
     Sheet,
     SheetContent,
-    SheetTrigger,
     SheetHeader,
     SheetTitle,
     SheetClose
@@ -64,10 +63,6 @@ const ClinicCard: React.FC<ClinicCardProps> = ({
                                                        stars: 4,
                                                        reviewCount: 467
                                                    },
-                                                   discount = {
-                                                       percentage: 20,
-                                                       text: "на первый прием"
-                                                   },
                                                    schedule = {
                                                        monday: "09:00-18:00",
                                                        tuesday: "09:00-18:00",
@@ -78,9 +73,7 @@ const ClinicCard: React.FC<ClinicCardProps> = ({
                                                        sunday: "Выходной"
                                                    },
                                                    specialists = 0,
-                                                   price = 25000,
                                                    timeUntilClose = '',
-                                                   phoneNumber = "+7 701 234...",
                                                    isHideSchedule = false
                                                }) => {
     const [isSheetOpen, setIsSheetOpen] = useState(false);
@@ -112,24 +105,9 @@ const ClinicCard: React.FC<ClinicCardProps> = ({
         ));
     };
 
-    // Breadcrumb rendering for desktop view
-    // const renderBreadcrumb = () => (
-    //     <div className="hidden md:flex items-center gap-2 text-sm mb-4">
-    //         <span className="text-gray-500">Услуги</span>
-    //         <span className="text-gray-500">•</span>
-    //         <span className="text-gray-500">Диагностика</span>
-    //         <span className="text-gray-500">•</span>
-    //         <span className="text-gray-500">МРТ</span>
-    //         <span className="text-gray-500">•</span>
-    //         <span className="text-gray-700">МРТ головного мозга с контрастом (м)</span>
-    //     </div>
-    // );
-
     return (
         <Card className="w-full max-w-full p-4 md:p-6 bg-white relative">
             <div className="relative z-10">
-                {/* Breadcrumb - Desktop only */}
-                {/*{renderBreadcrumb()}*/}
 
                 {/* Main content */}
                 <div className="flex flex-col md:flex-row md:gap-6">
@@ -173,30 +151,6 @@ const ClinicCard: React.FC<ClinicCardProps> = ({
                             <h2 className="text-2xl font-semibold">{name}</h2>
                             <Heart className="w-6 h-6 text-green-600 stroke-green-600 fill-none" />
                         </div>
-
-                        {/* MRI Service Info - Desktop Only (м) */}
-                        {/*<div className="hidden md:block mb-4">*/}
-                        {/*    <p className="text-gray-800">*/}
-                        {/*        МРТ головного мозга с контрастом: <span className="text-green-600 font-medium">от {price.toLocaleString()} тенге</span>*/}
-                        {/*        <span className="text-xs text-gray-400 ml-1">(м)</span>*/}
-                        {/*    </p>*/}
-                        {/*</div>*/}
-
-                        {/* Discount - Full width on mobile (м) */}
-                        {/*<div className="bg-white border border-gray-200 rounded-lg p-3 text-center mb-4">*/}
-                        {/*    <p>*/}
-                        {/*        Скидка <span className="text-green-600 font-semibold">{discount.percentage}%</span> {discount.text}*/}
-                        {/*        <span className="text-xs text-gray-400 ml-1">(м)</span>*/}
-                        {/*    </p>*/}
-                        {/*</div>*/}
-
-                        {/* Phone button - Full width on mobile (м) */}
-                        {/*<div className="bg-white border border-gray-200 rounded-lg p-3 mb-4">*/}
-                        {/*    <div className="flex justify-between items-center">*/}
-                        {/*        <span>{phoneNumber} <span className="text-xs text-gray-400">(м)</span></span>*/}
-                        {/*        <span className="text-blue-500">Показать телефоны</span>*/}
-                        {/*    </div>*/}
-                        {/*</div>*/}
 
                         {/* Specialists (м) */}
                         <div className="flex items-center gap-2 mb-4 flex-col">
