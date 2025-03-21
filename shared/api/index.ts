@@ -1,1 +1,1 @@
-export { apiGet, apiInstance } from './config/apiInstance';
+export { apiGet, apiInstance, apiPost } from './config/apiInstance';

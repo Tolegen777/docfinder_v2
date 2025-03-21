@@ -40,8 +40,7 @@ export const HomeSpecialties = () => {
 
             <div className="mt-8 mb-6">
                 <h2 className="h3-28-36-600 text-center md:text-left">
-                    Популярные специальности{' '}
-                    <span className="text-primary">для взрослых</span>
+                    Специальности
                 </h2>
             </div>
 

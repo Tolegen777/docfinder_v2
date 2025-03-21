@@ -21,6 +21,7 @@ export interface RegisterParams {
 
 export interface IUser extends RegisterParams {
     id?: number
+    middle_name?: string
 }
 
 export interface AuthResponse {

@@ -116,6 +116,7 @@ export const ClinicDoctorsList = () => {
                             specialities={doctor.specialities}
                             rating_info={doctor.rating_info}
                             schedule={doctor.schedule}
+                            main_photo_url={doctor?.main_photo_url}
                         />
                     ))
                 )}

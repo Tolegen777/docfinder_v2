@@ -128,6 +128,7 @@ export const DoctorsList = () => {
                             schedule_day_after_tomorrow={doctor.schedule_day_after_tomorrow}
                             procedures={doctor.procedures}
                             consultations={doctor.consultations}
+                            main_photo_url={doctor?.main_photo_url}
                         />
                     ))
                 )}

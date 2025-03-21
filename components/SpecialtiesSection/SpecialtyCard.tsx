@@ -36,6 +36,7 @@ export const SpecialtyCard = ({
                     "size-12 mb-2",
                     active ? "text-white [&>path]:fill-white" : "text-primary"
                 )}
+                unoptimized
             />
             <span className="p-16-24-400">{name}</span>
             {doctorCount !== undefined && (

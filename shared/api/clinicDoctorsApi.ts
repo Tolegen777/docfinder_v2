@@ -20,6 +20,7 @@ export interface ClinicDoctor {
     experience: number;
     categories: string[];
     specialities: string[];
+    main_photo_url?: string;
     rating_info: RatingInfo;
     schedule: Schedule[];
 }

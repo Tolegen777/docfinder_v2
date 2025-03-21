@@ -1,27 +1,15 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Star, Eye, MapPin, Heart, ChevronDown, Pen, X } from 'lucide-react';
-import { Card } from '@/components/shadcn/card';
-import {
-    Sheet,
-    SheetContent,
-    SheetHeader,
-    SheetTitle,
-    SheetTrigger,
-} from "@/components/shadcn/sheet";
-import {
-    Dialog,
-    DialogContent,
-    DialogClose,
-} from "@/components/shadcn/dialog";
+import React, {useState} from 'react';
+import {ChevronDown, Eye, Heart, MapPin, Star} from 'lucide-react';
+import {Card} from '@/components/shadcn/card';
+import {Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger,} from "@/components/shadcn/sheet";
 import Image from "next/image";
-import doctorCard from '@/shared/assets/images/doctorCard.png';
-import { Button } from "@/components/shadcn/button";
-import { format } from 'date-fns';
-import { ru } from 'date-fns/locale';
-import { cn } from '@/lib/utils';
-import { ClinicDoctor, Schedule } from '@/shared/api/clinicDoctorsApi';
+import doctorCard from '@/shared/assets/images/doctorPlaceholder.jpeg';
+import {Button} from "@/components/shadcn/button";
+import {format} from 'date-fns';
+import {ru} from 'date-fns/locale';
+import {Schedule} from '@/shared/api/clinicDoctorsApi';
 
 interface ClinicDoctorCardProps {
     id: number;
@@ -34,18 +22,42 @@ interface ClinicDoctorCardProps {
         total_reviews: number;
     };
     schedule: Schedule[];
+    main_photo_url?: string;
 }
 
 const ClinicDoctorCard: React.FC<ClinicDoctorCardProps> = ({
                                                                full_name,
+                                                               id,
                                                                experience,
                                                                categories,
                                                                specialities,
                                                                rating_info,
-                                                               schedule
+                                                               schedule,
+                                                               main_photo_url
                                                            }) => {
     const [selectedDate, setSelectedDate] = useState<number>(0);
     const [showAllTimes, setShowAllTimes] = useState(false);
+
+    const getTimeSlotsForSelectedDay = () => {
+        if (!schedule || typeof selectedDate !== 'number' || !scheduleByDate[selectedDate]) {
+            return [];
+        }
+
+        // Преобразуем строковые значения времени в объекты TimeSlot
+        return scheduleByDate[selectedDate].working_hours.map((timeString, index) => ({
+            id: index + 1, // Генерируем id для временного слота
+            start_time: timeString,
+            // В случае если у вас нет точного времени окончания приема,
+            // можно оставить end_time undefined или вычислить его на основе start_time
+        }));
+    };
+
+    const getFormattedDate = () => {
+        if (typeof selectedDate !== 'number' || !scheduleByDate[selectedDate]) {
+            return new Date().toISOString().split('T')[0];
+        }
+        return scheduleByDate[selectedDate].date;
+    };
 
     // Группируем расписание по датам
     const scheduleByDate = React.useMemo(() => {
@@ -61,7 +73,7 @@ const ClinicDoctorCard: React.FC<ClinicDoctorCardProps> = ({
     // Форматируем дату для отображения
     const formatScheduleDate = (dateString: string) => {
         const date = new Date(dateString);
-        return format(date, 'd MMM', { locale: ru });
+        return format(date, 'd MMM', {locale: ru});
     };
 
     const renderStars = (count: number) => {
@@ -126,18 +138,14 @@ const ClinicDoctorCard: React.FC<ClinicDoctorCardProps> = ({
             </div>
 
             {renderWorkingHours(scheduleByDate[selectedDate])}
-
-            <Button className="w-full mt-4">
-                <Pen className="w-5 h-5 text-white"/>
-                <span className="text-base font-semibold">Записаться онлайн</span>
-            </Button>
         </>
     );
 
     const MobileSchedule = () => (
         <Sheet>
             <SheetTrigger asChild>
-                <button className="w-full flex items-center justify-center gap-2.5 px-5 py-2.5 border border-[#16A34A] rounded-lg bg-white">
+                <button
+                    className="w-full flex items-center justify-center gap-2.5 px-5 py-2.5 border border-[#16A34A] rounded-lg bg-white">
                     <span className="text-base font-semibold text-[#16A34A]">Выберите дату</span>
                     <ChevronDown className="w-5 h-5 text-[#16A34A]"/>
                 </button>
@@ -182,7 +190,7 @@ const ClinicDoctorCard: React.FC<ClinicDoctorCardProps> = ({
                 {/* Left Column - Photo and Rating */}
                 <div className="flex flex-row md:flex-col items-center space-y-2.5">
                     <div className="relative">
-                        <Image src={doctorCard} width={104} height={104} alt={full_name} className="rounded-full"/>
+                        <Image src={main_photo_url ?? doctorCard} width={104} height={104} alt={full_name} className="rounded-full"/>
                     </div>
                     <div className="flex flex-col items-center gap-2">
                         <p className="text-sm text-[#4B81EC] hover:underline cursor-pointer">

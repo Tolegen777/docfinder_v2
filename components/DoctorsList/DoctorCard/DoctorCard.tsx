@@ -16,8 +16,7 @@ import {
     DialogClose,
 } from "@/components/shadcn/dialog";
 import Image from "next/image";
-import doctorCard from '@/shared/assets/images/doctorCard.png';
-import { Breadcrumb } from "@/shared/ui/Breadcrumb";
+import doctorCard from '@/shared/assets/images/doctorPlaceholder.jpeg';
 import { DiscountBanner } from "@/components/DoctorsList/DoctorCard/DiscountBanner";
 import { Button } from "@/components/shadcn/button";
 import dynamic from "next/dynamic";
@@ -26,6 +25,8 @@ import { ru } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { MedicalCategory, Schedule, Procedure, Consultation } from '@/shared/api/doctorsApi';
 import {useRouter} from "next/navigation";
+import OnlineAppointmentButton from "@/shared/ui/AppointmentButton/OnlineAppointmentButton";
+import {TimeSlot} from "@/shared/ui/AppointmentButton/TimeSelector";
 
 // Динамически импортируем DoctorClinicMapContent для предотвращения проблем с SSR
 const DoctorClinicMapContent = dynamic(() => import('./DoctorClinicMapContent'), {
@@ -53,19 +54,12 @@ interface DoctorCardProps {
     procedures?: Procedure[];
     consultations?: Consultation[];
     isPreventNavigation?: boolean;
+    main_photo_url?: string;
 }
-
-// Моковые данные для полей, которых все еще нет в API
-const mockData = {
-    rating: {
-        percentage: 82, // Это пока оставляем как мок, т.к. в API нет процента рекомендаций
-    },
-    category: "Высшая категория (м)", // Категория врача все еще отсутствует в API
-    phoneNumber: "+7 701 234" // Телефон все еще отсутствует в API
-};
 
 const DoctorCard: React.FC<DoctorCardProps> = ({
                                                    full_name,
+    id,
     slug,
                                                    medical_categories,
                                                    experience_years,
@@ -78,7 +72,8 @@ const DoctorCard: React.FC<DoctorCardProps> = ({
                                                    schedule_day_after_tomorrow,
                                                    procedures = [],
                                                    consultations = [],
-                                                   isPreventNavigation
+                                                   isPreventNavigation,
+                                                   main_photo_url
                                                }) => {
     const router = useRouter();
     const [selectedDate, setSelectedDate] = useState<'today' | 'tomorrow' | 'day_after'>('today');
@@ -127,6 +122,14 @@ const DoctorCard: React.FC<DoctorCardProps> = ({
     const hasConsultations = sortedConsultations.length > 0;
     // Состояние для отображения всех консультаций
     const [showAllConsultations, setShowAllConsultations] = useState(false);
+
+    const timeSlots: TimeSlot[] = schedule_today.length > 0
+        ? schedule_today[0].working_hours.map(hour => ({
+            id: hour.id,
+            start_time: hour.start_time,
+            end_time: hour.end_time
+        }))
+        : [];
 
     // Находим максимальную скидку среди всех консультаций для отображения на баннере
     const findMaxDiscount = () => {
@@ -209,10 +212,18 @@ const DoctorCard: React.FC<DoctorCardProps> = ({
 
             {renderWorkingHours(getScheduleForDate(selectedDate))}
 
-            <Button className="w-full mt-4">
-                <Pen className="w-5 h-5 text-white"/>
-                <span className="text-base font-semibold">Записаться онлайн</span>
-            </Button>
+            <OnlineAppointmentButton
+                doctorId={id}
+                doctorName={full_name}
+                procedureId={consultations?.length > 0 ? consultations[0].medical_procedure_id : undefined}
+                procedureName={consultations?.length > 0 ? consultations[0].title : undefined}
+                schedule_today={schedule_today}
+                schedule_tomorrow={schedule_tomorrow}
+                schedule_day_after_tomorrow={schedule_day_after_tomorrow}
+                procedures={procedures}
+                className="w-full mt-4 bg-green-600 hover:bg-green-700"
+                buttonText="Записаться онлайн"
+            />
         </>
     );
 
@@ -267,7 +278,7 @@ const DoctorCard: React.FC<DoctorCardProps> = ({
                 {/* Left Column - Photo and Rating */}
                 <div className="flex flex-row md:flex-col items-center space-y-2.5">
                     <div className="relative">
-                        <Image src={doctorCard} width={104} height={104} alt={full_name} className="rounded-full"/>
+                        <Image src={main_photo_url ?? doctorCard} width={104} height={104} alt={full_name} className="rounded-full"/>
                     </div>
                     <div className="flex flex-col items-center gap-2">
                         {/*<p className="text-sm font-bold text-[#94A3B8] text-center max-w-[160px]">*/}

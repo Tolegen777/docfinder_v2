@@ -3,7 +3,6 @@ import qs from 'qs';
 import {tokenService} from "@/shared/lib/tokenService";
 import {handleSessionExpired} from "@/shared/lib/handleSessionExpired";
 import {authApi} from "@/shared/api/authApi";
-import {toast} from "sonner";
 
 type FailedQueue = {
     reject: (error: Error | null) => void;
@@ -48,6 +47,7 @@ const processQueue = (error: Error | null, token: string | null = null) => {
 // Массив URL-путей, для которых нужно добавлять токен
 const protectedUrls = [
     '/authentication/',
+    '/create-visit'
 ];
 
 apiInstance.interceptors.request.use((config: any) => {

@@ -54,6 +54,7 @@ interface DoctorDetail {
     clinic_today_longitude: number | null;
     clinic_today_latitude: number | null;
     clinic_today_maps_links: any;
+    main_photo_url?: string;
 }
 
 export const DoctorDetailsAPI = {

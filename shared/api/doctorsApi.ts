@@ -68,6 +68,7 @@ export interface Doctor {
     schedule_day_after_tomorrow: Schedule[];
     procedures: Procedure[];
     consultations: Consultation[];
+    main_photo_url?: string;
 }
 
 export interface DoctorsResponse {
