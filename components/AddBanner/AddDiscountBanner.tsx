@@ -13,9 +13,9 @@ export const AddDiscountBanner = () => {
                 <div
                     className="h3-28-36-600 md:h2-38-54-600 mb-5 flex flex-col md:flex-row items-center gap-2 text-center md:text-left">
                     Запись на приём к лучшим врачам Алматы: {' '}
-                    <div className="bg-green-light-1 p-2 rounded-md">
-                        <span className="text-primary">100 545 врачей</span>
-                    </div>
+                    {/*<div className="bg-green-light-1 p-2 rounded-md">*/}
+                    {/*    <span className="text-primary">100 545 врачей</span>*/}
+                    {/*</div>*/}
                 </div>
 
                 <div className="hidden md:block w-full h-[250px] relative">

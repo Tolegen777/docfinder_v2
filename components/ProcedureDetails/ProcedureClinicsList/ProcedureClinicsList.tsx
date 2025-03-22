@@ -17,7 +17,6 @@ export const ProcedureClinicsList = () => {
     const [selectedClinicId, setSelectedClinicId] = useState<number | undefined>(undefined);
     const [page, setPage] = useState(1);
     const pageSize = 10;
-    const queryClient = useQueryClient();
 
     // State to store all loaded clinics
     const [allClinics, setAllClinics] = useState<any[]>([]);
@@ -92,6 +91,7 @@ export const ProcedureClinicsList = () => {
                     schedule: convertWorkingHoursToSchedule(clinic.working_hours),
                     specialists: clinic.specialities?.length || 0,
                     timeUntilClose: clinic.time_until_closing || "Нет данных о времени закрытия",
+                    doctor_count: clinic?.doctor_count
                 }
             }));
 
@@ -204,6 +204,8 @@ export const ProcedureClinicsList = () => {
                                 schedule={clinic.cardProps.schedule}
                                 specialists={clinic.cardProps.specialists}
                                 timeUntilClose={clinic.cardProps.timeUntilClose}
+                                doctor_count={clinic?.doctor_count}
+                                main_photo_url={clinic?.main_photo_url}
                             />
                         ))}
                     </div>

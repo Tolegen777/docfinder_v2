@@ -76,7 +76,7 @@ export const Header = () => {
                     {/* Right side controls */}
                     <div className="flex items-center gap-3 w-full md:w-auto md:ml-auto order-2 md:order-3">
                         <div className="flex items-center justify-between w-full">
-                            <LanguageSelector />
+                            {/*<LanguageSelector />*/}
                             <CitySelector />
 
                             {isAuthenticated ? (

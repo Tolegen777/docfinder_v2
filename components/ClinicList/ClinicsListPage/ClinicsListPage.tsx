@@ -128,6 +128,8 @@ export const ClinicsListPage = () => {
                                 schedule={clinic.cardProps.schedule}
                                 specialists={clinic.cardProps.specialists}
                                 timeUntilClose={clinic.cardProps.timeUntilClose}
+                                main_photo_url={clinic?.main_photo_url}
+                                doctor_count={clinic?.doctor_count}
                             />
                         ))
                     ) : (
@@ -185,6 +187,8 @@ export const ClinicsListPage = () => {
                                     schedule={clinic.cardProps.schedule}
                                     specialists={clinic.cardProps.specialists}
                                     timeUntilClose={clinic.cardProps.timeUntilClose}
+                                    main_photo_url={clinic?.main_photo_url}
+                                    doctor_count={clinic?.doctor_count}
                                 />
                             ))
                         ) : (

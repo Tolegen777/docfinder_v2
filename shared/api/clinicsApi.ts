@@ -34,6 +34,9 @@ export interface Clinic {
     working_hours: WorkingHour[];
     time_until_closing: string; // Формат: "8 ч. 50 мин. до закрытия"
     rating_info: RatingInfo;
+    doctor_count?: number;
+    main_photo_url?: string;
+
 }
 
 export interface ClinicsResponse {

@@ -46,6 +46,8 @@ interface ClinicCardProps {
     timeUntilClose?: string;
     isHideSchedule?: boolean;
     slug?: string;
+    doctor_count?: number;
+    main_photo_url?: string;
 }
 
 const ClinicCard: React.FC<ClinicCardProps> = ({
@@ -68,7 +70,9 @@ const ClinicCard: React.FC<ClinicCardProps> = ({
                                                    },
                                                    specialists = 0,
                                                    timeUntilClose = "Нет данных о времени закрытия",
-                                                   isHideSchedule = false
+                                                   isHideSchedule = false,
+                                                   doctor_count,
+                                                   main_photo_url
                                                }) => {
     const [isSheetOpen, setIsSheetOpen] = useState(false);
     const [isMapOpen, setIsMapOpen] = useState(false);
@@ -114,12 +118,11 @@ const ClinicCard: React.FC<ClinicCardProps> = ({
                         </div>
 
                         {/* ClinicList image (м) */}
-                        <div className="relative w-full max-w-[160px] h-[160px] mx-auto md:mx-0 mb-4">
+                        <div className="relative w-[160px] h-[160px] mx-auto md:mx-0 mb-4 rounded-full">
                             <Image
-                                src={clinicImg}
-                                width={160}
-                                height={160}
+                                src={main_photo_url ?? clinicImg}
                                 alt={name}
+                                fill
                                 className="rounded-full"
                             />
                             <TooltipProvider>
@@ -165,12 +168,12 @@ const ClinicCard: React.FC<ClinicCardProps> = ({
                                     </div>
                                 ))}
                             </div>
-                            <p className="text-sm text-blue-500">{specialists > 0 ? `${specialists} специалистов` : "Нет данных о специалистах"}</p>
+                            <p className="text-sm text-blue-500">{(specialists > 0 || doctor_count)  ? `${doctor_count ?? specialists} специалистов` : "Нет данных о специалистах"}</p>
                         </div>
 
                         {/* Mobile: Closing time notice */}
                         {timeUntilClose !== "Нет данных о времени закрытия" ? (
-                            <TimeStatus timeUntilClosing={timeUntilClose}/>
+                            <TimeStatus timeUntilClosing={timeUntilClose} className="md:hidden"/>
                         ) : (
                             <div className="md:hidden mb-4 px-3 py-2 rounded-lg bg-gray-100 text-gray-500 text-sm">
                                 Нет данных о времени закрытия
