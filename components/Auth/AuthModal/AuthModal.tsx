@@ -38,7 +38,7 @@ const loginSchema = z.object({
 const registerSchema = z.object({
     first_name: z.string().min(1, 'Введите имя'),
     phone_number: z.string().regex(phoneRegex, 'Введите корректный номер телефона'),
-    login: z.string().min(4, 'Логин должен содержать минимум 4 символа'),
+    login: z.string().optional(),
     iin_number: z.string().regex(iinRegex, 'ИИН должен содержать 12 цифр'),
     password: z.string().min(6, 'Пароль должен содержать минимум 6 символов'),
     confirm_password: z.string().min(6, 'Пароль должен содержать минимум 6 символов'),
@@ -349,19 +349,19 @@ const AuthModal: React.FC<AuthModalProps> = ({
                             )}
                         </div>
 
-                        <div className="relative">
-                            <Input
-                                label="Придумайте логин *"
-                                required
-                                className="bg-[#f3f5f6]"
-                                {...registerForm.register('login')}
-                            />
-                            {registerForm.formState.errors.login && (
-                                <p className="mt-1 text-sm text-red-500">
-                                    {registerForm.formState.errors.login.message}
-                                </p>
-                            )}
-                        </div>
+                        {/*<div className="relative">*/}
+                        {/*    <Input*/}
+                        {/*        label="Придумайте логин *"*/}
+                        {/*        required*/}
+                        {/*        className="bg-[#f3f5f6]"*/}
+                        {/*        {...registerForm.register('login')}*/}
+                        {/*    />*/}
+                        {/*    {registerForm.formState.errors.login && (*/}
+                        {/*        <p className="mt-1 text-sm text-red-500">*/}
+                        {/*            {registerForm.formState.errors.login.message}*/}
+                        {/*        </p>*/}
+                        {/*    )}*/}
+                        {/*</div>*/}
 
                         <div className="space-y-2">
                             <div className="relative">

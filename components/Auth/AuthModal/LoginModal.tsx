@@ -6,6 +6,7 @@ import {
 import { Input } from "@/components/shadcn/input";
 import { Button } from "@/components/shadcn/button";
 import { Eye, EyeOff } from "lucide-react";
+import { formatPhoneNumber } from "@/shared/lib/formatters";
 
 interface LoginModalProps {
     isOpen: boolean;
@@ -16,19 +17,39 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
     const [loginType, setLoginType] = useState<'phone' | 'email'>('phone');
     const [showPassword, setShowPassword] = useState(false);
     const [formData, setFormData] = useState({
-        login: '+7',
+        login: '+7 ',
         password: ''
     });
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+        // Handle form submission
+        console.log('Form submitted:', formData);
     };
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
+
+        // Форматирование номера телефона, если выбран вход по телефону
+        if (name === 'login' && loginType === 'phone') {
+            setFormData(prev => ({
+                ...prev,
+                [name]: formatPhoneNumber(value)
+            }));
+        } else {
+            setFormData(prev => ({
+                ...prev,
+                [name]: value
+            }));
+        }
+    };
+
+    // Сбрасываем значение поля login при переключении типа входа
+    const handleLoginTypeChange = (type: 'phone' | 'email') => {
+        setLoginType(type);
         setFormData(prev => ({
             ...prev,
-            [name]: value
+            login: type === 'phone' ? '+7 ' : ''
         }));
     };
 
@@ -39,7 +60,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
                     <h2 className="text-center text-xl font-medium mb-4">Вход</h2>
                     <div className="flex justify-center gap-8 relative">
                         <button
-                            onClick={() => setLoginType('phone')}
+                            onClick={() => handleLoginTypeChange('phone')}
                             className={`text-sm pb-1 relative ${loginType === 'phone' ? 'text-green-600' : 'text-gray-500'}`}
                         >
                             По номеру телефона
@@ -48,7 +69,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
                             )}
                         </button>
                         <button
-                            onClick={() => setLoginType('email')}
+                            onClick={() => handleLoginTypeChange('email')}
                             className={`text-sm pb-1 relative ${loginType === 'email' ? 'text-green-600' : 'text-gray-500'}`}
                         >
                             По email

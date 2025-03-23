@@ -18,6 +18,7 @@ interface AppointmentStep2Props {
     formData: PatientFormData;
     onInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     isAuthenticated: boolean;
+    formErrors?: Record<string, string>;
 
     onPrevStep: () => void;
     onSubmit: () => void;
@@ -34,6 +35,7 @@ export const AppointmentStep2: React.FC<AppointmentStep2Props> = ({
                                                                       formData,
                                                                       onInputChange,
                                                                       isAuthenticated,
+                                                                      formErrors = {},
                                                                       onPrevStep,
                                                                       onSubmit,
                                                                       isLoading
@@ -86,6 +88,7 @@ export const AppointmentStep2: React.FC<AppointmentStep2Props> = ({
                     formData={formData}
                     onInputChange={onInputChange}
                     isAuthenticated={isAuthenticated}
+                    formErrors={formErrors}
                 />
             </div>
 

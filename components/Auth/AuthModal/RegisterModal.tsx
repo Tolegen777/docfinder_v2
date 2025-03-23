@@ -6,6 +6,7 @@ import {
 import { Input } from "@/components/shadcn/input";
 import { Button } from "@/components/shadcn/button";
 import { Eye, EyeOff } from "lucide-react";
+import { formatPhoneNumber, formatIIN } from "@/shared/lib/formatters";
 
 interface RegisterModalProps {
     isOpen: boolean;
@@ -17,7 +18,8 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose }) => {
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [formData, setFormData] = useState({
         name: '',
-        phone: '+7',
+        phone: '+7 ',
+        iin: '',
         password: '',
         confirmPassword: ''
     });
@@ -30,10 +32,24 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose }) => {
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: value
-        }));
+
+        // Применяем форматирование для номера телефона и ИИН
+        if (name === 'phone') {
+            setFormData(prev => ({
+                ...prev,
+                [name]: formatPhoneNumber(value)
+            }));
+        } else if (name === 'iin') {
+            setFormData(prev => ({
+                ...prev,
+                [name]: formatIIN(value)
+            }));
+        } else {
+            setFormData(prev => ({
+                ...prev,
+                [name]: value
+            }));
+        }
     };
 
     return (
@@ -62,7 +78,19 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose }) => {
                             value={formData.phone}
                             onChange={handleInputChange}
                             className="h-12 rounded-lg bg-gray-50 border-gray-200 focus:border-green-600 focus:ring-green-600"
-                            placeholder="+7"
+                            placeholder="+7 ___ ___ __ __"
+                        />
+                    </div>
+
+                    <div>
+                        <Input
+                            type="text"
+                            name="iin"
+                            value={formData.iin}
+                            onChange={handleInputChange}
+                            className="h-12 rounded-lg bg-gray-50 border-gray-200 focus:border-green-600 focus:ring-green-600"
+                            placeholder="ИИН (12 цифр)"
+                            maxLength={12}
                         />
                     </div>
 

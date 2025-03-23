@@ -16,6 +16,7 @@ import { PatientFormData } from './PatientForm';
 import { Procedure } from "@/shared/api/doctorsApi";
 import { AppointmentStep1 } from './AppointmentStep1';
 import { AppointmentStep2 } from './AppointmentStep2';
+import { z } from 'zod';
 
 interface AppointmentModalProps {
     isOpen: boolean;
@@ -29,6 +30,15 @@ interface AppointmentModalProps {
     schedule_day_after_tomorrow?: any[];
     availableProcedures?: Procedure[];
 }
+
+// Схема валидации для данных пациента
+const patientSchema = z.object({
+    first_name: z.string().min(1, 'Имя обязательно для заполнения'),
+    last_name: z.string().min(1, 'Фамилия обязательна для заполнения'),
+    middle_name: z.string().optional(),
+    phone_number: z.string().regex(/^\+7\s[0-9]{3}\s[0-9]{3}\s[0-9]{4}$/, 'Введите корректный номер телефона'),
+    iin_number: z.string().regex(/^[0-9]{12}$/, 'ИИН должен содержать 12 цифр'),
+});
 
 export const AppointmentModal: React.FC<AppointmentModalProps> = ({
                                                                       isOpen,
@@ -63,6 +73,9 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
         iin_number: '',
     });
 
+    // Ошибки валидации
+    const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+
     // Контекст из сторов
     const { isAuthenticated, user } = useAuthStore();
 
@@ -79,20 +92,43 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
         }
     }, [isAuthenticated, user]);
 
-    // Инициализация при открытии модалки
+    // Сброс данных при открытии/закрытии модального окна
     useEffect(() => {
         if (isOpen) {
             // Устанавливаем активное расписание на сегодня по умолчанию
             setActiveSchedule(schedule_today[0] || null);
             setSelectedTab('today');
             setSelectedTimeSlot(null);
+            setStep(1);
+            setFormErrors({});
+
+            // Если пользователь не авторизован, очищаем форму
+            if (!isAuthenticated) {
+                setFormData({
+                    first_name: '',
+                    last_name: '',
+                    middle_name: '',
+                    phone_number: '+7 ',
+                    iin_number: '',
+                });
+            }
         }
-    }, [isOpen, schedule_today]);
+    }, [isOpen, schedule_today, isAuthenticated]);
 
     // Обработчик для работы с формой
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
+
         setFormData(prev => ({ ...prev, [name]: value }));
+
+        // Очищаем ошибку поля при изменении
+        if (formErrors[name]) {
+            setFormErrors(prev => {
+                const newErrors = { ...prev };
+                delete newErrors[name];
+                return newErrors;
+            });
+        }
     };
 
     // Обработчик выбора временного слота
@@ -118,6 +154,11 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
         }
 
         setSelectedDate(format(date, 'yyyy-MM-dd'));
+    };
+
+    // Обработчик закрытия модального окна
+    const handleClose = () => {
+        onClose();
     };
 
     // Обработчики перехода между шагами
@@ -146,31 +187,37 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
 
     // Валидация формы перед отправкой
     const validateForm = () => {
-        if (!isAuthenticated) {
-            if (!formData.first_name || !formData.last_name || !formData.phone_number || !formData.iin_number) {
-                toast.error('Пожалуйста, заполните все обязательные поля');
-                return false;
-            }
-
-            // Проверка формата ИИН
-            if (!/^\d{12}$/.test(formData.iin_number)) {
-                toast.error('ИИН должен состоять из 12 цифр');
-                return false;
-            }
-
-            // Проверка формата телефона
-            if (!/^\+7\s?\d{3}\s?\d{3}\s?\d{2}\s?\d{2}$/.test(formData.phone_number)) {
-                toast.error('Неверный формат номера телефона');
-                return false;
-            }
+        if (isAuthenticated) {
+            return true; // Для авторизованных пользователей не проверяем данные формы
         }
 
-        return true;
+        try {
+            patientSchema.parse(formData);
+            setFormErrors({});
+            return true;
+        } catch (error) {
+            if (error instanceof z.ZodError) {
+                const newErrors: Record<string, string> = {};
+                error.errors.forEach((err) => {
+                    if (err.path.length > 0) {
+                        newErrors[err.path[0].toString()] = err.message;
+                    }
+                });
+                setFormErrors(newErrors);
+            }
+            return false;
+        }
     };
 
     // Отправка формы
     const handleSubmit = async () => {
-        if (!validateForm()) return;
+        if (!validateForm()) {
+            // Покажем ошибки через тостер только если есть ошибки
+            if (Object.keys(formErrors).length > 0) {
+                toast.error('Пожалуйста, исправьте ошибки в форме');
+            }
+            return;
+        }
 
         if (!doctorId || !procedureId || !activeSchedule || !selectedDate || !selectedTimeSlot) {
             toast.error('Не все параметры для записи выбраны');
@@ -207,7 +254,17 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
             toast.success('Запись на прием успешно создана', {
                 position: 'top-right'
             });
-            onClose();
+
+            // Сбрасываем данные формы и закрываем модальное окно
+            setFormData({
+                first_name: '',
+                last_name: '',
+                middle_name: '',
+                phone_number: '+7 ',
+                iin_number: '',
+            });
+            setStep(1);
+            handleClose();
 
         } catch (error: any) {
             // Обработка ошибок
@@ -226,7 +283,7 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
     })) || [];
 
     return (
-        <Dialog open={isOpen} onOpenChange={onClose}>
+        <Dialog open={isOpen} onOpenChange={handleClose}>
             <DialogContent className="sm:max-w-[500px] p-0 max-h-[80vh] overflow-auto">
                 <DialogHeader className="p-4 border-b">
                     <DialogTitle className="text-xl font-semibold flex justify-between items-center">
@@ -262,6 +319,7 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
                         onPrevStep={handlePrevStep}
                         onSubmit={handleSubmit}
                         isLoading={isLoading}
+                        formErrors={formErrors}
                     />
                 )}
             </DialogContent>

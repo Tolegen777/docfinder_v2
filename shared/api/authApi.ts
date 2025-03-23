@@ -12,7 +12,7 @@ export interface LoginParams {
 
 export interface RegisterParams {
     phone_number: string;
-    password: string;
+    password?: string;
     first_name: string;
     last_name?: string;
     birth_date?: string;
