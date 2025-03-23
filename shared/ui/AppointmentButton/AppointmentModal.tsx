@@ -1,22 +1,22 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { format } from 'date-fns';
+import React, {useState, useEffect} from 'react';
+import {format} from 'date-fns';
 import {
     Dialog,
     DialogContent,
     DialogHeader,
     DialogTitle,
 } from '@/components/shadcn/dialog';
-import { toast } from 'sonner';
-import { useAuthStore } from '@/shared/stores/authStore';
-import { apiPost } from '@/shared/api';
-import { TimeSlot } from './TimeSelector';
-import { PatientFormData } from './PatientForm';
-import { Procedure } from "@/shared/api/doctorsApi";
-import { AppointmentStep1 } from './AppointmentStep1';
-import { AppointmentStep2 } from './AppointmentStep2';
-import { z } from 'zod';
+import {toast} from 'sonner';
+import {useAuthStore} from '@/shared/stores/authStore';
+import {apiPost} from '@/shared/api';
+import {TimeSlot} from './TimeSelector';
+import {PatientFormData} from './PatientForm';
+import {Procedure} from "@/shared/api/doctorsApi";
+import {AppointmentStep1} from './AppointmentStep1';
+import {AppointmentStep2} from './AppointmentStep2';
+import {z} from 'zod';
 
 interface AppointmentModalProps {
     isOpen: boolean;
@@ -77,7 +77,7 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
     const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
     // Контекст из сторов
-    const { isAuthenticated, user } = useAuthStore();
+    const {isAuthenticated, user} = useAuthStore();
 
     // Заполняем форму данными пользователя, если он авторизован
     useEffect(() => {
@@ -117,14 +117,14 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
 
     // Обработчик для работы с формой
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
+        const {name, value} = e.target;
 
-        setFormData(prev => ({ ...prev, [name]: value }));
+        setFormData(prev => ({...prev, [name]: value}));
 
         // Очищаем ошибку поля при изменении
         if (formErrors[name]) {
             setFormErrors(prev => {
-                const newErrors = { ...prev };
+                const newErrors = {...prev};
                 delete newErrors[name];
                 return newErrors;
             });
@@ -187,9 +187,6 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
 
     // Валидация формы перед отправкой
     const validateForm = () => {
-        if (isAuthenticated) {
-            return true; // Для авторизованных пользователей не проверяем данные формы
-        }
 
         try {
             patientSchema.parse(formData);
@@ -237,15 +234,13 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
             };
 
             // Если пользователь не авторизован, добавляем персональные данные
-            if (!isAuthenticated) {
-                Object.assign(appointmentData, {
-                    first_name: formData.first_name,
-                    last_name: formData.last_name,
-                    middle_name: formData.middle_name,
-                    phone_number: formData.phone_number,
-                    iin_number: formData.iin_number,
-                });
-            }
+            Object.assign(appointmentData, {
+                first_name: formData.first_name,
+                last_name: formData.last_name,
+                middle_name: formData.middle_name,
+                phone_number: formData.phone_number.replace(/\s+/g, ""),
+                iin_number: formData.iin_number,
+            });
 
             // Отправка запроса на создание визита
             const response = await apiPost('/patients_endpoints/visits/create-visit/', appointmentData);

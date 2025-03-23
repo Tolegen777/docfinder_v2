@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Check } from 'lucide-react';
 import { Label } from '@/components/shadcn/label';
 import { Input } from '@/components/shadcn/input';
@@ -27,6 +27,31 @@ export const PatientForm: React.FC<PatientFormProps> = ({
                                                             isAuthenticated,
                                                             formErrors = {}
                                                         }) => {
+    // Применяем форматирование при инициализации и обновлении компонента
+    useEffect(() => {
+        // Создаем фейковое событие для форматирования телефона
+        if (formData.phone_number && !formData.phone_number.includes(' ')) {
+            const phoneEvent = {
+                target: {
+                    name: 'phone_number',
+                    value: formatPhoneNumber(formData.phone_number)
+                }
+            } as React.ChangeEvent<HTMLInputElement>;
+            onInputChange(phoneEvent);
+        }
+
+        // Создаем фейковое событие для форматирования ИИН
+        if (formData.iin_number) {
+            const iinEvent = {
+                target: {
+                    name: 'iin_number',
+                    value: formatIIN(formData.iin_number)
+                }
+            } as React.ChangeEvent<HTMLInputElement>;
+            onInputChange(iinEvent);
+        }
+    }, []);  // Пустой массив зависимостей, чтобы эффект выполнился только один раз
+
     // Создаем обертку для onInputChange, которая применяет форматирование
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -61,7 +86,6 @@ export const PatientForm: React.FC<PatientFormProps> = ({
                     name="last_name"
                     value={formData.last_name}
                     onChange={onInputChange}
-                    disabled={isAuthenticated}
                     required
                     className={`${isAuthenticated ? "bg-blue-50" : ""} ${formErrors.last_name ? "border-red-500" : ""}`}
                 />
@@ -79,7 +103,6 @@ export const PatientForm: React.FC<PatientFormProps> = ({
                     name="first_name"
                     value={formData.first_name}
                     onChange={onInputChange}
-                    disabled={isAuthenticated}
                     required
                     className={`${isAuthenticated ? "bg-blue-50" : ""} ${formErrors.first_name ? "border-red-500" : ""}`}
                 />
@@ -95,7 +118,6 @@ export const PatientForm: React.FC<PatientFormProps> = ({
                     name="middle_name"
                     value={formData.middle_name}
                     onChange={onInputChange}
-                    disabled={isAuthenticated}
                     className={isAuthenticated ? "bg-blue-50" : ""}
                 />
             </div>
@@ -110,7 +132,6 @@ export const PatientForm: React.FC<PatientFormProps> = ({
                         name="iin_number"
                         value={formData.iin_number}
                         onChange={handleInputChange}
-                        disabled={isAuthenticated}
                         required
                         maxLength={12}
                         placeholder="12 цифр"
@@ -133,7 +154,6 @@ export const PatientForm: React.FC<PatientFormProps> = ({
                         name="phone_number"
                         value={formData.phone_number}
                         onChange={handleInputChange}
-                        disabled={isAuthenticated}
                         required
                         placeholder="+7 ___ ___ __ __"
                         className={`${isAuthenticated ? "bg-blue-50" : ""} ${formErrors.phone_number ? "border-red-500" : ""}`}
