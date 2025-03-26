@@ -55,6 +55,7 @@ interface DoctorCardProps {
     consultations?: Consultation[];
     isPreventNavigation?: boolean;
     main_photo_url?: string;
+    fromPage?: string
 }
 
 const DoctorCard: React.FC<DoctorCardProps> = ({
@@ -73,7 +74,8 @@ const DoctorCard: React.FC<DoctorCardProps> = ({
                                                    procedures = [],
                                                    consultations = [],
                                                    isPreventNavigation,
-                                                   main_photo_url
+                                                   main_photo_url,
+                                                   fromPage
                                                }) => {
     const router = useRouter();
     const [selectedDate, setSelectedDate] = useState<'today' | 'tomorrow' | 'day_after'>('today');
@@ -251,7 +253,11 @@ const DoctorCard: React.FC<DoctorCardProps> = ({
     return (
         <Card className={cn('w-full max-w-[1181px] p-4 md:p-5 bg-white', !isPreventNavigation && 'cursor-pointer')} onClick={() => {
             if (!isPreventNavigation) {
-                router.push(`doctor/${slug}`)
+                if (fromPage === 'speciality') {
+                    router.push(`/doctor/${slug}`)
+                } else {
+                    router.push(`doctor/${slug}`)
+                }
             }
         }}>
             {/*<div className="mb-2 -mt-2">*/}

@@ -4,8 +4,6 @@ import React from 'react';
 import { useParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import DoctorCard from '@/components/DoctorsList/DoctorCard/DoctorCard';
-import { AppointmentTypeFilters } from '@/components/AppointmentTypeFilters/AppointmentTypeFilters';
-import { Skeleton } from '@/components/shadcn/skeleton';
 import { DoctorsPagination } from '@/components/DoctorsList/DoctorsPagination/DoctorsPagination';
 import { useCityStore } from '@/shared/stores/cityStore';
 import {SpecialitiesAPI} from "@/shared/api/specialityApi";
@@ -59,8 +57,6 @@ const SpecialityDetailPage: React.FC = () => {
         <div className="max-w-[1200px] mx-auto px-4 py-8">
             <h1 className="text-3xl font-bold mb-6">Врачи специальности: {specialityTitle}</h1>
 
-            <AppointmentTypeFilters />
-
             <div className="space-y-4 mt-6">
                 {isLoading ? (
                     Array.from({ length: PAGE_SIZE }).map((_, i) => (
@@ -73,6 +69,7 @@ const SpecialityDetailPage: React.FC = () => {
                             <DoctorCard
                                 key={doctor.id}
                                 {...adaptedDoctor}
+                                fromPage={'speciality'}
                             />
                         );
                     })
