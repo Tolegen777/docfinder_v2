@@ -65,13 +65,11 @@ export const adaptSpecialityDoctorToCardFormat = (doctor: SpecialityDoctor): Doc
         medical_category_id: `cat-${index}`
     }));
 
-    // Если slug не предоставлен, создаем его из имени врача
-    const slug = doctor.full_name.toLowerCase().replace(/\s+/g, '-');
 
     return {
         id: doctor.id,
         full_name: doctor.full_name,
-        slug: slug,
+        slug: doctor?.slug ?? '',
         first_name: doctor.full_name.split(' ')[0] || '',
         last_name: doctor.full_name.split(' ')[1] || '',
         middle_name: doctor.full_name.split(' ')[2] || '',

@@ -33,6 +33,7 @@ export interface SpecialityDoctor {
     clinic_today_latitude: any;
     clinic_today_maps_links: any;
     main_photo_url?: string;
+    slug?: string;
 }
 
 export interface SpecialityDoctorsResponse {
