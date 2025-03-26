@@ -29,6 +29,7 @@ interface DoctorDetail {
         working_hours: {
             start_time: string;
             end_time: string;
+            id: number;
         }[];
     }[];
     review_count: number;

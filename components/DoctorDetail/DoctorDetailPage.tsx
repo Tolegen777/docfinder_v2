@@ -10,17 +10,6 @@ import DoctorCard from "@/components/DoctorsList/DoctorCard/DoctorCard";
 import { DoctorAccordions } from './DoctorAccordions';
 import {DoctorDetailsAPI} from "@/shared/api/doctorDetailsApi";
 
-// Mock data to supplement missing fields from API
-const mockExperienceData = {
-    experience_years: 20,
-    works_since: '2003-01-01',
-    for_child: true,
-    medical_categories: [
-        { medical_category_id: '1', medical_category_title: 'Высшая категория' }
-    ],
-    gender: 'male'
-};
-
 // Create a skeleton for loading state
 const DoctorDetailSkeleton = () => (
     <MaxWidthLayout className="py-4">
@@ -83,7 +72,7 @@ export default function DoctorDetailPage() {
                 "2gis": ''
             },
             working_hours: doctor.work_schedule[0].working_hours.map(hour => ({
-                id: Math.random(), // Generate random ID since API doesn't provide it
+                id: hour.id, // Generate random ID since API doesn't provide it
                 start_time: hour.start_time,
                 end_time: hour.end_time
             })),
@@ -124,7 +113,6 @@ export default function DoctorDetailPage() {
     // Supplemented doctor data combining API and mock data
     const doctorData = {
         ...doctor,
-        ...mockExperienceData,
         // Assume first clinic in schedule is the current one
         clinic_today: doctor.work_schedule.length > 0 ? doctor.work_schedule[0].clinic_title : '',
         clinic_today_address: doctor.work_schedule.length > 0 ? doctor.work_schedule[0].clinic_address : '',
@@ -147,10 +135,6 @@ export default function DoctorDetailPage() {
                     id={doctorData.id}
                     full_name={doctorData.full_name}
                     slug={doctorData.slug}
-                    medical_categories={doctorData.medical_categories}
-                    experience_years={doctorData.experience_years}
-                    works_since={doctorData.works_since}
-                    for_child={doctorData.for_child}
                     review_count={doctorData.review_count}
                     average_rating={doctorData.average_rating}
                     clinic_today={doctorData.clinic_today}
@@ -162,6 +146,10 @@ export default function DoctorDetailPage() {
                     consultations={doctorData.consultations}
                     isPreventNavigation
                     main_photo_url={doctor?.main_photo_url}
+                    for_child={false}
+                    works_since={''}
+                    medical_categories={[]}
+                    experience_years={null}
                 />
             </div>
 

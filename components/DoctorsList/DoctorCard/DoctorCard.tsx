@@ -41,7 +41,7 @@ interface DoctorCardProps {
     full_name: string;
     slug: string;
     medical_categories: MedicalCategory[];
-    experience_years: number;
+    experience_years: number | null;
     works_since: string;
     for_child: boolean;
     review_count: number;
@@ -265,10 +265,10 @@ const DoctorCard: React.FC<DoctorCardProps> = ({
             {/*</div>*/}
             <h4 className="h4-20-28-600 my-5 md:hidden">{full_name}</h4>
             <div className="md:hidden mb-4">
-                <p className="p-14-18-400 mb-2">
+                {experience_years && <p className="p-14-18-400 mb-2">
                     Стаж {experience_years} лет
                     {/*{mockData.category}*/}
-                </p>
+                </p>}
                 <div className="flex flex-wrap gap-2">
                     {medical_categories.map((category) => (
                         <span
@@ -317,10 +317,10 @@ const DoctorCard: React.FC<DoctorCardProps> = ({
                 <div className="flex-1 space-y-5">
                     <h4 className="h4-20-28-600 my-5 hidden md:block">{full_name}</h4>
                     <div className="hidden md:block">
-                        <p className="p-14-18-400 mb-2">
+                        {experience_years && <p className="p-14-18-400 mb-2">
                             Стаж {experience_years} лет
                             {/*{mockData.category}*/}
-                        </p>
+                        </p>}
                         <div className="flex flex-wrap gap-2">
                             {medical_categories.map((category) => (
                                 <span

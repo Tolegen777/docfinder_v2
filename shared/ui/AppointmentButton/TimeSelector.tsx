@@ -27,6 +27,7 @@ export const TimeSelector: React.FC<TimeSelectorProps> = ({
 
     // Обработчик выбора временного слота
     const handleSelectTime = (slot: TimeSlot) => {
+        debugger
         onTimeSlotSelect(slot);
         setShowTimeSlots(false);
     };
