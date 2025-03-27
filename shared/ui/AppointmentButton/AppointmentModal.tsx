@@ -216,8 +216,17 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
             return;
         }
 
-        if (!doctorId || !procedureId || !activeSchedule || !selectedDate || !selectedTimeSlot) {
-            toast.error('Не все параметры для записи выбраны');
+        const missingFields: string[] = [];
+
+        if (!doctorId) missingFields.push('врача');
+        if (!procedureId) missingFields.push('процедуру');
+        if (!activeSchedule) missingFields.push('расписание');
+        if (!selectedDate) missingFields.push('дату');
+        if (!selectedTimeSlot) missingFields.push('время');
+
+        if (missingFields.length > 0) {
+            const missingFieldsText = missingFields.join(', ');
+            toast.error(`Для записи необходимо выбрать: ${missingFieldsText}`);
             return;
         }
 
@@ -230,7 +239,7 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
                 procedure_id: procedureId,
                 clinic_id: activeSchedule.clinic_id,
                 date: selectedDate,
-                time_slot_id: selectedTimeSlot.id,
+                time_slot_id: selectedTimeSlot?.id,
             };
 
             // Если пользователь не авторизован, добавляем персональные данные
