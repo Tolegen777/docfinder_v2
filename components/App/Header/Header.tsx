@@ -1,15 +1,15 @@
 // src/components/Header/Header.tsx
 'use client'
 import React, { useState, useEffect } from 'react';
-import {Search, UserCircle, LogOut, CheckCircle} from 'lucide-react';
+import {UserCircle, LogOut} from 'lucide-react';
 import { Button } from '@/components/shadcn/button';
-import { Input } from '@/components/shadcn/input';
 import Image from 'next/image';
 import logoImg from '@/shared/assets/images/logo.png';
 import { MaxWidthLayout } from '@/shared/ui/MaxWidthLayout';
 import AuthModal from '@/components/Auth/AuthModal/AuthModal';
 import { LanguageSelector } from '@/components/App/LanguageSelector/LanguageSelector';
 import { CitySelector } from '@/components/App/CitySelector/CitySelector';
+import { SearchDropdown } from '@/components/Search/SearchDropdown';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -18,28 +18,16 @@ import {
 } from '@/components/shadcn/dropdown-menu';
 import {useAuthStore} from "@/shared/stores/authStore";
 import {useCheckAuth} from "@/shared/api/authApi";
-import {toast} from "sonner";
 import {tokenService} from "@/shared/lib/tokenService";
-
-const SearchBar = () => {
-    return (
-        <div className="w-full md:max-w-2xl relative">
-            <div className="relative">
-                <Input
-                    type="text"
-                    placeholder="Врач, услуга, болезнь, клиника"
-                    className="h-12 w-full pl-4 pr-10 py-2 bg-green-light-1 border-0 focus:ring-1 focus:ring-green-500"
-                />
-                <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-            </div>
-        </div>
-    );
-};
+import {usePathname} from "next/navigation";
 
 export const Header = () => {
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
     const { isAuthenticated, user, logout } = useAuthStore();
     const checkAuth = useCheckAuth();
+
+    const pathname = usePathname();
+    const isSearchPage = pathname === '/search';
 
     // Check authentication status on component mount
     useEffect(() => {
@@ -48,6 +36,8 @@ export const Header = () => {
             checkAuth.mutate();
         }
     }, []);
+
+    if (isSearchPage) return <></>
 
     return (
         <header className="w-full border-b border-gray-200">
@@ -70,7 +60,9 @@ export const Header = () => {
 
                     {/* Search Bar - Full width on mobile, adaptive on desktop */}
                     <div className="w-full md:max-w-2xl order-3 md:order-2">
-                        <SearchBar />
+                        <SearchDropdown
+                            placeholder="Врач, услуга, клиника"
+                        />
                     </div>
 
                     {/* Right side controls */}
