@@ -20,7 +20,7 @@ export const AlphabeticalServices = ({ specialtyGroups }: AlphabeticalServicesPr
                                 href={`/specialities/${specialty.slug}`}
                                 className="flex gap-2 group p-14-18-400"
                             >
-                                <span className="text-blue-500 group-hover:text-blue-600">
+                                <span className="text-blue-500 group-hover:text-blue-600 transition-colors duration-200">
                                     {specialty.title}
                                 </span>
                                 {specialty.doctor_count > 0 && (

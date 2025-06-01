@@ -27,6 +27,7 @@ import { MedicalCategory, Schedule, Procedure, Consultation } from '@/shared/api
 import {useRouter} from "next/navigation";
 import OnlineAppointmentButton from "@/shared/ui/AppointmentButton/OnlineAppointmentButton";
 import {TimeSlot} from "@/shared/ui/AppointmentButton/TimeSelector";
+import { NewAppointmentModal } from "@/shared/ui/AppointmentButton/NewAppointmentModal";
 
 // Динамически импортируем DoctorClinicMapContent для предотвращения проблем с SSR
 const DoctorClinicMapContent = dynamic(() => import('./DoctorClinicMapContent'), {
@@ -60,8 +61,8 @@ interface DoctorCardProps {
 
 const DoctorCard: React.FC<DoctorCardProps> = ({
                                                    full_name,
-    id,
-    slug,
+                                                   id,
+                                                   slug,
                                                    medical_categories,
                                                    experience_years,
                                                    review_count,
@@ -81,6 +82,11 @@ const DoctorCard: React.FC<DoctorCardProps> = ({
     const [selectedDate, setSelectedDate] = useState<'today' | 'tomorrow' | 'day_after'>('today');
     const [showAllTimes, setShowAllTimes] = useState(false);
     const [isMapOpen, setIsMapOpen] = useState(false);
+
+    // Новые состояния для модалки записи через слот
+    const [isAppointmentModalOpen, setIsAppointmentModalOpen] = useState(false);
+    const [preselectedTimeSlot, setPreselectedTimeSlot] = useState<TimeSlot | null>(null);
+    const [preselectedDate, setPreselectedDate] = useState<'today' | 'tomorrow' | 'day_after'>('today');
 
     const getScheduleForDate = (date: 'today' | 'tomorrow' | 'day_after'): Schedule[] => {
         switch (date) {
@@ -106,6 +112,19 @@ const DoctorCard: React.FC<DoctorCardProps> = ({
                 break;
         }
         return format(date, 'd MMM', { locale: ru });
+    };
+
+    // Обработчик клика по временному слоту
+    const handleTimeSlotClick = (hour: any, dateType: 'today' | 'tomorrow' | 'day_after') => {
+        const timeSlot: TimeSlot = {
+            id: hour.id,
+            start_time: hour.start_time,
+            end_time: hour.end_time
+        };
+
+        setPreselectedTimeSlot(timeSlot);
+        setPreselectedDate(dateType);
+        setIsAppointmentModalOpen(true);
     };
 
     // Получаем названия специальностей из medical_categories
@@ -169,10 +188,15 @@ const DoctorCard: React.FC<DoctorCardProps> = ({
         return (
             <div className="space-y-5">
                 <div className="grid grid-cols-4 gap-5">
-                    {displayHours.map(({ id, start_time }) => (
+                    {displayHours.map(({ id, start_time, end_time }) => (
                         <button
                             key={id}
-                            className="px-5 py-2.5 text-sm border border-[#CBD5E1] rounded-lg hover:border-[#16A34A] transition-colors bg-white"
+                            onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                handleTimeSlotClick({ id, start_time, end_time }, selectedDate);
+                            }}
+                            className="px-5 py-2.5 text-sm border border-[#CBD5E1] rounded-lg hover:border-[#16A34A] hover:bg-[#F0FDF4] transition-colors bg-white cursor-pointer"
                         >
                             {format(new Date(`2000-01-01T${start_time}`), 'HH:mm')}
                         </button>
@@ -252,195 +276,204 @@ const DoctorCard: React.FC<DoctorCardProps> = ({
     );
 
     return (
-        <Card className={cn('w-full max-w-[1181px] p-4 md:p-5 bg-white', !isPreventNavigation && 'cursor-pointer')} onClick={() => {
-            if (!isPreventNavigation) {
-                if (fromPage === 'speciality') {
-                    router.push(`/doctor/${slug}`)
-                } else {
-                    router.push(`doctor/${slug}`)
+        <>
+            <Card className={cn('w-full max-w-[1181px] p-4 md:p-5 bg-white', !isPreventNavigation && 'cursor-pointer')} onClick={() => {
+                if (!isPreventNavigation) {
+                    if (fromPage === 'speciality') {
+                        router.push(`/doctor/${slug}`)
+                    } else {
+                        router.push(`doctor/${slug}`)
+                    }
                 }
-            }
-        }}>
-            {/*<div className="mb-2 -mt-2">*/}
-            {/*    <Breadcrumb/>*/}
-            {/*</div>*/}
-            <h4 className="h4-20-28-600 my-5 md:hidden">{full_name}</h4>
-            <div className="md:hidden mb-4">
-                {experience_years && <p className="p-14-18-400 mb-2">
-                    Стаж {experience_years} лет
-                    {/*{mockData.category}*/}
-                </p>}
-                <div className="flex flex-wrap gap-2">
-                    {medical_categories.map((category) => (
-                        <span
-                            key={category.medical_category_id}
-                            className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-50 text-green-700"
-                        >
-                            {category.medical_category_title}
-                        </span>
-                    ))}
-                </div>
-            </div>
-            <div className="flex flex-col lg:flex-row gap-5">
-                {/* Left Column - Photo and Rating */}
-                <div className="flex flex-row md:flex-col items-center space-y-2.5">
-                    <div className="relative">
-                        <Image src={main_photo_url ?? doctorCard} width={104} height={104} alt={full_name} className="rounded-full"/>
-                    </div>
-                    <div className="flex flex-col items-center gap-2">
-                        {/*<p className="text-sm font-bold text-[#94A3B8] text-center max-w-[160px]">*/}
-                        {/*    {mockData.rating.percentage}% пациентов рекомендует врача (м)*/}
-                        {/*</p>*/}
-                        <p className="text-sm text-[#4B81EC] hover:underline cursor-pointer">
-                            {review_count} отзывов
-                        </p>
-                        <div className="flex space-x-0.5">
-                            {renderStars(Math.round(stars))}
-                        </div>
-                        {maxDiscount > 0 && (
-                            <DiscountBanner className="hidden md:flex flex-wrap max-w-40">
-                                Скидка <span className="text-green-600 font-semibold">{maxDiscount}%</span> на первый прием
-                            </DiscountBanner>
-                        )}
-                    </div>
-                </div>
-                {maxDiscount > 0 && (
-                    <DiscountBanner className="md:hidden">
-                        Скидка <span className="text-green-600 font-semibold">{maxDiscount}%</span> на первый прием
-                    </DiscountBanner>
-                )}
-                {/*<DiscountBanner className="md:hidden">*/}
-                {/*    {mockData.phoneNumber}...*/}
-                {/*    <span className="text-[#4B81EC]">Показать телефоны (м)</span>*/}
-                {/*</DiscountBanner>*/}
-
-                {/* Middle Column - Main Info */}
-                <div className="flex-1 space-y-5">
-                    <h4 className="h4-20-28-600 my-5 hidden md:block">{full_name}</h4>
-                    <div className="hidden md:block">
-                        {experience_years && <p className="p-14-18-400 mb-2">
-                            Стаж {experience_years} лет
-                            {/*{mockData.category}*/}
-                        </p>}
-                        <div className="flex flex-wrap gap-2">
-                            {medical_categories.map((category) => (
-                                <span
-                                    key={category.medical_category_id}
-                                    className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-50 text-green-700"
-                                >
-                                    {category.medical_category_title}
-                                </span>
-                            ))}
-                        </div>
-                    </div>
-                    {/*<DiscountBanner className="hidden md:flex w-[300px]">*/}
-                    {/*    {mockData.phoneNumber}...*/}
-                    {/*    <span className="text-[#4B81EC]">Показать телефоны (м)</span>*/}
-                    {/*</DiscountBanner>*/}
-                    <div className="space-y-2.5 md:max-w-[370px]">
-                        {hasConsultations ? (
-                            <div className="bg-[#F0FDF4] rounded-lg p-4">
-                                <h3 className="text-base font-medium text-gray-800 mb-3">Доступные консультации:</h3>
-                                <div className="space-y-2.5">
-                                    {sortedConsultations.slice(0, showAllConsultations ? sortedConsultations.length : 3).map((consultation) => (
-                                        <div
-                                            key={consultation.medical_procedure_id}
-                                            className="flex justify-between items-center border-b border-gray-100 pb-2 last:border-b-0 last:pb-0"
-                                        >
-                                            <span className="text-sm flex-1">{consultation.title}</span>
-                                            <div className="text-sm">
-                                                <span className="text-[#16A34A]">{consultation?.current_price?.final_price?.toFixed(0)} тг</span>
-                                                {consultation?.current_price?.discount > 0 && (
-                                                    <span className="line-through ml-1 text-[#94A3B8]">{consultation.current_price.default_price?.toFixed(0)} тг</span>
-                                                )}
-                                            </div>
-                                        </div>
-                                    ))}
-
-                                    {sortedConsultations.length > 3 && (
-                                        <button
-                                            className="flex items-center text-[#16A34A] text-sm mt-2 hover:underline"
-                                            onClick={(event) => {
-                                                event.stopPropagation();
-                                                setShowAllConsultations(!showAllConsultations)
-                                            }}
-                                        >
-                                            {showAllConsultations ? (
-                                                <span>Скрыть</span>
-                                            ) : (
-                                                <span>Показать все {sortedConsultations.length} консультаций</span>
-                                            )}
-                                        </button>
-                                    )}
-                                </div>
-                            </div>
-                        ) : (
-                            <div className="bg-[#F0FDF4] rounded-lg p-4">
-                                <p className="text-sm text-gray-500">Информация о консультациях недоступна</p>
-                            </div>
-                        )}
-                    </div>
-
-                    <div className="space-y-2.5">
-                        <div className="flex items-center gap-2.5">
-                            <MapPin className="w-5 h-5 text-[#16A34A]"/>
-                            <span className="text-base text-[#4B81EC] hover:underline cursor-pointer">
-                                {clinic_today}
+            }}>
+                <h4 className="h4-20-28-600 my-5 md:hidden">{full_name}</h4>
+                <div className="md:hidden mb-4">
+                    {experience_years && <p className="p-14-18-400 mb-2">
+                        Стаж {experience_years} лет
+                    </p>}
+                    <div className="flex flex-wrap gap-2">
+                        {medical_categories.map((category) => (
+                            <span
+                                key={category.medical_category_id}
+                                className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-50 text-green-700"
+                            >
+                                {category.medical_category_title}
                             </span>
+                        ))}
+                    </div>
+                </div>
+                <div className="flex flex-col lg:flex-row gap-5">
+                    {/* Left Column - Photo and Rating */}
+                    <div className="flex flex-row md:flex-col items-center space-y-2.5">
+                        <div className="relative">
+                            <Image src={main_photo_url ?? doctorCard} width={104} height={104} alt={full_name} className="rounded-full"/>
                         </div>
-                        <p className="text-sm text-[#94A3B8]">{clinic_today_address}</p>
+                        <div className="flex flex-col items-center gap-2">
+                            <p className="text-sm text-[#4B81EC] hover:underline cursor-pointer">
+                                {review_count} отзывов
+                            </p>
+                            <div className="flex space-x-0.5">
+                                {renderStars(Math.round(stars))}
+                            </div>
+                            {maxDiscount > 0 && (
+                                <DiscountBanner className="hidden md:flex flex-wrap max-w-40">
+                                    Скидка <span className="text-green-600 font-semibold">{maxDiscount}%</span> на первый прием
+                                </DiscountBanner>
+                            )}
+                        </div>
                     </div>
+                    {maxDiscount > 0 && (
+                        <DiscountBanner className="md:hidden">
+                            Скидка <span className="text-green-600 font-semibold">{maxDiscount}%</span> на первый прием
+                        </DiscountBanner>
+                    )}
 
-                    <div className="flex flex-wrap gap-2.5 flex-col md:flex-row">
-                        <Button
-                            variant="outline"
-                            onClick={handleMapButtonClick}
-                        >
-                            <MapPin className="w-5 h-5 text-[#16A34A]"/>
-                            <span className="text-base font-semibold text-[#16A34A]">На карте</span>
-                        </Button>
+                    {/* Middle Column - Main Info */}
+                    <div className="flex-1 space-y-5">
+                        <h4 className="h4-20-28-600 my-5 hidden md:block">{full_name}</h4>
+                        <div className="hidden md:block">
+                            {experience_years && <p className="p-14-18-400 mb-2">
+                                Стаж {experience_years} лет
+                            </p>}
+                            <div className="flex flex-wrap gap-2">
+                                {medical_categories.map((category) => (
+                                    <span
+                                        key={category.medical_category_id}
+                                        className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-50 text-green-700"
+                                    >
+                                        {category.medical_category_title}
+                                    </span>
+                                ))}
+                            </div>
+                        </div>
 
-                        {/* Диалог с картой */}
-                        <Dialog open={isMapOpen} onOpenChange={setIsMapOpen}>
-                            <DialogContent className="max-w-6xl w-[90vw] h-[80vh] p-0" onClick={e => e.stopPropagation()}>
-                                <div className="relative h-full">
-                                    <DoctorClinicMapContent
-                                        schedule={scheduleForMap}
-                                        doctorName={full_name}
-                                    />
-                                    <DialogClose className="absolute top-4 right-4 z-[500]" onClick={e => e.stopPropagation()}>
-                                        <button className="p-2 bg-white rounded-full shadow-md hover:bg-gray-50 transition-colors duration-200">
-                                            <X className="w-5 h-5 text-gray-600" />
-                                        </button>
-                                    </DialogClose>
+                        <div className="space-y-2.5 md:max-w-[370px]">
+                            {hasConsultations ? (
+                                <div className="bg-[#F0FDF4] rounded-lg p-4">
+                                    <h3 className="text-base font-medium text-gray-800 mb-3">Доступные консультации:</h3>
+                                    <div className="space-y-2.5">
+                                        {sortedConsultations.slice(0, showAllConsultations ? sortedConsultations.length : 3).map((consultation) => (
+                                            <div
+                                                key={consultation.medical_procedure_id}
+                                                className="flex justify-between items-center border-b border-gray-100 pb-2 last:border-b-0 last:pb-0"
+                                            >
+                                                <span className="text-sm flex-1">{consultation.title}</span>
+                                                <div className="text-sm">
+                                                    <span className="text-[#16A34A]">{consultation?.current_price?.final_price?.toFixed(0)} тг</span>
+                                                    {consultation?.current_price?.discount > 0 && (
+                                                        <span className="line-through ml-1 text-[#94A3B8]">{consultation.current_price.default_price?.toFixed(0)} тг</span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        ))}
+
+                                        {sortedConsultations.length > 3 && (
+                                            <button
+                                                className="flex items-center text-[#16A34A] text-sm mt-2 hover:underline"
+                                                onClick={(event) => {
+                                                    event.stopPropagation();
+                                                    setShowAllConsultations(!showAllConsultations)
+                                                }}
+                                            >
+                                                {showAllConsultations ? (
+                                                    <span>Скрыть</span>
+                                                ) : (
+                                                    <span>Показать все {sortedConsultations.length} консультаций</span>
+                                                )}
+                                            </button>
+                                        )}
+                                    </div>
                                 </div>
-                            </DialogContent>
-                        </Dialog>
-                        <Button variant="outline">
-                            <Heart className="w-5 h-5 text-[#16A34A]"/>
-                            <span className="text-base font-semibold text-[#16A34A]">В избранное</span>
-                        </Button>
+                            ) : (
+                                <div className="bg-[#F0FDF4] rounded-lg p-4">
+                                    <p className="text-sm text-gray-500">Информация о консультациях недоступна</p>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="space-y-2.5">
+                            <div className="flex items-center gap-2.5">
+                                <MapPin className="w-5 h-5 text-[#16A34A]"/>
+                                <span className="text-base text-[#4B81EC] hover:underline cursor-pointer">
+                                    {clinic_today}
+                                </span>
+                            </div>
+                            <p className="text-sm text-[#94A3B8]">{clinic_today_address}</p>
+                        </div>
+
+                        <div className="flex flex-wrap gap-2.5 flex-col md:flex-row">
+                            <Button
+                                variant="outline"
+                                onClick={handleMapButtonClick}
+                            >
+                                <MapPin className="w-5 h-5 text-[#16A34A]"/>
+                                <span className="text-base font-semibold text-[#16A34A]">На карте</span>
+                            </Button>
+
+                            {/* Диалог с картой */}
+                            <Dialog open={isMapOpen} onOpenChange={setIsMapOpen}>
+                                <DialogContent className="max-w-6xl w-[90vw] h-[80vh] p-0" onClick={e => e.stopPropagation()}>
+                                    <div className="relative h-full">
+                                        <DoctorClinicMapContent
+                                            schedule={scheduleForMap}
+                                            doctorName={full_name}
+                                        />
+                                        <DialogClose className="absolute top-4 right-4 z-[500]" onClick={e => e.stopPropagation()}>
+                                            <button className="p-2 bg-white rounded-full shadow-md hover:bg-gray-50 transition-colors duration-200">
+                                                <X className="w-5 h-5 text-gray-600" />
+                                            </button>
+                                        </DialogClose>
+                                    </div>
+                                </DialogContent>
+                            </Dialog>
+                            <Button variant="outline">
+                                <Heart className="w-5 h-5 text-[#16A34A]"/>
+                                <span className="text-base font-semibold text-[#16A34A]">В избранное</span>
+                            </Button>
+                        </div>
+                    </div>
+
+                    {/* Right Column - Appointment */}
+                    <div className="lg:w-[453px] space-y-5" onClick={e => e.stopPropagation()}>
+                        <h3 className="text-xl md:text-2xl lg:text-[28px] font-semibold leading-tight text-[#212121]">
+                            Выберите время приёма для записи онлайн
+                        </h3>
+
+                        {/* Desktop Schedule */}
+                        <div className="hidden lg:flex lg:flex-col gap-5">
+                            <ScheduleContent/>
+                        </div>
+
+                        {/* Mobile Schedule */}
+                        <div className="lg:hidden">
+                            <MobileSchedule/>
+                        </div>
                     </div>
                 </div>
+            </Card>
 
-                {/* Right Column - Appointment */}
-                <div className="lg:w-[453px] space-y-5" onClick={e => e.stopPropagation()}>
-                    <h3 className="text-xl md:text-2xl lg:text-[28px] font-semibold leading-tight text-[#212121]">
-                        Выберите время приёма для записи онлайн
-                    </h3>
-
-                    {/* Desktop Schedule */}
-                    <div className="hidden lg:flex lg:flex-col gap-5">
-                        <ScheduleContent/>
-                    </div>
-
-                    {/* Mobile Schedule */}
-                    <div className="lg:hidden">
-                        <MobileSchedule/>
-                    </div>
-                </div>
-            </div>
-        </Card>
+            {/* Модалка записи через клик по слоту */}
+            <NewAppointmentModal
+                isOpen={isAppointmentModalOpen}
+                onClose={() => {
+                    setIsAppointmentModalOpen(false);
+                    setPreselectedTimeSlot(null);
+                    setPreselectedDate('today');
+                }}
+                doctorId={id}
+                doctorName={full_name}
+                doctorPhoto={main_photo_url}
+                procedureId={consultations?.length > 0 ? consultations[0].medical_procedure_id : undefined}
+                procedureName={consultations?.length > 0 ? consultations[0].title : undefined}
+                schedule_today={schedule_today}
+                schedule_tomorrow={schedule_tomorrow}
+                schedule_day_after_tomorrow={schedule_day_after_tomorrow}
+                availableProcedures={procedures}
+                // Передаем предзаполненные данные
+                preselectedTimeSlot={preselectedTimeSlot}
+                preselectedDate={preselectedDate}
+            />
+        </>
     );
 };
 

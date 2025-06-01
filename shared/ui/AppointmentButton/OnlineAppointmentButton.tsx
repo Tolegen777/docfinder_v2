@@ -4,8 +4,9 @@
 import React, { useState } from 'react';
 import { Pen } from 'lucide-react';
 import { Button } from '@/components/shadcn/button';
-import { AppointmentModal } from './AppointmentModal';
+import { NewAppointmentModal } from './NewAppointmentModal';
 import { Procedure } from "@/shared/api/doctorsApi";
+import { TimeSlot } from './TimeSelector';
 
 interface OnlineAppointmentButtonProps {
     doctorId: number;
@@ -21,6 +22,9 @@ interface OnlineAppointmentButtonProps {
     className?: string;
     buttonText?: string;
     procedures?: Procedure[];
+    // Новые пропсы для предзаполнения
+    preselectedTimeSlot?: TimeSlot | null;
+    preselectedDate?: 'today' | 'tomorrow' | 'day_after';
 }
 
 const OnlineAppointmentButton: React.FC<OnlineAppointmentButtonProps> = ({
@@ -34,7 +38,9 @@ const OnlineAppointmentButton: React.FC<OnlineAppointmentButtonProps> = ({
                                                                              schedule_day_after_tomorrow = [],
                                                                              className = '',
                                                                              buttonText = 'Записаться онлайн',
-                                                                             procedures
+                                                                             procedures,
+                                                                             preselectedTimeSlot = null,
+                                                                             preselectedDate = 'today'
                                                                          }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -56,7 +62,7 @@ const OnlineAppointmentButton: React.FC<OnlineAppointmentButtonProps> = ({
                 <span className="text-base font-semibold">{buttonText}</span>
             </Button>
 
-            <AppointmentModal
+            <NewAppointmentModal
                 isOpen={isModalOpen}
                 onClose={handleCloseModal}
                 doctorId={doctorId}
@@ -68,6 +74,8 @@ const OnlineAppointmentButton: React.FC<OnlineAppointmentButtonProps> = ({
                 schedule_tomorrow={schedule_tomorrow}
                 schedule_day_after_tomorrow={schedule_day_after_tomorrow}
                 availableProcedures={procedures}
+                preselectedTimeSlot={preselectedTimeSlot}
+                preselectedDate={preselectedDate}
             />
         </>
     );
