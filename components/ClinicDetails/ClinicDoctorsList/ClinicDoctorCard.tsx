@@ -1,15 +1,22 @@
+// components/ClinicDetails/ClinicDoctorsList/ClinicDoctorCard.tsx
 'use client';
 
-import React, {useState} from 'react';
-import {ChevronDown, Eye, Heart, MapPin, Star} from 'lucide-react';
-import {Card} from '@/components/shadcn/card';
-import {Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger,} from "@/components/shadcn/sheet";
+import React, { useState } from 'react';
+import { ChevronDown, Eye, Heart, MapPin, Star } from 'lucide-react';
+import { Card } from '@/components/shadcn/card';
+import {
+    Sheet,
+    SheetContent,
+    SheetHeader,
+    SheetTitle,
+    SheetTrigger,
+} from "@/components/shadcn/sheet";
 import Image from "next/image";
 import doctorCard from '@/shared/assets/images/doctorPlaceholder.jpeg';
-import {Button} from "@/components/shadcn/button";
-import {format} from 'date-fns';
-import {ru} from 'date-fns/locale';
-import {Schedule} from '@/shared/api/clinicDoctorsApi';
+import { Button } from "@/components/shadcn/button";
+import { format } from 'date-fns';
+import { ru } from 'date-fns/locale';
+import { Schedule, RatingInfo, MinConsultation } from '@/shared/api/clinicDoctorsApi';
 
 interface ClinicDoctorCardProps {
     id: number;
@@ -17,12 +24,10 @@ interface ClinicDoctorCardProps {
     experience: number;
     categories: string[];
     specialities: string[];
-    rating_info: {
-        average_rating: number;
-        total_reviews: number;
-    };
+    rating_info: RatingInfo;
     schedule: Schedule[];
     main_photo_url?: string;
+    min_consultation?: MinConsultation;
 }
 
 const ClinicDoctorCard: React.FC<ClinicDoctorCardProps> = ({
@@ -33,47 +38,21 @@ const ClinicDoctorCard: React.FC<ClinicDoctorCardProps> = ({
                                                                specialities,
                                                                rating_info,
                                                                schedule,
-                                                               main_photo_url
+                                                               main_photo_url,
+                                                               min_consultation
                                                            }) => {
     const [selectedDate, setSelectedDate] = useState<number>(0);
     const [showAllTimes, setShowAllTimes] = useState(false);
 
-    const getTimeSlotsForSelectedDay = () => {
-        if (!schedule || typeof selectedDate !== 'number' || !scheduleByDate[selectedDate]) {
-            return [];
-        }
-
-        // Преобразуем строковые значения времени в объекты TimeSlot
-        return scheduleByDate[selectedDate].working_hours.map((timeString, index) => ({
-            id: index + 1, // Генерируем id для временного слота
-            start_time: timeString,
-            // В случае если у вас нет точного времени окончания приема,
-            // можно оставить end_time undefined или вычислить его на основе start_time
-        }));
-    };
-
-    const getFormattedDate = () => {
-        if (typeof selectedDate !== 'number' || !scheduleByDate[selectedDate]) {
-            return new Date().toISOString().split('T')[0];
-        }
-        return scheduleByDate[selectedDate].date;
-    };
-
     // Группируем расписание по датам
     const scheduleByDate = React.useMemo(() => {
-        const grouped: Record<string, Schedule> = {};
-
-        schedule.forEach((item) => {
-            grouped[item.date] = item;
-        });
-
-        return Object.values(grouped);
+        return schedule || [];
     }, [schedule]);
 
     // Форматируем дату для отображения
     const formatScheduleDate = (dateString: string) => {
         const date = new Date(dateString);
-        return format(date, 'd MMM', {locale: ru});
+        return format(date, 'd MMM', { locale: ru });
     };
 
     const renderStars = (count: number) => {
@@ -165,7 +144,7 @@ const ClinicDoctorCard: React.FC<ClinicDoctorCardProps> = ({
 
     // Получаем информацию о кабинете для выбранной даты
     const selectedRoomInfo = scheduleByDate[selectedDate]
-        ? `Кабинет ${scheduleByDate[selectedDate].room_number}, ${scheduleByDate[selectedDate].floor_number} этаж`
+        ? `${scheduleByDate[selectedDate].room}, ${scheduleByDate[selectedDate].floor_number} этаж`
         : '';
 
     return (
@@ -234,6 +213,21 @@ const ClinicDoctorCard: React.FC<ClinicDoctorCardProps> = ({
                                     </div>
                                 ))}
                             </div>
+
+                            {/* Показываем минимальную консультацию, если есть */}
+                            {min_consultation && (
+                                <div className="mt-3 pt-3 border-t border-gray-100">
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-sm font-medium">{min_consultation.medical_procedure_title}</span>
+                                        <div className="text-sm">
+                                            <span className="text-[#16A34A] font-semibold">{min_consultation.final_price} тг</span>
+                                            {min_consultation.discount > 0 && (
+                                                <span className="line-through ml-1 text-[#94A3B8]">{min_consultation.default_price} тг</span>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
 

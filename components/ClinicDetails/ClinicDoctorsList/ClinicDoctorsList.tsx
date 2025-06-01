@@ -1,13 +1,15 @@
+// components/ClinicDetails/ClinicDoctorsList/ClinicDoctorsList.tsx
 'use client';
 
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useParams } from 'next/navigation';
-import { ClinicDoctorsAPI } from '@/shared/api/clinicDoctorsApi';
+import { ClinicDoctorsAPI, ClinicDoctorsFilters } from '@/shared/api/clinicDoctorsApi';
 import ClinicDoctorCard from "./ClinicDoctorCard";
-import { AppointmentTypeFilters } from "@/components/AppointmentTypeFilters/AppointmentTypeFilters";
+import { DoctorsFilters } from './DoctorsFilters';
 import { Skeleton } from '@/components/shadcn/skeleton';
 import { DoctorsPagination } from "@/components/DoctorsList/DoctorsPagination/DoctorsPagination";
+import { MaxWidthLayout } from '@/shared/ui/MaxWidthLayout';
 
 const PAGE_SIZE = 10;
 
@@ -69,22 +71,65 @@ const ClinicDoctorCardSkeleton = () => (
 );
 
 export const ClinicDoctorsList = () => {
-    const [currentPage, setCurrentPage] = React.useState(1);
     const params = useParams();
     const clinicSlug = params?.slug as string;
 
-    const { data, isLoading } = useQuery({
-        queryKey: ['clinic-doctors', clinicSlug, currentPage],
-        queryFn: () => ClinicDoctorsAPI.getDoctorsByClinic(clinicSlug, currentPage, PAGE_SIZE),
+    // Состояние фильтров
+    const [filters, setFilters] = useState<ClinicDoctorsFilters>({
+        page: 1,
+        page_size: PAGE_SIZE
+    });
+
+    // Запрос списка врачей
+    const { data, isLoading, error } = useQuery({
+        queryKey: ['clinic-doctors', clinicSlug, filters],
+        queryFn: () => ClinicDoctorsAPI.getDoctorsByClinic(clinicSlug, filters),
         enabled: !!clinicSlug
     });
 
+    // Получаем уникальные специальности и процедуры для фильтров
+    const { availableSpecialities, availableProcedures } = useMemo(() => {
+        if (!data?.results) {
+            return { availableSpecialities: [], availableProcedures: [] };
+        }
+
+        const specialitiesMap = new Map();
+        const proceduresMap = new Map();
+
+        data.results.forEach(doctor => {
+            doctor.specialities.forEach(spec => {
+                specialitiesMap.set(spec.medical_speciality_id, {
+                    id: spec.medical_speciality_id,
+                    title: spec.medical_speciality_title
+                });
+            });
+
+            doctor.procedures.forEach(proc => {
+                proceduresMap.set(proc.medical_procedure_id, {
+                    id: proc.medical_procedure_id,
+                    title: proc.medical_procedure_title
+                });
+            });
+        });
+
+        return {
+            availableSpecialities: Array.from(specialitiesMap.values()),
+            availableProcedures: Array.from(proceduresMap.values())
+        };
+    }, [data]);
+
     const totalPages = data ? Math.ceil(data.count / PAGE_SIZE) : 0;
+    const doctorsCount = data?.count || 0;
+
+    // Обработчик изменения фильтров
+    const handleFilterChange = (newFilters: ClinicDoctorsFilters) => {
+        setFilters(newFilters);
+    };
 
     // Обработчик для нажатия на номер страницы (с прокруткой)
     const handlePageChange = (page: number) => {
         if (page >= 1 && page <= totalPages) {
-            setCurrentPage(page);
+            setFilters(prev => ({ ...prev, page }));
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     };
@@ -92,44 +137,133 @@ export const ClinicDoctorsList = () => {
     // Обработчик для кнопок prev/next (без прокрутки)
     const handlePrevNext = (page: number) => {
         if (page >= 1 && page <= totalPages) {
-            setCurrentPage(page);
+            setFilters(prev => ({ ...prev, page }));
         }
     };
 
-    return (
-        <div className="max-w-[1200px] mx-auto px-4 py-8">
-            <AppointmentTypeFilters />
+    if (error) {
+        return (
+            <MaxWidthLayout className="py-8">
+                <div className="p-6 bg-red-50 text-red-600 rounded-lg">
+                    <h2 className="text-xl font-medium mb-2">Ошибка загрузки врачей</h2>
+                    <p>Не удалось загрузить список врачей клиники. Пожалуйста, попробуйте позже.</p>
+                </div>
+            </MaxWidthLayout>
+        );
+    }
 
-            <div className="space-y-4">
-                {isLoading ? (
-                    Array.from({ length: PAGE_SIZE }).map((_, i) => (
-                        <ClinicDoctorCardSkeleton key={i} />
-                    ))
-                ) : (
-                    data?.results.map((doctor) => (
-                        <ClinicDoctorCard
-                            key={doctor.id}
-                            id={doctor.id}
-                            full_name={doctor.full_name}
-                            experience={doctor.experience}
-                            categories={doctor.categories}
-                            specialities={doctor.specialities}
-                            rating_info={doctor.rating_info}
-                            schedule={doctor.schedule}
-                            main_photo_url={doctor?.main_photo_url}
-                        />
-                    ))
-                )}
+    return (
+        <MaxWidthLayout className="py-8">
+            {/* Заголовок секции */}
+            <div className="mb-6">
+                <h2 className="text-2xl font-semibold mb-2">
+                    Врачи клиники
+                    {doctorsCount > 0 && (
+                        <span className="text-emerald-600 ml-2">({doctorsCount})</span>
+                    )}
+                </h2>
+                <p className="text-gray-600">
+                    Выберите врача для записи на прием
+                </p>
             </div>
 
-            {totalPages > 1 && (
+            {/* Мобильная версия */}
+            <div className="md:hidden space-y-4">
+                {/* Фильтры на мобильных */}
+                <DoctorsFilters
+                    filters={filters}
+                    onFilterChange={handleFilterChange}
+                    isLoading={isLoading}
+                    availableSpecialities={availableSpecialities}
+                    availableProcedures={availableProcedures}
+                />
+
+                {/* Список врачей */}
+                <div className="space-y-4">
+                    {isLoading ? (
+                        Array.from({ length: PAGE_SIZE }).map((_, i) => (
+                            <ClinicDoctorCardSkeleton key={i} />
+                        ))
+                    ) : data?.results && data.results.length > 0 ? (
+                        data.results.map((doctor) => (
+                            <ClinicDoctorCard
+                                key={doctor.id}
+                                id={doctor.id}
+                                full_name={doctor.full_name}
+                                experience={doctor.experience}
+                                categories={doctor.categories}
+                                specialities={doctor.specialities.map(s => s.medical_speciality_title)}
+                                rating_info={doctor.rating_info}
+                                schedule={doctor.schedule}
+                                main_photo_url={doctor.main_photo_url}
+                            />
+                        ))
+                    ) : (
+                        <div className="text-center py-8 bg-white rounded-lg">
+                            <p className="text-gray-500 mb-2">Врачи не найдены</p>
+                            <p className="text-sm text-gray-400">
+                                Попробуйте изменить параметры фильтрации
+                            </p>
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            {/* Десктопная версия */}
+            <div className="hidden md:flex gap-6">
+                {/* Левая панель с фильтрами */}
+                <aside className="w-[280px] shrink-0">
+                    <DoctorsFilters
+                        filters={filters}
+                        onFilterChange={handleFilterChange}
+                        isLoading={isLoading}
+                        availableSpecialities={availableSpecialities}
+                        availableProcedures={availableProcedures}
+                    />
+                </aside>
+
+                {/* Основной контент */}
+                <main className="flex-1">
+                    <div className="space-y-4">
+                        {isLoading ? (
+                            Array.from({ length: PAGE_SIZE }).map((_, i) => (
+                                <ClinicDoctorCardSkeleton key={i} />
+                            ))
+                        ) : data?.results && data.results.length > 0 ? (
+                            data.results.map((doctor) => (
+                                <ClinicDoctorCard
+                                    key={doctor.id}
+                                    id={doctor.id}
+                                    full_name={doctor.full_name}
+                                    experience={doctor.experience}
+                                    categories={doctor.categories}
+                                    specialities={doctor.specialities.map(s => s.medical_speciality_title)}
+                                    rating_info={doctor.rating_info}
+                                    schedule={doctor.schedule}
+                                    main_photo_url={doctor.main_photo_url}
+                                />
+                            ))
+                        ) : (
+                            <div className="text-center py-8 bg-white rounded-lg shadow-sm p-8">
+                                <p className="text-gray-500 mb-2">Врачи не найдены</p>
+                                <p className="text-sm text-gray-400">
+                                    Попробуйте изменить параметры фильтрации
+                                </p>
+                            </div>
+                        )}
+                    </div>
+                </main>
+            </div>
+
+            {/* Пагинация */}
+            {!isLoading && totalPages > 1 && (
                 <DoctorsPagination
-                    currentPage={currentPage}
+                    currentPage={filters.page || 1}
                     totalPages={totalPages}
                     onPageChange={handlePageChange}
                     onPrevNext={handlePrevNext}
                 />
             )}
-        </div>
+        </MaxWidthLayout>
     );
 };
