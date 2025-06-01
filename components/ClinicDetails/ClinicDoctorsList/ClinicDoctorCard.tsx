@@ -144,7 +144,7 @@ const ClinicDoctorCard: React.FC<ClinicDoctorCardProps> = ({
 
     // Получаем информацию о кабинете для выбранной даты
     const selectedRoomInfo = scheduleByDate[selectedDate]
-        ? `${scheduleByDate[selectedDate].room}, ${scheduleByDate[selectedDate].floor_number} этаж`
+        ? `${scheduleByDate[selectedDate].room} ${scheduleByDate[selectedDate].floor_number ? ', ' + scheduleByDate[selectedDate].floor_number + 'Этаж': '' }`
         : '';
 
     return (

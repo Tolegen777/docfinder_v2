@@ -1,3 +1,4 @@
+// shared/ui/AppointmentButton/OnlineAppointmentButton.tsx
 'use client';
 
 import React, { useState } from 'react';
@@ -9,6 +10,7 @@ import { Procedure } from "@/shared/api/doctorsApi";
 interface OnlineAppointmentButtonProps {
     doctorId: number;
     doctorName?: string;
+    doctorPhoto?: string;
     procedureId?: string | number;
     procedureName?: string;
     // Данные о расписании
@@ -24,6 +26,7 @@ interface OnlineAppointmentButtonProps {
 const OnlineAppointmentButton: React.FC<OnlineAppointmentButtonProps> = ({
                                                                              doctorId,
                                                                              doctorName,
+                                                                             doctorPhoto,
                                                                              procedureId,
                                                                              procedureName,
                                                                              schedule_today = [],
@@ -58,6 +61,7 @@ const OnlineAppointmentButton: React.FC<OnlineAppointmentButtonProps> = ({
                 onClose={handleCloseModal}
                 doctorId={doctorId}
                 doctorName={doctorName}
+                doctorPhoto={doctorPhoto}
                 procedureId={procedureId}
                 procedureName={procedureName}
                 schedule_today={schedule_today}

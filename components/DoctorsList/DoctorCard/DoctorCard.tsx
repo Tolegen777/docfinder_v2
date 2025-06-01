@@ -217,6 +217,7 @@ const DoctorCard: React.FC<DoctorCardProps> = ({
             <OnlineAppointmentButton
                 doctorId={id}
                 doctorName={full_name}
+                doctorPhoto={main_photo_url}
                 procedureId={consultations?.length > 0 ? consultations[0].medical_procedure_id : undefined}
                 procedureName={consultations?.length > 0 ? consultations[0].title : undefined}
                 schedule_today={schedule_today}

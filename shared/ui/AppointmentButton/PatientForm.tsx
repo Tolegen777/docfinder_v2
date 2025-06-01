@@ -163,7 +163,6 @@ export const PatientForm: React.FC<PatientFormProps> = ({
                 {formErrors.phone_number && (
                     <p className="text-red-500 text-xs mt-1">{formErrors.phone_number}</p>
                 )}
-                <p className="text-xs text-gray-500">На ваш телефон будет отправлен SMS код для подтверждения</p>
             </div>
         </div>
     );

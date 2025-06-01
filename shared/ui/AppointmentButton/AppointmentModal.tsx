@@ -1,28 +1,31 @@
+// shared/ui/AppointmentButton/AppointmentModal.tsx
 'use client';
 
-import React, {useState, useEffect} from 'react';
-import {format} from 'date-fns';
+import React, { useState, useEffect } from 'react';
+import { format } from 'date-fns';
 import {
     Dialog,
     DialogContent,
     DialogHeader,
     DialogTitle,
 } from '@/components/shadcn/dialog';
-import {toast} from 'sonner';
-import {useAuthStore} from '@/shared/stores/authStore';
-import {apiPost} from '@/shared/api';
-import {TimeSlot} from './TimeSelector';
-import {PatientFormData} from './PatientForm';
-import {Procedure} from "@/shared/api/doctorsApi";
-import {AppointmentStep1} from './AppointmentStep1';
-import {AppointmentStep2} from './AppointmentStep2';
-import {z} from 'zod';
+import { toast } from 'sonner';
+import { useAuthStore } from '@/shared/stores/authStore';
+import { apiPost } from '@/shared/api';
+import { TimeSlot } from './TimeSelector';
+import { PatientFormData } from './PatientForm';
+import { Procedure } from "@/shared/api/doctorsApi";
+import { AppointmentStep1 } from './AppointmentStep1';
+import { AppointmentStep2 } from './AppointmentStep2';
+import { BottomStepper } from './BottomStepper';
+import { z } from 'zod';
 
 interface AppointmentModalProps {
     isOpen: boolean;
     onClose: () => void;
     doctorId?: number;
     doctorName?: string;
+    doctorPhoto?: string;
     procedureId?: string | number;
     procedureName?: string;
     schedule_today?: any[];
@@ -45,6 +48,7 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
                                                                       onClose,
                                                                       doctorId,
                                                                       doctorName,
+                                                                      doctorPhoto,
                                                                       procedureId,
                                                                       procedureName,
                                                                       schedule_today = [],
@@ -54,12 +58,18 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
                                                                   }) => {
     // Состояние для управления шагами
     const [step, setStep] = useState(1);
+    const [completedSteps, setCompletedSteps] = useState<number[]>([]);
     const [isLoading, setIsLoading] = useState(false);
 
     // Состояния для выбора данных
     const [selectedTab, setSelectedTab] = useState('today');
     const [selectedDate, setSelectedDate] = useState<string>(format(new Date(), 'yyyy-MM-dd'));
     const [selectedTimeSlot, setSelectedTimeSlot] = useState<TimeSlot | null>(null);
+    const [selectedProcedure, setSelectedProcedure] = useState<Procedure | null>(
+        procedureId && procedureName
+            ? { medical_procedure_id: procedureId, title: procedureName } as Procedure
+            : null
+    );
 
     // Активное расписание и клиника в зависимости от выбранного дня
     const [activeSchedule, setActiveSchedule] = useState<any>(schedule_today[0] || null);
@@ -77,7 +87,7 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
     const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
     // Контекст из сторов
-    const {isAuthenticated, user} = useAuthStore();
+    const { isAuthenticated, user } = useAuthStore();
 
     // Заполняем форму данными пользователя, если он авторизован
     useEffect(() => {
@@ -95,12 +105,18 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
     // Сброс данных при открытии/закрытии модального окна
     useEffect(() => {
         if (isOpen) {
-            // Устанавливаем активное расписание на сегодня по умолчанию
+            // Сброс состояния
             setActiveSchedule(schedule_today[0] || null);
             setSelectedTab('today');
             setSelectedTimeSlot(null);
             setStep(1);
+            setCompletedSteps([]);
             setFormErrors({});
+            setSelectedProcedure(
+                procedureId && procedureName
+                    ? { medical_procedure_id: procedureId, title: procedureName } as Procedure
+                    : null
+            );
 
             // Если пользователь не авторизован, очищаем форму
             if (!isAuthenticated) {
@@ -113,22 +129,27 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
                 });
             }
         }
-    }, [isOpen, schedule_today, isAuthenticated]);
+    }, [isOpen, schedule_today, isAuthenticated, procedureId, procedureName]);
 
     // Обработчик для работы с формой
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const {name, value} = e.target;
+        const { name, value } = e.target;
 
-        setFormData(prev => ({...prev, [name]: value}));
+        setFormData(prev => ({ ...prev, [name]: value }));
 
         // Очищаем ошибку поля при изменении
         if (formErrors[name]) {
             setFormErrors(prev => {
-                const newErrors = {...prev};
+                const newErrors = { ...prev };
                 delete newErrors[name];
                 return newErrors;
             });
         }
+    };
+
+    // Обработчик выбора процедуры
+    const handleProcedureSelect = (procedure: Procedure) => {
+        setSelectedProcedure(procedure);
     };
 
     // Обработчик выбора временного слота
@@ -156,6 +177,16 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
         setSelectedDate(format(date, 'yyyy-MM-dd'));
     };
 
+    // Проверка завершенности первого шага
+    const isStep1Complete = () => {
+        const hasProcedure = selectedProcedure?.title || procedureName;
+        const hasDate = selectedTab;
+        const hasTime = selectedTimeSlot;
+        const hasClinic = activeSchedule;
+
+        return hasProcedure && hasDate && hasTime && hasClinic;
+    };
+
     // Обработчик закрытия модального окна
     const handleClose = () => {
         onClose();
@@ -163,31 +194,21 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
 
     // Обработчики перехода между шагами
     const handleNextStep = () => {
-        if (!selectedTimeSlot) {
-            toast.error('Пожалуйста, выберите время приема');
-            return;
+        if (isStep1Complete()) {
+            setCompletedSteps(prev => [...prev, 1]);
+            setStep(2);
+        } else {
+            toast.error('Пожалуйста, заполните все обязательные поля');
         }
-
-        if (!activeSchedule) {
-            toast.error('Расписание недоступно');
-            return;
-        }
-
-        if (!procedureId && availableProcedures.length === 0) {
-            toast.error('Пожалуйста, выберите процедуру');
-            return;
-        }
-
-        setStep(step + 1);
     };
 
     const handlePrevStep = () => {
-        setStep(step - 1);
+        setStep(1);
+        setCompletedSteps([]);
     };
 
     // Валидация формы перед отправкой
     const validateForm = () => {
-
         try {
             patientSchema.parse(formData);
             setFormErrors({});
@@ -209,24 +230,12 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
     // Отправка формы
     const handleSubmit = async () => {
         if (!validateForm()) {
-            // Покажем ошибки через тостер только если есть ошибки
-            if (Object.keys(formErrors).length > 0) {
-                toast.error('Пожалуйста, исправьте ошибки в форме');
-            }
+            toast.error('Пожалуйста, исправьте ошибки в форме');
             return;
         }
 
-        const missingFields: string[] = [];
-
-        if (!doctorId) missingFields.push('врача');
-        if (!procedureId) missingFields.push('процедуру');
-        if (!activeSchedule) missingFields.push('расписание');
-        if (!selectedDate) missingFields.push('дату');
-        if (!selectedTimeSlot) missingFields.push('время');
-
-        if (missingFields.length > 0) {
-            const missingFieldsText = missingFields.join(', ');
-            toast.error(`Для записи необходимо выбрать: ${missingFieldsText}`);
+        if (!isStep1Complete()) {
+            toast.error('Не все данные для записи заполнены');
             return;
         }
 
@@ -236,13 +245,13 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
             // Подготовка данных запроса
             const appointmentData: Record<string, any> = {
                 doctor_id: doctorId,
-                procedure_id: procedureId,
+                procedure_id: selectedProcedure?.medical_procedure_id || procedureId,
                 clinic_id: activeSchedule.clinic_id,
                 date: selectedDate,
                 time_slot_id: selectedTimeSlot?.id,
             };
 
-            // Если пользователь не авторизован, добавляем персональные данные
+            // Добавляем персональные данные
             Object.assign(appointmentData, {
                 first_name: formData.first_name,
                 last_name: formData.last_name,
@@ -254,9 +263,15 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
             // Отправка запроса на создание визита
             const response = await apiPost('/patients_endpoints/visits/create-visit/', appointmentData);
 
-            // Обработка успешного ответа
-            toast.success('Запись на прием успешно создана', {
-                position: 'top-right'
+            // Обработка успешного ответа с зеленым уведомлением
+            toast.success('🎉 Запись успешно создана!', {
+                duration: 5000,
+                style: {
+                    background: '#10b981',
+                    color: 'white',
+                    border: 'none',
+                    fontSize: '16px',
+                }
             });
 
             // Сбрасываем данные формы и закрываем модальное окно
@@ -268,12 +283,19 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
                 iin_number: '',
             });
             setStep(1);
+            setCompletedSteps([]);
             handleClose();
 
         } catch (error: any) {
             // Обработка ошибок
             const errorMessage = error.response?.data?.error || 'Произошла ошибка при создании записи';
-            toast.error(errorMessage);
+            toast.error(errorMessage, {
+                style: {
+                    background: '#ef4444',
+                    color: 'white',
+                    border: 'none'
+                }
+            });
         } finally {
             setIsLoading(false);
         }
@@ -288,44 +310,59 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
 
     return (
         <Dialog open={isOpen} onOpenChange={handleClose}>
-            <DialogContent className="sm:max-w-[500px] p-0 max-h-[80vh] overflow-auto">
-                <DialogHeader className="p-4 border-b">
-                    <DialogTitle className="text-xl font-semibold flex justify-between items-center">
-                        Онлайн запись
+            <DialogContent className="sm:max-w-[600px] p-0 max-h-[80vh] overflow-hidden flex flex-col">
+                <DialogHeader className="p-4 pb-2 border-b flex-shrink-0">
+                    <DialogTitle className="text-xl font-semibold text-center">
+                        Запись на прием
                     </DialogTitle>
                 </DialogHeader>
 
-                {step === 1 ? (
-                    <AppointmentStep1
-                        doctorName={doctorName}
-                        procedureName={procedureName}
-                        onNextStep={handleNextStep}
-                        selectedTab={selectedTab}
-                        onTabChange={handleTabChange}
-                        availableTimeSlots={timeSlots}
-                        selectedTimeSlot={selectedTimeSlot}
-                        onTimeSlotSelect={handleTimeSlotSelect}
-                        clinicName={activeSchedule?.clinic_title}
-                        clinicAddress={activeSchedule?.clinic_address}
-                        availableProcedures={availableProcedures}
-                    />
-                ) : (
-                    <AppointmentStep2
-                        doctorName={doctorName}
-                        procedureName={procedureName}
-                        selectedDate={selectedDate}
-                        selectedTimeSlot={selectedTimeSlot}
-                        clinicName={activeSchedule?.clinic_title}
-                        clinicAddress={activeSchedule?.clinic_address}
-                        formData={formData}
-                        onInputChange={handleInputChange}
-                        isAuthenticated={isAuthenticated}
-                        onPrevStep={handlePrevStep}
-                        onSubmit={handleSubmit}
-                        isLoading={isLoading}
-                        formErrors={formErrors}
-                    />
-                )}
+                {/* Содержимое шагов */}
+                <div className="flex-1 overflow-auto">
+                    {step === 1 ? (
+                        <AppointmentStep1
+                            doctorPhoto={doctorPhoto}
+                            doctorName={doctorName}
+                            procedureName={selectedProcedure?.title || procedureName}
+                            procedureId={selectedProcedure?.medical_procedure_id || procedureId}
+                            onNextStep={handleNextStep}
+                            availableProcedures={availableProcedures}
+                            onProcedureSelect={handleProcedureSelect}
+                            selectedTab={selectedTab}
+                            onTabChange={handleTabChange}
+                            availableTimeSlots={timeSlots}
+                            selectedTimeSlot={selectedTimeSlot}
+                            onTimeSlotSelect={handleTimeSlotSelect}
+                            clinicName={activeSchedule?.clinic_title}
+                            clinicAddress={activeSchedule?.clinic_address}
+                        />
+                    ) : (
+                        <AppointmentStep2
+                            doctorName={doctorName}
+                            doctorPhoto={doctorPhoto}
+                            procedureName={selectedProcedure?.title || procedureName}
+                            selectedDate={selectedDate}
+                            selectedTimeSlot={selectedTimeSlot}
+                            clinicName={activeSchedule?.clinic_title}
+                            clinicAddress={activeSchedule?.clinic_address}
+                            formData={formData}
+                            onInputChange={handleInputChange}
+                            isAuthenticated={isAuthenticated}
+                            formErrors={formErrors}
+                            onPrevStep={handlePrevStep}
+                            onSubmit={handleSubmit}
+                            isLoading={isLoading}
+                        />
+                    )}
+                </div>
+
+                {/* Степпер внизу */}
+                <BottomStepper
+                    currentStep={step}
+                    totalSteps={2}
+                    completedSteps={completedSteps}
+                    stepLabels={['Выбор времени', 'Данные пациента']}
+                />
             </DialogContent>
         </Dialog>
     );

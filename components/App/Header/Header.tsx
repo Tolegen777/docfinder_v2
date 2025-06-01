@@ -20,6 +20,7 @@ import {useAuthStore} from "@/shared/stores/authStore";
 import {useCheckAuth} from "@/shared/api/authApi";
 import {tokenService} from "@/shared/lib/tokenService";
 import {usePathname} from "next/navigation";
+import Link from "next/link";
 
 export const Header = () => {
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
@@ -48,7 +49,8 @@ export const Header = () => {
             <MaxWidthLayout className="px-4 py-3">
                 <div className="flex flex-col md:flex-row items-center gap-4">
                     {/* Logo */}
-                    <div className="flex-shrink-0">
+                    <div className="flex-shrink-0 cursor-pointer">
+                        <Link href={'/'}>
                         <div className="text-xl font-semibold flex items-center gap-1">
                             <Image
                                 src={logoImg}
@@ -56,6 +58,7 @@ export const Header = () => {
                                 className="w-[154px] h-[30px] md:w-[200px] md:h-[40px]"
                             />
                         </div>
+                        </Link>
                     </div>
 
                     {/* Search Bar - Full width on mobile, adaptive on desktop */}
