@@ -1,36 +1,79 @@
 // components/ClinicDetails/ClinicDoctorsList/DoctorsFilters.tsx
 'use client';
 
-import React from 'react';
+import React, { useState, useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { cn } from "@/lib/utils";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/shadcn/accordion";
 import { Checkbox } from "@/components/shadcn/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/shadcn/select";
+import { Input } from "@/components/shadcn/input";
+import { Search, ChevronDown, ChevronUp } from "lucide-react";
 import { ClinicDoctorsFilters } from '@/shared/api/clinicDoctorsApi';
+import { AllSpecialtiesAPI, AllSpecialty } from '@/shared/api/specialtiesApi';
+import { AllProceduresAPI, AllProcedure } from '@/shared/api/proceduresApi';
 
 interface DoctorsFiltersProps {
     className?: string;
     filters: ClinicDoctorsFilters;
     onFilterChange: (filters: ClinicDoctorsFilters) => void;
     isLoading?: boolean;
-    availableSpecialities?: Array<{
-        id: number;
-        title: string;
-    }>;
-    availableProcedures?: Array<{
-        id: number;
-        title: string;
-    }>;
 }
+
+const INITIAL_ITEMS_COUNT = 10;
 
 export const DoctorsFilters: React.FC<DoctorsFiltersProps> = ({
                                                                   className,
                                                                   filters,
                                                                   onFilterChange,
                                                                   isLoading = false,
-                                                                  availableSpecialities = [],
-                                                                  availableProcedures = []
                                                               }) => {
+    // Состояния для поиска
+    const [specialtySearch, setSpecialtySearch] = useState('');
+    const [procedureSearch, setProcedureSearch] = useState('');
+
+    // Состояния для "показать еще"
+    const [showAllSpecialties, setShowAllSpecialties] = useState(false);
+    const [showAllProcedures, setShowAllProcedures] = useState(false);
+
+    // Запросы к API
+    const { data: allSpecialties = [], isLoading: isLoadingSpecialties } = useQuery({
+        queryKey: ['all-specialties'],
+        queryFn: AllSpecialtiesAPI.getAllSpecialties,
+        staleTime: 5 * 60 * 1000, // 5 минут
+    });
+
+    const { data: allProcedures = [], isLoading: isLoadingProcedures } = useQuery({
+        queryKey: ['all-procedures'],
+        queryFn: AllProceduresAPI.getAllProcedures,
+        staleTime: 5 * 60 * 1000, // 5 минут
+    });
+
+    // Фильтрация специальностей по поиску
+    const filteredSpecialties = useMemo(() => {
+        return allSpecialties.filter(specialty =>
+            specialty.title.toLowerCase().includes(specialtySearch.toLowerCase())
+        );
+    }, [allSpecialties, specialtySearch]);
+
+    // Фильтрация процедур по поиску
+    const filteredProcedures = useMemo(() => {
+        return allProcedures.filter(procedure =>
+            procedure.title.toLowerCase().includes(procedureSearch.toLowerCase())
+        );
+    }, [allProcedures, procedureSearch]);
+
+    // Получаем отображаемые элементы
+    const displayedSpecialties = useMemo(() => {
+        const items = filteredSpecialties;
+        return showAllSpecialties || specialtySearch ? items : items.slice(0, INITIAL_ITEMS_COUNT);
+    }, [filteredSpecialties, showAllSpecialties, specialtySearch]);
+
+    const displayedProcedures = useMemo(() => {
+        const items = filteredProcedures;
+        return showAllProcedures || procedureSearch ? items : items.slice(0, INITIAL_ITEMS_COUNT);
+    }, [filteredProcedures, showAllProcedures, procedureSearch]);
+
     const handleSpecialityChange = (specialityId: number, checked: boolean) => {
         const currentSpecialities = filters.specialities || [];
         const newSpecialities = checked
@@ -40,7 +83,7 @@ export const DoctorsFilters: React.FC<DoctorsFiltersProps> = ({
         onFilterChange({
             ...filters,
             specialities: newSpecialities,
-            page: 1 // Сбрасываем на первую страницу при изменении фильтров
+            page: 1
         });
     };
 
@@ -70,6 +113,10 @@ export const DoctorsFilters: React.FC<DoctorsFiltersProps> = ({
             page: 1,
             page_size: filters.page_size || 10
         });
+        setSpecialtySearch('');
+        setProcedureSearch('');
+        setShowAllSpecialties(false);
+        setShowAllProcedures(false);
     };
 
     const hasActiveFilters =
@@ -124,9 +171,22 @@ export const DoctorsFilters: React.FC<DoctorsFiltersProps> = ({
                             </span>
                         </AccordionTrigger>
                         <AccordionContent className="pt-3 pb-0">
-                            <div className="space-y-3 max-h-48 overflow-y-auto">
-                                {availableSpecialities.length > 0 ? (
-                                    availableSpecialities.map((speciality) => (
+                            {/* Поиск по специальностям */}
+                            <div className="relative mb-3">
+                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                                <Input
+                                    placeholder="Поиск специальностей..."
+                                    value={specialtySearch}
+                                    onChange={(e) => setSpecialtySearch(e.target.value)}
+                                    className="pl-10"
+                                />
+                            </div>
+
+                            <div className="space-y-3 max-h-[380px] overflow-y-auto">
+                                {isLoadingSpecialties ? (
+                                    <div className="text-sm text-gray-500">Загрузка специальностей...</div>
+                                ) : displayedSpecialties.length > 0 ? (
+                                    displayedSpecialties.map((speciality) => (
                                         <label key={speciality.id} className="flex items-center space-x-2">
                                             <Checkbox
                                                 id={`speciality-${speciality.id}`}
@@ -141,8 +201,28 @@ export const DoctorsFilters: React.FC<DoctorsFiltersProps> = ({
                                     ))
                                 ) : (
                                     <div className="text-sm text-gray-500">
-                                        {isLoading ? 'Загрузка...' : 'Нет доступных специальностей'}
+                                        {specialtySearch ? 'Ничего не найдено' : 'Нет доступных специальностей'}
                                     </div>
+                                )}
+
+                                {/* Кнопка "Показать еще" для специальностей */}
+                                {!specialtySearch && filteredSpecialties.length > INITIAL_ITEMS_COUNT && (
+                                    <button
+                                        onClick={() => setShowAllSpecialties(!showAllSpecialties)}
+                                        className="flex items-center gap-2 text-sm text-emerald-600 hover:text-emerald-700 font-medium"
+                                    >
+                                        {showAllSpecialties ? (
+                                            <>
+                                                <ChevronUp className="w-4 h-4" />
+                                                Скрыть
+                                            </>
+                                        ) : (
+                                            <>
+                                                <ChevronDown className="w-4 h-4" />
+                                                Показать еще ({filteredSpecialties.length - INITIAL_ITEMS_COUNT})
+                                            </>
+                                        )}
+                                    </button>
                                 )}
                             </div>
                         </AccordionContent>
@@ -159,9 +239,22 @@ export const DoctorsFilters: React.FC<DoctorsFiltersProps> = ({
                             </span>
                         </AccordionTrigger>
                         <AccordionContent className="pt-3 pb-0">
-                            <div className="space-y-3 max-h-48 overflow-y-auto">
-                                {availableProcedures.length > 0 ? (
-                                    availableProcedures.map((procedure) => (
+                            {/* Поиск по процедурам */}
+                            <div className="relative mb-3">
+                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                                <Input
+                                    placeholder="Поиск процедур..."
+                                    value={procedureSearch}
+                                    onChange={(e) => setProcedureSearch(e.target.value)}
+                                    className="pl-10"
+                                />
+                            </div>
+
+                            <div className="space-y-3 max-h-[380px] overflow-y-auto">
+                                {isLoadingProcedures ? (
+                                    <div className="text-sm text-gray-500">Загрузка процедур...</div>
+                                ) : displayedProcedures.length > 0 ? (
+                                    displayedProcedures.map((procedure) => (
                                         <label key={procedure.id} className="flex items-center space-x-2">
                                             <Checkbox
                                                 id={`procedure-${procedure.id}`}
@@ -171,13 +264,40 @@ export const DoctorsFilters: React.FC<DoctorsFiltersProps> = ({
                                                 }
                                                 disabled={isLoading}
                                             />
-                                            <span className="text-sm text-gray-600">{procedure.title}</span>
+                                            <div className="flex flex-col">
+                                                <span className="text-sm text-gray-600">{procedure.title}</span>
+                                                {procedure.is_for_children && (
+                                                    <span className="text-xs text-blue-500">
+                                                        Детская процедура ({procedure.child_age_from} - {procedure.child_age_to})
+                                                    </span>
+                                                )}
+                                            </div>
                                         </label>
                                     ))
                                 ) : (
                                     <div className="text-sm text-gray-500">
-                                        {isLoading ? 'Загрузка...' : 'Нет доступных процедур'}
+                                        {procedureSearch ? 'Ничего не найдено' : 'Нет доступных процедур'}
                                     </div>
+                                )}
+
+                                {/* Кнопка "Показать еще" для процедур */}
+                                {!procedureSearch && filteredProcedures.length > INITIAL_ITEMS_COUNT && (
+                                    <button
+                                        onClick={() => setShowAllProcedures(!showAllProcedures)}
+                                        className="flex items-center gap-2 text-sm text-emerald-600 hover:text-emerald-700 font-medium"
+                                    >
+                                        {showAllProcedures ? (
+                                            <>
+                                                <ChevronUp className="w-4 h-4" />
+                                                Скрыть
+                                            </>
+                                        ) : (
+                                            <>
+                                                <ChevronDown className="w-4 h-4" />
+                                                Показать еще ({filteredProcedures.length - INITIAL_ITEMS_COUNT})
+                                            </>
+                                        )}
+                                    </button>
                                 )}
                             </div>
                         </AccordionContent>

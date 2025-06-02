@@ -1,7 +1,7 @@
 // components/ClinicDetails/ClinicDoctorsList/ClinicDoctorsList.tsx
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useParams } from 'next/navigation';
 import { ClinicDoctorsAPI, ClinicDoctorsFilters } from '@/shared/api/clinicDoctorsApi';
@@ -87,37 +87,6 @@ export const ClinicDoctorsList = () => {
         enabled: !!clinicSlug
     });
 
-    // Получаем уникальные специальности и процедуры для фильтров
-    const { availableSpecialities, availableProcedures } = useMemo(() => {
-        if (!data?.results) {
-            return { availableSpecialities: [], availableProcedures: [] };
-        }
-
-        const specialitiesMap = new Map();
-        const proceduresMap = new Map();
-
-        data.results.forEach(doctor => {
-            doctor.specialities.forEach(spec => {
-                specialitiesMap.set(spec.medical_speciality_id, {
-                    id: spec.medical_speciality_id,
-                    title: spec.medical_speciality_title
-                });
-            });
-
-            doctor.procedures.forEach(proc => {
-                proceduresMap.set(proc.medical_procedure_id, {
-                    id: proc.medical_procedure_id,
-                    title: proc.medical_procedure_title
-                });
-            });
-        });
-
-        return {
-            availableSpecialities: Array.from(specialitiesMap.values()),
-            availableProcedures: Array.from(proceduresMap.values())
-        };
-    }, [data]);
-
     const totalPages = data ? Math.ceil(data.count / PAGE_SIZE) : 0;
     const doctorsCount = data?.count || 0;
 
@@ -174,8 +143,6 @@ export const ClinicDoctorsList = () => {
                     filters={filters}
                     onFilterChange={handleFilterChange}
                     isLoading={isLoading}
-                    availableSpecialities={availableSpecialities}
-                    availableProcedures={availableProcedures}
                 />
 
                 {/* Список врачей */}
@@ -217,8 +184,6 @@ export const ClinicDoctorsList = () => {
                         filters={filters}
                         onFilterChange={handleFilterChange}
                         isLoading={isLoading}
-                        availableSpecialities={availableSpecialities}
-                        availableProcedures={availableProcedures}
                     />
                 </aside>
 

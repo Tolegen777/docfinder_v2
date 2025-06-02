@@ -47,3 +47,17 @@ export const ProceduresAPI = {
     getCategoryDetails: (categoryId: number) =>
         apiGet<CategoryDetails>(`/patients_endpoints/procedures/categories/${categoryId}/`),
 } as const;
+
+export interface AllProcedure {
+    id: number;
+    title: string;
+    slug: string;
+    is_for_children: boolean;
+    child_age_from: string;
+    child_age_to: string;
+}
+
+export const AllProceduresAPI = {
+    getAllProcedures: () =>
+        apiGet<AllProcedure[]>('/patients_endpoints/all-procedures/'),
+} as const;
