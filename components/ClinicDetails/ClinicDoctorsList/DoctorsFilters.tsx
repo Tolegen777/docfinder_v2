@@ -170,7 +170,7 @@ export const DoctorsFilters: React.FC<DoctorsFiltersProps> = ({
                                 )}
                             </span>
                         </AccordionTrigger>
-                        <AccordionContent className="pt-3 pb-0">
+                        <AccordionContent className="pt-3 pb-0 px-0.5">
                             {/* Поиск по специальностям */}
                             <div className="relative mb-3">
                                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
@@ -238,7 +238,7 @@ export const DoctorsFilters: React.FC<DoctorsFiltersProps> = ({
                                 )}
                             </span>
                         </AccordionTrigger>
-                        <AccordionContent className="pt-3 pb-0">
+                        <AccordionContent className="pt-3 pb-0 px-0.5">
                             {/* Поиск по процедурам */}
                             <div className="relative mb-3">
                                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
