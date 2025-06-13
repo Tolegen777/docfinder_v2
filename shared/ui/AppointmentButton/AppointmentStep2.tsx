@@ -58,7 +58,7 @@ export const AppointmentStep2: React.FC<AppointmentStep2Props> = ({
 
     // Проверяем валидность формы
     const isFormValid = () => {
-        const requiredFields = ['first_name', 'last_name', 'phone_number', 'iin_number'];
+        const requiredFields = ['first_name', 'last_name', 'phone_number'];
         return requiredFields.every(field => formData[field as keyof PatientFormData]) &&
             Object.keys(formErrors).length === 0;
     };

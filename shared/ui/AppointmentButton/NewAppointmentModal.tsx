@@ -21,7 +21,7 @@ import { useAuthStore } from '@/shared/stores/authStore';
 import { apiPost } from '@/shared/api';
 import { TimeSlot } from './TimeSelector';
 import { Procedure } from "@/shared/api/doctorsApi";
-import { formatPhoneNumber, formatIIN } from '@/shared/lib/formatters';
+import { formatPhoneNumber } from '@/shared/lib/formatters';
 import doctorAvatar from '@/shared/assets/images/doctorPlaceholder.jpeg';
 import { cn } from '@/lib/utils';
 import { z } from 'zod';
@@ -30,7 +30,6 @@ interface PatientFormData {
     first_name: string;
     last_name: string;
     phone_number: string;
-    iin_number: string;
 }
 
 interface NewAppointmentModalProps {
@@ -55,7 +54,6 @@ const patientSchema = z.object({
     first_name: z.string().min(1, 'Имя обязательно для заполнения'),
     last_name: z.string().min(1, 'Фамилия обязательна для заполнения'),
     phone_number: z.string().regex(/^\+7\s[0-9]{3}\s[0-9]{3}\s[0-9]{4}$/, 'Введите корректный номер телефона'),
-    iin_number: z.string().regex(/^[0-9]{12}$/, 'ИИН должен содержать 12 цифр'),
 });
 
 export const NewAppointmentModal: React.FC<NewAppointmentModalProps> = ({
@@ -96,7 +94,6 @@ export const NewAppointmentModal: React.FC<NewAppointmentModalProps> = ({
         first_name: '',
         last_name: '',
         phone_number: '+7 ',
-        iin_number: '',
     });
 
     // Ошибки валидации
@@ -123,7 +120,6 @@ export const NewAppointmentModal: React.FC<NewAppointmentModalProps> = ({
                 first_name: user.first_name || '',
                 last_name: user.last_name || '',
                 phone_number: user.phone_number ? formatPhoneNumber(user.phone_number) : '+7 ',
-                iin_number: user.iin_number ? formatIIN(user.iin_number) : '',
             });
         }
     }, [isAuthenticated, user]);
@@ -159,7 +155,6 @@ export const NewAppointmentModal: React.FC<NewAppointmentModalProps> = ({
                     first_name: '',
                     last_name: '',
                     phone_number: '+7 ',
-                    iin_number: '',
                 });
             }
         }
@@ -173,8 +168,6 @@ export const NewAppointmentModal: React.FC<NewAppointmentModalProps> = ({
         let formattedValue = value;
         if (name === 'phone_number') {
             formattedValue = formatPhoneNumber(value);
-        } else if (name === 'iin_number') {
-            formattedValue = formatIIN(value);
         }
 
         setFormData(prev => ({ ...prev, [name]: formattedValue }));
@@ -278,7 +271,6 @@ export const NewAppointmentModal: React.FC<NewAppointmentModalProps> = ({
                 first_name: formData.first_name,
                 last_name: formData.last_name,
                 phone_number: formData.phone_number.replace(/\s+/g, ""),
-                iin_number: formData.iin_number,
             };
 
             const response = await apiPost('/patients_endpoints/visits/create-visit/', appointmentData);
@@ -298,7 +290,6 @@ export const NewAppointmentModal: React.FC<NewAppointmentModalProps> = ({
                 first_name: '',
                 last_name: '',
                 phone_number: '+7 ',
-                iin_number: '',
             });
             onClose();
 
@@ -530,28 +521,6 @@ export const NewAppointmentModal: React.FC<NewAppointmentModalProps> = ({
                                     <p className="text-red-500 text-xs">{formErrors.first_name}</p>
                                 )}
                             </div>
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label>ИИН</Label>
-                            <div className="relative">
-                                <Input
-                                    name="iin_number"
-                                    value={formData.iin_number}
-                                    onChange={handleInputChange}
-                                    maxLength={12}
-                                    className={cn(
-                                        isAuthenticated ? "bg-blue-50" : "",
-                                        formErrors.iin_number ? "border-red-500" : ""
-                                    )}
-                                />
-                                {isAuthenticated && (
-                                    <Check className="absolute right-3 top-2.5 h-4 w-4 text-green-600" />
-                                )}
-                            </div>
-                            {formErrors.iin_number && (
-                                <p className="text-red-500 text-xs">{formErrors.iin_number}</p>
-                            )}
                         </div>
 
                         <div className="space-y-2">

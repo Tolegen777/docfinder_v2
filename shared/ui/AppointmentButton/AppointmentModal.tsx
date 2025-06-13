@@ -40,7 +40,6 @@ const patientSchema = z.object({
     last_name: z.string().min(1, 'Фамилия обязательна для заполнения'),
     middle_name: z.string().optional(),
     phone_number: z.string().regex(/^\+7\s[0-9]{3}\s[0-9]{3}\s[0-9]{4}$/, 'Введите корректный номер телефона'),
-    iin_number: z.string().regex(/^[0-9]{12}$/, 'ИИН должен содержать 12 цифр'),
 });
 
 export const AppointmentModal: React.FC<AppointmentModalProps> = ({
@@ -80,7 +79,6 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
         last_name: '',
         middle_name: '',
         phone_number: '',
-        iin_number: '',
     });
 
     // Ошибки валидации
@@ -97,7 +95,6 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
                 last_name: user.last_name || '',
                 middle_name: user.middle_name || '',
                 phone_number: user.phone_number || '',
-                iin_number: user.iin_number || '',
             });
         }
     }, [isAuthenticated, user]);
@@ -125,7 +122,6 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
                     last_name: '',
                     middle_name: '',
                     phone_number: '+7 ',
-                    iin_number: '',
                 });
             }
         }
@@ -257,7 +253,6 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
                 last_name: formData.last_name,
                 middle_name: formData.middle_name,
                 phone_number: formData.phone_number.replace(/\s+/g, ""),
-                iin_number: formData.iin_number,
             });
 
             // Отправка запроса на создание визита
@@ -280,7 +275,6 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
                 last_name: '',
                 middle_name: '',
                 phone_number: '+7 ',
-                iin_number: '',
             });
             setStep(1);
             setCompletedSteps([]);

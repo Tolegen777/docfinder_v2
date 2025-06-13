@@ -4,14 +4,13 @@ import React, { useEffect } from 'react';
 import { Check } from 'lucide-react';
 import { Label } from '@/components/shadcn/label';
 import { Input } from '@/components/shadcn/input';
-import { formatPhoneNumber, formatIIN } from '@/shared/lib/formatters';
+import { formatPhoneNumber } from '@/shared/lib/formatters';
 
 export interface PatientFormData {
     first_name: string;
     last_name: string;
     middle_name: string;
     phone_number: string;
-    iin_number: string;
 }
 
 interface PatientFormProps {
@@ -39,17 +38,6 @@ export const PatientForm: React.FC<PatientFormProps> = ({
             } as React.ChangeEvent<HTMLInputElement>;
             onInputChange(phoneEvent);
         }
-
-        // Создаем фейковое событие для форматирования ИИН
-        if (formData.iin_number) {
-            const iinEvent = {
-                target: {
-                    name: 'iin_number',
-                    value: formatIIN(formData.iin_number)
-                }
-            } as React.ChangeEvent<HTMLInputElement>;
-            onInputChange(iinEvent);
-        }
     }, []);  // Пустой массив зависимостей, чтобы эффект выполнился только один раз
 
     // Создаем обертку для onInputChange, которая применяет форматирование
@@ -63,8 +51,6 @@ export const PatientForm: React.FC<PatientFormProps> = ({
                 ...e.target,
                 value: name === 'phone_number'
                     ? formatPhoneNumber(value)
-                    : name === 'iin_number'
-                        ? formatIIN(value)
                         : value,
                 name
             }
@@ -120,28 +106,6 @@ export const PatientForm: React.FC<PatientFormProps> = ({
                     onChange={onInputChange}
                     className={isAuthenticated ? "bg-blue-50" : ""}
                 />
-            </div>
-
-            <div className="space-y-2">
-                <Label htmlFor="iin_number" className="flex items-center">
-                    ИИН <span className="text-red-500 ml-1">*</span>
-                </Label>
-                <div className="relative">
-                    <Input
-                        id="iin_number"
-                        name="iin_number"
-                        value={formData.iin_number}
-                        onChange={handleInputChange}
-                        required
-                        maxLength={12}
-                        placeholder="12 цифр"
-                        className={`${isAuthenticated ? "bg-blue-50" : ""} ${formErrors.iin_number ? "border-red-500" : ""}`}
-                    />
-                    {isAuthenticated && <Check className="absolute right-3 top-2.5 h-4 w-4 text-green-600" />}
-                </div>
-                {formErrors.iin_number && (
-                    <p className="text-red-500 text-xs mt-1">{formErrors.iin_number}</p>
-                )}
             </div>
 
             <div className="space-y-2">
