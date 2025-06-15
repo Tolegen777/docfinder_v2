@@ -1,6 +1,5 @@
 // src/entities/auth/model/store/authStore.ts
-import { create } from 'zustand';
-import { devtools, persist } from 'zustand/middleware';
+import {create} from 'zustand';
 import {IUser} from "@/shared/api/authApi";
 
 interface AuthState {
@@ -12,8 +11,6 @@ interface AuthState {
 }
 
 export const useAuthStore = create<AuthState>()(
-    devtools(
-        persist(
             (set) => ({
                 user: null,
                 isAuthenticated: false,
@@ -31,11 +28,5 @@ export const useAuthStore = create<AuthState>()(
                         isAuthenticated: false,
                     });
                 },
-            }),
-            {
-                name: 'auth-storage',
-                partialize: (state) => ({ user: state.user, isAuthenticated: state.isAuthenticated }),
-            }
-        )
-    )
+            })
 );

@@ -12,6 +12,7 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const checkAuth = useCheckAuth();
     const {isAuthenticated} = useAuthStore()
+    console.log(isAuthenticated, 'IS')
     const token = tokenService.getLocalAccessToken();
 
     useEffect(() => {

@@ -89,9 +89,6 @@ export const Header = () => {
                                         <DropdownMenuItem asChild>
                                             <a href="/appointments">Мои записи</a>
                                         </DropdownMenuItem>
-                                        <DropdownMenuItem asChild>
-                                            <a href="/favorites">Избранное</a>
-                                        </DropdownMenuItem>
                                         <DropdownMenuItem className="text-red-500" onClick={logout}>
                                             <LogOut className="h-4 w-4 mr-2" />
                                             Выйти
