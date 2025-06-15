@@ -87,7 +87,7 @@ export const Header = () => {
                                             <a href="/profile">Мой профиль</a>
                                         </DropdownMenuItem>
                                         <DropdownMenuItem asChild>
-                                            <a href="/appointments">Мои записи</a>
+                                            <a href="/profile?active=appointments">Мои посещения</a>
                                         </DropdownMenuItem>
                                         <DropdownMenuItem className="text-red-500" onClick={logout}>
                                             <LogOut className="h-4 w-4 mr-2" />

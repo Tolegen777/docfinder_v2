@@ -47,7 +47,8 @@ const processQueue = (error: Error | null, token: string | null = null) => {
 // Массив URL-путей, для которых нужно добавлять токен
 const protectedUrls = [
     '/authentication/',
-    '/create-visit'
+    '/create-visit',
+    '/visits'
 ];
 
 apiInstance.interceptors.request.use((config: any) => {
