@@ -113,7 +113,7 @@ const MapClinicComponent = ({
                 position: ALMATY_CENTER as [number, number]
             }]);
         }
-    }, [queryClient, customCoordinates, selectedClinicId, clinicName, clinicAddress]);
+    }, [customCoordinates, selectedClinicId, clinicAddress]);
 
     // Инициализируем иконки маркеров только один раз
     useEffect(() => {

@@ -91,7 +91,7 @@ const MapClinicComponent = ({ isPreview = false, selectedClinicId, customMarkers
             // Для простоты используем первую клинику как центр
             setCenterCoords(clinicMarkers[0].position);
         }
-    }, [clinicMarkers, selectedClinicId]);
+    }, []);
 
     // Инициализируем иконки маркеров только один раз
     useEffect(() => {
