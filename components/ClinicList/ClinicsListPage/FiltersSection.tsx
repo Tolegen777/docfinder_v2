@@ -28,7 +28,7 @@ export const FiltersSection = ({
 
     // Fetch amenities and specialties using React Query
     const amenitiesQuery = useAmenities(cityId);
-    const specialtiesQuery = useSpecialties(cityId);
+    // const specialtiesQuery = useSpecialties(cityId);
 
     const handleCheckboxChange = (type: string, id?: number) => {
         if (type === "24h") {
@@ -110,34 +110,34 @@ export const FiltersSection = ({
                     </AccordionContent>
                 </AccordionItem>
 
-                <AccordionItem value="specialties" className="border-none">
-                    <AccordionTrigger className="hover:no-underline p-0">
-                        <span className="text-base font-medium">Специальности</span>
-                    </AccordionTrigger>
-                    <AccordionContent className="pt-4 pb-0">
-                        <div className="space-y-3">
-                            {specialtiesQuery.isLoading ? (
-                                <div className="text-sm text-gray-500">Загрузка...</div>
-                            ) : specialtiesQuery.error ? (
-                                <div className="text-sm text-red-500">Ошибка загрузки специальностей</div>
-                            ) : specialtiesQuery.data && specialtiesQuery.data.length > 0 ? (
-                                specialtiesQuery.data.map((specialty) => (
-                                    <label key={specialty.id} className="flex items-center space-x-2">
-                                        <Checkbox
-                                            id={`specialty-${specialty.id}`}
-                                            checked={filters.specialities.includes(specialty.id)}
-                                            onCheckedChange={() => handleCheckboxChange("specialty", specialty.id)}
-                                            disabled={isLoading}
-                                        />
-                                        <span className="text-sm text-gray-600">{specialty.title}</span>
-                                    </label>
-                                ))
-                            ) : (
-                                <div className="text-sm text-gray-500">Нет доступных специальностей</div>
-                            )}
-                        </div>
-                    </AccordionContent>
-                </AccordionItem>
+                {/*<AccordionItem value="specialties" className="border-none">*/}
+                {/*    <AccordionTrigger className="hover:no-underline p-0">*/}
+                {/*        <span className="text-base font-medium">Специальности</span>*/}
+                {/*    </AccordionTrigger>*/}
+                {/*    <AccordionContent className="pt-4 pb-0">*/}
+                {/*        <div className="space-y-3">*/}
+                {/*            {specialtiesQuery.isLoading ? (*/}
+                {/*                <div className="text-sm text-gray-500">Загрузка...</div>*/}
+                {/*            ) : specialtiesQuery.error ? (*/}
+                {/*                <div className="text-sm text-red-500">Ошибка загрузки специальностей</div>*/}
+                {/*            ) : specialtiesQuery.data && specialtiesQuery.data.length > 0 ? (*/}
+                {/*                specialtiesQuery.data.map((specialty) => (*/}
+                {/*                    <label key={specialty.id} className="flex items-center space-x-2">*/}
+                {/*                        <Checkbox*/}
+                {/*                            id={`specialty-${specialty.id}`}*/}
+                {/*                            checked={filters.specialities.includes(specialty.id)}*/}
+                {/*                            onCheckedChange={() => handleCheckboxChange("specialty", specialty.id)}*/}
+                {/*                            disabled={isLoading}*/}
+                {/*                        />*/}
+                {/*                        <span className="text-sm text-gray-600">{specialty.title}</span>*/}
+                {/*                    </label>*/}
+                {/*                ))*/}
+                {/*            ) : (*/}
+                {/*                <div className="text-sm text-gray-500">Нет доступных специальностей</div>*/}
+                {/*            )}*/}
+                {/*        </div>*/}
+                {/*    </AccordionContent>*/}
+                {/*</AccordionItem>*/}
             </Accordion>
         </div>
     );

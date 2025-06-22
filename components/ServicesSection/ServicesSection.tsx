@@ -10,6 +10,7 @@ import { ProcedureGroup } from './ProcedureGroup';
 import { ProceduresSkeleton } from './ProceduresSkeleton';
 import { AlphabeticalProcedures } from './AlphabeticalProcedures';
 import { CategoryTabs } from './CategoryTabs';
+import {useRouter} from "next/navigation";
 
 const SearchBar = () => (
     <div className="relative">
@@ -69,6 +70,12 @@ export const ServicesSection = () => {
         queryKey: ['procedureCategories'],
         queryFn: ProceduresAPI.getTopLevelCategories,
     });
+
+    const topConsultation = topLevelCategories?.find(item => item?.procedure_category_title === 'Консультации по специальностям')
+
+    const isTopConsultationActive = topConsultation?.procedure_category_id && topConsultation?.procedure_category_id === activeCategories?.[0]
+
+    const router = useRouter();
 
     // Функция для установки активной категории на указанном уровне
     const setActiveCategoryAtLevel = (level: number, categoryId: number) => {
@@ -130,8 +137,13 @@ export const ServicesSection = () => {
     };
 
     // Обработчик для любого другого уровня
-    const handleCategoryClick = (level: number, id: number) => {
-        setActiveCategoryAtLevel(level, id);
+    const handleCategoryClick = (level: number, id: number, slug?: string) => {
+        if (isTopConsultationActive) {
+            router.push(`/specialities/${slug}`);
+        } else {
+            setActiveCategoryAtLevel(level, id);
+        }
+
     };
 
     // Генерация уникального ключа для элемента
@@ -151,7 +163,7 @@ export const ServicesSection = () => {
                             id: cat.procedure_category_id,
                             title: cat.procedure_category_title
                         })),
-                        { id: -1, title: 'Анализы' }
+                        // { id: -1, title: 'Анализы' }
                     ]}
                     activeId={activeCategories[0] || null}
                     onSelect={handleTopLevelClick}
@@ -203,12 +215,13 @@ export const ServicesSection = () => {
                                     {/* Дочерние категории в виде табов */}
                                     {hasChildColumns && (
                                         <CategoryTabs
-                                            items={categoryData.child_procedure_categories_columns.map(column => ({
+                                            items={categoryData?.[isTopConsultationActive ? 'child_procedure_categories_list' : 'child_procedure_categories_columns'].map(column => ({
                                                 id: column.procedure_category_id,
-                                                title: column.procedure_category_title
+                                                title: column.procedure_category_title,
+                                                medical_speciality_slug: column?.medical_speciality_slug
                                             }))}
                                             activeId={activeCategories[level + 1] || null}
-                                            onSelect={(id) => handleCategoryClick(level + 1, id)}
+                                            onSelect={(id, slug) => handleCategoryClick(level + 1, id, slug)}
                                             level={level + 1}
                                         />
                                     )}

@@ -101,7 +101,7 @@ export const DoctorsList = () => {
 
     return (
         <div className="max-w-[1200px] mx-auto px-4 py-8">
-            <AppointmentTypeFilters />
+            {/*<AppointmentTypeFilters />*/}
 
             <div className="space-y-4">
                 {isLoading ? (

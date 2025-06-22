@@ -66,18 +66,18 @@ export const SpecialtiesSection = () => {
                     active={currentTab === 'clinics'}
                     href={`${pathname}?${createQueryString('tab', 'clinics')}`}
                 />
-                <NavItem
-                    icon={Activity}
-                    text="Симптомы"
-                    active={currentTab === 'symptoms'}
-                    href={`${pathname}?${createQueryString('tab', 'symptoms')}`}
-                />
-                <NavItem
-                    icon={Factory}
-                    text="Заболевания"
-                    active={currentTab === 'diseases'}
-                    href={`${pathname}?${createQueryString('tab', 'diseases')}`}
-                />
+                {/*<NavItem*/}
+                {/*    icon={Activity}*/}
+                {/*    text="Симптомы"*/}
+                {/*    active={currentTab === 'symptoms'}*/}
+                {/*    href={`${pathname}?${createQueryString('tab', 'symptoms')}`}*/}
+                {/*/>*/}
+                {/*<NavItem*/}
+                {/*    icon={Factory}*/}
+                {/*    text="Заболевания"*/}
+                {/*    active={currentTab === 'diseases'}*/}
+                {/*    href={`${pathname}?${createQueryString('tab', 'diseases')}`}*/}
+                {/*/>*/}
             </div>
 
             {/* Content */}

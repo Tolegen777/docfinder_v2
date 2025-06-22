@@ -7,9 +7,10 @@ interface CategoryTabsProps {
     items: {
         id: number;
         title: string;
+        medical_speciality_slug?: string;
     }[];
     activeId?: number | null;
-    onSelect: (id: number) => void;
+    onSelect: (id: number, slug?: string) => void;
     level?: number;
 }
 
@@ -61,7 +62,9 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
             {items.map((item) => (
                 <button
                     key={generateTabKey(item.id, item.title)}
-                    onClick={() => onSelect(item.id)}
+                    onClick={() => {
+                        onSelect(item.id, item?.medical_speciality_slug)
+                    }}
                     className={cn(
                         "text-sm whitespace-nowrap",
                         styles.tab,
