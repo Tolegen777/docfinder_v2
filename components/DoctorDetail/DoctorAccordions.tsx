@@ -36,7 +36,7 @@ export const DoctorAccordions: React.FC<DoctorAccordionsProps> = ({
                     {fragment.title && (
                         <h3 className="text-lg font-medium mb-2">{fragment.title}</h3>
                     )}
-                    <p className="text-gray-600">{fragment.content}</p>
+                    <div className="text-gray-600" dangerouslySetInnerHTML={{ __html: fragment.content }}/>
                 </div>
             );
         });

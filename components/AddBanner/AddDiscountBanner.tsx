@@ -1,10 +1,15 @@
+'use client'
 import React from 'react';
 import Image from "next/image";
 import addPercent from '@/shared/assets/images/add_percent.png'
 import addPercentMobile from '@/shared/assets/images/add_percent_mobile.png'
 import {MaxWidthLayout} from "@/shared/ui/MaxWidthLayout";
+import {useCityStore} from "@/shared/stores/cityStore";
 
 export const AddDiscountBanner = () => {
+
+    const {currentCity} = useCityStore()
+
     return (
         <MaxWidthLayout>
             {/* Основной контейнер */}
@@ -12,7 +17,7 @@ export const AddDiscountBanner = () => {
                 {/* Верхняя строка с количеством врачей */}
                 <div
                     className="h3-28-36-600 md:h2-38-54-600 mb-5 flex flex-col md:flex-row items-center gap-2 text-center md:text-left">
-                    Запись на приём к лучшим врачам Алматы: {' '}
+                    Запись на приём к лучшим врачам {currentCity?.title ?? ''}: {' '}
                     {/*<div className="bg-green-light-1 p-2 rounded-md">*/}
                     {/*    <span className="text-primary">100 545 врачей</span>*/}
                     {/*</div>*/}

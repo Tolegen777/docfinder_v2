@@ -41,7 +41,7 @@ export const ProcedureClinicsMap: React.FC<ProcedureClinicsMapProps> = ({
     }, [clinics]);
 
     return (
-        <MaxWidthLayout className="py-4">
+        <div className="mb-4">
             <div className="relative">
                 {/* Header */}
                 <div className="flex items-center gap-2 mb-3">
@@ -88,17 +88,6 @@ export const ProcedureClinicsMap: React.FC<ProcedureClinicsMapProps> = ({
                     </Dialog>
                 </div>
             </div>
-        </MaxWidthLayout>
+        </div>
     );
 };
-
-// Function for proper Russian declension of the word "clinic"
-function getClinicText(count: number): string {
-    if (count % 10 === 1 && count % 100 !== 11) {
-        return 'клиника';
-    } else if ([2, 3, 4].includes(count % 10) && ![12, 13, 14].includes(count % 100)) {
-        return 'клиники';
-    } else {
-        return 'клиник';
-    }
-}

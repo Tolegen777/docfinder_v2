@@ -5,15 +5,34 @@ import { MaxWidthLayout } from "@/shared/ui/MaxWidthLayout";
 import ClinicCard from '@/components/ClinicList/ClinicCard/ClinicCard';
 import { ClinicCardSkeleton } from '@/components/ClinicList/ClinicCard/ClinicCardSkeleton';
 import { Button } from '@/components/shadcn/button';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { ProcedureClinicsAPI, procedureClinicKeys } from '@/shared/api/procedureClinicsApi';
 import { ProcedureClinicsMap } from './ProcedureClinicsMap';
-import {useParams} from "next/navigation";
+import { useParams } from "next/navigation";
+import { TabBar, TabOption } from '@/shared/ui/TabBar';
+import { Users, Building2 } from 'lucide-react';
+import { ProcedureDoctorsList } from '../ProcedureDoctorsList/ProcedureDoctorsList';
+
+type TabValue = 'doctors' | 'clinics';
+
+const tabs: TabOption[] = [
+    {
+        value: 'doctors',
+        icon: <Users className="w-5 h-5" />,
+        label: 'Врачи'
+    },
+    {
+        value: 'clinics',
+        icon: <Building2 className="w-5 h-5" />,
+        label: 'Клиники'
+    }
+];
 
 export const ProcedureClinicsList = () => {
     const params = useParams();
     const procedureSlug = params?.slug as string;
 
+    const [activeTab, setActiveTab] = useState<TabValue>('doctors');
     const [selectedClinicId, setSelectedClinicId] = useState<number | undefined>(undefined);
     const [page, setPage] = useState(1);
     const pageSize = 10;
@@ -28,8 +47,9 @@ export const ProcedureClinicsList = () => {
         isLoading,
         isError,
         error,
+        refetch
     } = useQuery({
-        queryKey: [...procedureClinicKeys.lists(), { procedureSlug, page: 1, pageSize }],
+        queryKey: [...procedureClinicKeys.lists(), { procedureSlug, page: 1, pageSize, activeTab }],
         queryFn: async () => {
             const response = await ProcedureClinicsAPI.getProcedureClinics({
                 procedureSlug,
@@ -55,7 +75,7 @@ export const ProcedureClinicsList = () => {
                 totalCount: response.count
             };
         },
-        enabled: !!procedureSlug
+        enabled: !!procedureSlug && activeTab === 'clinics'
     });
 
     // Update allClinics when initial data changes
@@ -150,94 +170,119 @@ export const ProcedureClinicsList = () => {
     // Calculate if there are more pages
     const hasMorePages = clinics.length < totalCount;
 
-    // Current number of displayed clinics
-    const displayedCount = clinics.length;
-
     // Handle "Show more" button click
     const handleShowMore = () => {
         loadMoreClinics();
     };
 
+    // Handle tab change
+    const handleTabChange = (tab: string) => {
+        const newTab = tab as TabValue;
+        setActiveTab(newTab);
+        // Reset pagination when switching tabs
+        setPage(1);
+
+        if (newTab === 'clinics') {
+            // Clear existing clinics data when switching to clinics tab
+            setAllClinics([]);
+        }
+    };
+
     return (
         <div className="mb-8">
-            {/* Map component */}
-            {!isLoading && clinics.length > 0 && (
-                <ProcedureClinicsMap
-                    clinics={clinics}
-                    totalCount={totalCount}
-                    selectedClinicId={selectedClinicId}
-                />
-            )}
-
             <MaxWidthLayout>
-                {/* Section heading is now shown in the map component */}
+                {/* Tab Bar */}
+                <div className="mb-6">
+                    <TabBar
+                        activeTab={activeTab}
+                        onTabChange={handleTabChange}
+                        tabs={tabs}
+                    />
+                </div>
 
-                {/* Error state */}
-                {isError && (
-                    <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-4">
-                        <p className="text-red-700">
-                            {error instanceof Error ? error.message : 'Произошла ошибка при загрузке данных'}
-                        </p>
-                    </div>
+                {/* Tab Content */}
+                {activeTab === 'doctors' && (
+                    <ProcedureDoctorsList />
                 )}
 
-                {/* Loading state */}
-                {isLoading && (
-                    <div className="space-y-4">
-                        {Array(3).fill(null).map((_, index) => (
-                            <ClinicCardSkeleton key={index} />
-                        ))}
-                    </div>
+                {/* Map component - only show for clinics */}
+                {!isLoading && clinics.length > 0 && activeTab === 'clinics' && (
+                    <ProcedureClinicsMap
+                        clinics={clinics}
+                        totalCount={totalCount}
+                        selectedClinicId={selectedClinicId}
+                    />
                 )}
 
-                {/* Clinics list */}
-                {!isLoading && clinics.length > 0 && (
-                    <div className="space-y-4">
-                        {clinics.map((clinic) => (
-                            <ClinicCard
-                                key={clinic.id}
-                                id={clinic.id}
-                                slug={clinic.slug}
-                                name={clinic.cardProps.name}
-                                address={clinic.cardProps.address}
-                                rating={clinic.cardProps.rating}
-                                schedule={clinic.cardProps.schedule}
-                                specialists={clinic.cardProps.specialists}
-                                timeUntilClose={clinic.cardProps.timeUntilClose}
-                                doctor_count={clinic?.doctor_count}
-                                main_photo_url={clinic?.main_photo_url}
-                            />
-                        ))}
-                    </div>
-                )}
+                {activeTab === 'clinics' && (
+                    <>
+                        {/* Error state */}
+                        {isError && (
+                            <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-4">
+                                <p className="text-red-700">
+                                    {error instanceof Error ? error.message : 'Произошла ошибка при загрузке данных'}
+                                </p>
+                            </div>
+                        )}
 
-                {/* No results state */}
-                {!isLoading && clinics.length === 0 && (
-                    <div className="text-center py-8 bg-white rounded-xl shadow-sm p-8">
-                        <p className="text-gray-500 mb-2">Клиники не найдены</p>
-                        <p className="text-sm text-gray-400">К сожалению, нет клиник, предлагающих данную процедуру</p>
-                    </div>
-                )}
+                        {/* Loading state */}
+                        {isLoading && (
+                            <div className="space-y-4">
+                                {Array(3).fill(null).map((_, index) => (
+                                    <ClinicCardSkeleton key={index} />
+                                ))}
+                            </div>
+                        )}
 
-                {/* "Show more" button */}
-                {!isLoading && hasMorePages && (
-                    <div className="flex justify-center mt-6">
-                        <Button
-                            variant="outline"
-                            className="w-full border border-emerald-500 text-emerald-600 hover:bg-emerald-50 rounded-md py-3"
-                            onClick={handleShowMore}
-                            disabled={isFetchingNext}
-                        >
-              <span className="flex items-center justify-center">
-                <svg viewBox="0 0 24 24" className="w-5 h-5 mr-2" fill="currentColor">
-                  <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
-                </svg>
-                  {isFetchingNext ? 'Загрузка...' : 'Показать еще'}
-              </span>
-                        </Button>
-                    </div>
+                        {/* Clinics list */}
+                        {!isLoading && clinics.length > 0 && (
+                            <div className="space-y-4">
+                                {clinics.map((clinic) => (
+                                    <ClinicCard
+                                        key={clinic.id}
+                                        id={clinic.id}
+                                        slug={clinic.slug}
+                                        name={clinic.cardProps.name}
+                                        address={clinic.cardProps.address}
+                                        rating={clinic.cardProps.rating}
+                                        schedule={clinic.cardProps.schedule}
+                                        specialists={clinic.cardProps.specialists}
+                                        timeUntilClose={clinic.cardProps.timeUntilClose}
+                                        doctor_count={clinic?.doctor_count}
+                                        main_photo_url={clinic?.main_photo_url}
+                                    />
+                                ))}
+                            </div>
+                        )}
+
+                        {/* No results state */}
+                        {!isLoading && clinics.length === 0 && (
+                            <div className="text-center py-8 bg-white rounded-xl shadow-sm p-8">
+                                <p className="text-gray-500 mb-2">Клиники не найдены</p>
+                                <p className="text-sm text-gray-400">К сожалению, нет клиник, предлагающих данную процедуру</p>
+                            </div>
+                        )}
+
+                        {/* "Show more" button */}
+                        {!isLoading && hasMorePages && (
+                            <div className="flex justify-center mt-6">
+                                <Button
+                                    variant="outline"
+                                    className="w-full border border-emerald-500 text-emerald-600 hover:bg-emerald-50 rounded-md py-3"
+                                    onClick={handleShowMore}
+                                    disabled={isFetchingNext}
+                                >
+                                    <span className="flex items-center justify-center">
+                                        <svg viewBox="0 0 24 24" className="w-5 h-5 mr-2" fill="currentColor">
+                                            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+                                        </svg>
+                                        {isFetchingNext ? 'Загрузка...' : 'Показать еще'}
+                                    </span>
+                                </Button>
+                            </div>
+                        )}
+                    </>
                 )}
             </MaxWidthLayout>
         </div>
-    );
-};
+    )}
