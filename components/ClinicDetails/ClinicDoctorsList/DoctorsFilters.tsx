@@ -18,6 +18,7 @@ interface DoctorsFiltersProps {
     filters: ClinicDoctorsFilters;
     onFilterChange: (filters: ClinicDoctorsFilters) => void;
     isLoading?: boolean;
+    setCurrentPage: (page: number) => void;
 }
 
 const INITIAL_ITEMS_COUNT = 10;
@@ -26,6 +27,7 @@ export const DoctorsFilters: React.FC<DoctorsFiltersProps> = ({
                                                                   className,
                                                                   filters,
                                                                   onFilterChange,
+                                                                  setCurrentPage,
                                                                   isLoading = false,
                                                               }) => {
     // Состояния для поиска
@@ -83,7 +85,6 @@ export const DoctorsFilters: React.FC<DoctorsFiltersProps> = ({
         onFilterChange({
             ...filters,
             specialities: newSpecialities,
-            page: 1
         });
     };
 
@@ -96,23 +97,20 @@ export const DoctorsFilters: React.FC<DoctorsFiltersProps> = ({
         onFilterChange({
             ...filters,
             procedures: newProcedures,
-            page: 1
         });
+        setCurrentPage(1)
     };
 
     const handleGenderChange = (gender: string) => {
         onFilterChange({
             ...filters,
             gender: gender === 'all' ? undefined : (gender as 'MALE' | 'FEMALE'),
-            page: 1
         });
+        setCurrentPage(1)
     };
 
     const clearAllFilters = () => {
-        onFilterChange({
-            page: 1,
-            page_size: filters.page_size || 10
-        });
+        setCurrentPage(1)
         setSpecialtySearch('');
         setProcedureSearch('');
         setShowAllSpecialties(false);

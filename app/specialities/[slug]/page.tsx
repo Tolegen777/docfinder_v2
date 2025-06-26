@@ -1,6 +1,7 @@
 // app/specialities/[slug]/page.tsx
 import React from 'react';
-import SpecialityDetailPage from "@/components/SpecialityDetails/SpecialityDetailPage";
+import {SpecialityDetailPage} from "@/components/SpecialityDetails/SpecialityDetailPage";
+import {MaxWidthLayout} from "@/shared/ui/MaxWidthLayout";
 
 export const metadata = {
     title: 'Врачи-специалисты | DocFinder.kz',
@@ -8,5 +9,7 @@ export const metadata = {
 };
 
 export default function SpecialityPage() {
-    return <SpecialityDetailPage />;
+    return <MaxWidthLayout>
+        <SpecialityDetailPage/>
+    </MaxWidthLayout>;
 }

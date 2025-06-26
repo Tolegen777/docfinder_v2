@@ -5,42 +5,35 @@ import React, { useState } from 'react';
 import { Pen } from 'lucide-react';
 import { Button } from '@/components/shadcn/button';
 import { NewAppointmentModal } from './NewAppointmentModal';
-import { Procedure } from "@/shared/api/doctorsApi";
-import {TimeSlot} from "@/shared/api/doctorsApi";
+import { Procedure, Consultation, WeeklySchedule, TimeSlot } from "@/shared/api/doctorsApi";
 
 interface OnlineAppointmentButtonProps {
     doctorId: number;
     doctorName?: string;
     doctorPhoto?: string;
-    procedureId?: string | number;
-    procedureName?: string;
-    // Данные о расписании
-    schedule_today?: any[];
-    schedule_tomorrow?: any[];
-    schedule_day_after_tomorrow?: any[];
+    // Новая структура данных
+    weeklySchedule: WeeklySchedule[];
+    procedures: Procedure[];
+    consultation?: Consultation;
     // Дополнительные параметры
     className?: string;
     buttonText?: string;
-    procedures?: Procedure[];
     // Новые пропсы для предзаполнения
     preselectedTimeSlot?: TimeSlot | null;
-    preselectedDate?: 'today' | 'tomorrow' | 'day_after';
+    preselectedDate?: string;
 }
 
 const OnlineAppointmentButton: React.FC<OnlineAppointmentButtonProps> = ({
                                                                              doctorId,
                                                                              doctorName,
                                                                              doctorPhoto,
-                                                                             procedureId,
-                                                                             procedureName,
-                                                                             schedule_today = [],
-                                                                             schedule_tomorrow = [],
-                                                                             schedule_day_after_tomorrow = [],
+                                                                             weeklySchedule,
+                                                                             procedures,
+                                                                             consultation,
                                                                              className = '',
                                                                              buttonText = 'Записаться онлайн',
-                                                                             procedures,
                                                                              preselectedTimeSlot = null,
-                                                                             preselectedDate = 'today'
+                                                                             preselectedDate
                                                                          }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -62,21 +55,18 @@ const OnlineAppointmentButton: React.FC<OnlineAppointmentButtonProps> = ({
                 <span className="text-base font-semibold">{buttonText}</span>
             </Button>
 
-            <NewAppointmentModal
+            {isModalOpen && <NewAppointmentModal
                 isOpen={isModalOpen}
                 onClose={handleCloseModal}
                 doctorId={doctorId}
                 doctorName={doctorName}
                 doctorPhoto={doctorPhoto}
-                procedureId={procedureId}
-                procedureName={procedureName}
-                schedule_today={schedule_today}
-                schedule_tomorrow={schedule_tomorrow}
-                schedule_day_after_tomorrow={schedule_day_after_tomorrow}
-                availableProcedures={procedures}
+                weeklySchedule={weeklySchedule}
+                procedures={procedures}
+                consultation={consultation}
                 preselectedTimeSlot={preselectedTimeSlot}
                 preselectedDate={preselectedDate}
-            />
+            />}
         </>
     );
 };

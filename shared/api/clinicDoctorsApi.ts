@@ -1,5 +1,6 @@
 // shared/api/clinicDoctorsApi.ts
 import { apiGet } from '@/shared/api';
+import {DoctorsResponse} from "@/shared/api/doctorsApi";
 
 export interface DoctorSpeciality {
     doctor_speciality_id: number;
@@ -59,15 +60,15 @@ export interface ClinicDoctorsFilters {
     specialities?: number[];
     procedures?: number[];
     gender?: 'MALE' | 'FEMALE';
-    page?: number;
-    page_size?: number;
 }
 
 export const ClinicDoctorsAPI = {
     getDoctorsByClinic: (
         clinicSlug: string,
+        page: number = 1,
+        pageSize: number = 10,
         filters: ClinicDoctorsFilters = {}
-    ): Promise<ClinicDoctorsResponse> => {
+    ): Promise<DoctorsResponse> => {
         const params: Record<string, any> = {};
 
         // Добавляем фильтры в параметры запроса
@@ -83,25 +84,17 @@ export const ClinicDoctorsAPI = {
             params.gender = filters.gender;
         }
 
-        if (filters.page) {
-            params.page = filters.page;
+        if (page) {
+            params.page = page;
         }
 
-        if (filters.page_size) {
-            params.page_size = filters.page_size;
+        if (pageSize) {
+            params.page_size = pageSize;
         }
 
-        return apiGet<ClinicDoctorsResponse>(
+        return apiGet<DoctorsResponse>(
             `/patients_endpoints/clinics/${clinicSlug}/doctors/`,
             params
         );
     },
-
-    // Получение специальностей врачей для фильтра (если нужен отдельный endpoint)
-    getClinicSpecialities: (clinicSlug: string) =>
-        apiGet<DoctorSpeciality[]>(`/patients_endpoints/clinics/${clinicSlug}/specialities/`),
-
-    // Получение процедур врачей для фильтра (если нужен отдельный endpoint)
-    getClinicProcedures: (clinicSlug: string) =>
-        apiGet<DoctorProcedure[]>(`/patients_endpoints/clinics/${clinicSlug}/procedures/`)
 } as const;

@@ -25,9 +25,6 @@ type AuthModalProps = {
 // Regex для валидации казахстанского номера телефона в формате +7 XXX XXX XXXX
 const phoneRegex = /^\+7 [0-9]{3} [0-9]{3} [0-9]{4}$/;
 
-// Regex для валидации ИИН (12 цифр)
-const iinRegex = /^[0-9]{12}$/;
-
 // Схема валидации для логина
 const loginSchema = z.object({
     phone_number: z.string().regex(phoneRegex, 'Введите корректный номер телефона'),
@@ -39,7 +36,6 @@ const registerSchema = z.object({
     first_name: z.string().min(1, 'Введите имя'),
     phone_number: z.string().regex(phoneRegex, 'Введите корректный номер телефона'),
     login: z.string().optional(),
-    iin_number: z.string().regex(iinRegex, 'ИИН должен содержать 12 цифр'),
     password: z.string().min(6, 'Пароль должен содержать минимум 6 символов'),
     confirm_password: z.string().min(6, 'Пароль должен содержать минимум 6 символов'),
 }).refine((data) => data.password === data.confirm_password, {
@@ -131,7 +127,6 @@ const AuthModal: React.FC<AuthModalProps> = ({
             first_name: '',
             phone_number: '+7 ',
             login: '',
-            iin_number: '',
             password: '',
             confirm_password: '',
         }
@@ -160,9 +155,6 @@ const AuthModal: React.FC<AuthModalProps> = ({
                 phone_number: data.phone_number,
                 password: data.password,
                 first_name: data.first_name,
-                last_name: "", // Можно добавить поле в форму при необходимости
-                birth_date: new Date().toISOString().split('T')[0], // Можно добавить поле даты рождения
-                iin_number: data.iin_number
             });
 
             // Switch to login mode after successful registration
@@ -319,32 +311,6 @@ const AuthModal: React.FC<AuthModalProps> = ({
                             {registerForm.formState.errors.phone_number && (
                                 <p className="mt-1 text-sm text-red-500">
                                     {registerForm.formState.errors.phone_number.message}
-                                </p>
-                            )}
-                        </div>
-
-                        <div className="relative">
-                            <Controller
-                                name="iin_number"
-                                control={registerForm.control}
-                                render={({ field }) => (
-                                    <Input
-                                        label="ИИН *"
-                                        required
-                                        className="bg-[#f3f5f6]"
-                                        value={field.value}
-                                        onChange={(e) => {
-                                            const formattedValue = formatIIN(e.target.value);
-                                            field.onChange(formattedValue);
-                                        }}
-                                        onBlur={field.onBlur}
-                                        placeholder="Введите 12 цифр ИИН"
-                                    />
-                                )}
-                            />
-                            {registerForm.formState.errors.iin_number && (
-                                <p className="mt-1 text-sm text-red-500">
-                                    {registerForm.formState.errors.iin_number.message}
                                 </p>
                             )}
                         </div>

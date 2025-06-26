@@ -1,5 +1,6 @@
 // shared/api/specialitiesApi.ts
 import { apiGet } from '@/shared/api';
+import {DoctorsResponse} from "@/shared/api/doctorsApi";
 
 export interface TimeSlot {
     start_time: string;
@@ -65,7 +66,7 @@ export const SpecialitiesAPI = {
 
     // Получение списка врачей по специальности
     getDoctorsBySpeciality: (cityId: number, specialitySlug: string, page: number = 1, pageSize: number = 10) =>
-        apiGet<SpecialityDoctorsResponse>(
+        apiGet<DoctorsResponse>(
             `/patients_endpoints/doctors/city_id:${cityId}/medical-specialities/${specialitySlug}/?page=${page}&page_size=${pageSize}`
         ),
 

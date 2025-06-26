@@ -16,7 +16,6 @@ export interface RegisterParams {
     first_name: string;
     last_name?: string;
     birth_date?: string;
-    iin_number?: string;
 }
 
 export interface IUser extends RegisterParams {

@@ -1,7 +1,7 @@
 // shared/ui/AppointmentButton/NewAppointmentModal.tsx
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import { ChevronDown, X, MapPin, Check } from 'lucide-react';
@@ -19,8 +19,7 @@ import { toast } from 'sonner';
 import Image from 'next/image';
 import { useAuthStore } from '@/shared/stores/authStore';
 import { apiPost } from '@/shared/api';
-import {TimeSlot} from "@/shared/api/doctorsApi";
-import { Procedure } from "@/shared/api/doctorsApi";
+import { TimeSlot, WeeklySchedule, Procedure, Consultation, ScheduleUtils } from "@/shared/api/doctorsApi";
 import { formatPhoneNumber } from '@/shared/lib/formatters';
 import doctorAvatar from '@/shared/assets/images/doctorPlaceholder.jpeg';
 import { cn } from '@/lib/utils';
@@ -38,15 +37,12 @@ interface NewAppointmentModalProps {
     doctorId?: number;
     doctorName?: string;
     doctorPhoto?: string;
-    procedureId?: string | number;
-    procedureName?: string;
-    schedule_today?: any[];
-    schedule_tomorrow?: any[];
-    schedule_day_after_tomorrow?: any[];
-    availableProcedures?: Procedure[];
+    weeklySchedule: WeeklySchedule[];
+    procedures: Procedure[];
+    consultation?: Consultation;
     // Новые пропсы для предзаполнения
     preselectedTimeSlot?: TimeSlot | null;
-    preselectedDate?: 'today' | 'tomorrow' | 'day_after';
+    preselectedDate?: string;
 }
 
 // Схема валидации для данных пациента
@@ -62,32 +58,48 @@ export const NewAppointmentModal: React.FC<NewAppointmentModalProps> = ({
                                                                             doctorId,
                                                                             doctorName,
                                                                             doctorPhoto,
-                                                                            procedureId,
-                                                                            procedureName,
-                                                                            schedule_today = [],
-                                                                            schedule_tomorrow = [],
-                                                                            schedule_day_after_tomorrow = [],
-                                                                            availableProcedures = [],
+                                                                            weeklySchedule,
+                                                                            procedures = [],
+                                                                            consultation,
                                                                             preselectedTimeSlot = null,
-                                                                            preselectedDate = 'today'
+                                                                            preselectedDate
                                                                         }) => {
-    // Состояния для выбора данных
-    const [selectedTab, setSelectedTab] = useState(preselectedDate || 'today');
-    const [selectedDate, setSelectedDate] = useState<string>(format(new Date(), 'yyyy-MM-dd'));
-    const [selectedTimeSlot, setSelectedTimeSlot] = useState<TimeSlot | null>(preselectedTimeSlot);
-    const [selectedProcedure, setSelectedProcedure] = useState<Procedure | null>(
-        procedureId && procedureName
-            ? { medical_procedure_id: procedureId, title: procedureName } as Procedure
-            : null
-    );
+    // Мемоизируем статические данные для предотвращения различий между сервером и клиентом
+    const memoizedData = useMemo(() => {
+        const availableDates = ScheduleUtils.getAvailableDates(weeklySchedule);
+        const todayDate = ScheduleUtils.getTodayDate();
+        const tomorrowDate = ScheduleUtils.getTomorrowDate();
+        const dayAfterDate = ScheduleUtils.getDayAfterTomorrowDate();
+
+        return {
+            availableDates,
+            todayDate,
+            tomorrowDate,
+            dayAfterDate,
+        };
+    }, [weeklySchedule, procedures, consultation]);
+
+    // Простая инициализация состояний без useEffect
+    const [selectedDate, setSelectedDate] = useState<string>(() => {
+        if (typeof window === 'undefined') return ''; // На сервере возвращаем пустую строку
+        return preselectedDate || memoizedData.availableDates[0] || memoizedData.todayDate;
+    });
+
+    const [selectedTimeSlot, setSelectedTimeSlot] = useState<TimeSlot | null>(() => {
+        if (typeof window === 'undefined') return null;
+        return preselectedTimeSlot;
+    });
+
+    const [selectedProcedure, setSelectedProcedure] = useState<Procedure | Consultation | null>(() => {
+        if (typeof window === 'undefined') return null;
+        return consultation || null;
+    });
 
     // Состояния UI
     const [showProcedureDropdown, setShowProcedureDropdown] = useState(false);
     const [showDateDropdown, setShowDateDropdown] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-
-    // Активное расписание и клиника в зависимости от выбранного дня
-    const [activeSchedule, setActiveSchedule] = useState<any>(schedule_today[0] || null);
+    const [isMounted, setIsMounted] = useState(false);
 
     // Данные пользователя
     const [formData, setFormData] = useState<PatientFormData>({
@@ -102,53 +114,33 @@ export const NewAppointmentModal: React.FC<NewAppointmentModalProps> = ({
     // Контекст из сторов
     const { isAuthenticated, user } = useAuthStore();
 
-    // Обновляем дату при смене selectedTab
+    // Устанавливаем флаг mounted для предотвращения гидратации
     useEffect(() => {
-        const date = new Date();
-        if (selectedTab === 'tomorrow') {
-            date.setDate(date.getDate() + 1);
-        } else if (selectedTab === 'day_after') {
-            date.setDate(date.getDate() + 2);
-        }
-        setSelectedDate(format(date, 'yyyy-MM-dd'));
-    }, [selectedTab]);
+        setIsMounted(true);
+    }, []);
 
     // Заполняем форму данными пользователя, если он авторизован
     useEffect(() => {
-        if (isAuthenticated && user) {
+        if (isMounted && isAuthenticated && user) {
             setFormData({
                 first_name: user.first_name || '',
                 last_name: user.last_name || '',
                 phone_number: user.phone_number ? formatPhoneNumber(user.phone_number) : '+7 ',
             });
         }
-    }, [isAuthenticated, user]);
+    }, [isMounted, isAuthenticated, user]);
 
     // Сброс данных при открытии/закрытии модального окна
     useEffect(() => {
-        if (isOpen) {
-            // Если есть предзаполненные данные, используем их
-            const initialTab = preselectedDate || 'today';
-            setSelectedTab(initialTab);
+        if (isOpen && isMounted) {
+            // Устанавливаем начальные значения
+            const initialDate = preselectedDate || memoizedData.availableDates[0] || memoizedData.todayDate;
+            setSelectedDate(initialDate);
             setSelectedTimeSlot(preselectedTimeSlot);
-
-            // Устанавливаем активное расписание
-            if (preselectedDate === 'tomorrow') {
-                setActiveSchedule(schedule_tomorrow[0] || null);
-            } else if (preselectedDate === 'day_after') {
-                setActiveSchedule(schedule_day_after_tomorrow[0] || null);
-            } else {
-                setActiveSchedule(schedule_today[0] || null);
-            }
-
+            setSelectedProcedure(consultation || null);
             setFormErrors({});
             setShowProcedureDropdown(false);
             setShowDateDropdown(false);
-            setSelectedProcedure(
-                procedureId && procedureName
-                    ? { medical_procedure_id: procedureId, title: procedureName } as Procedure
-                    : null
-            );
 
             if (!isAuthenticated) {
                 setFormData({
@@ -158,7 +150,7 @@ export const NewAppointmentModal: React.FC<NewAppointmentModalProps> = ({
                 });
             }
         }
-    }, [isOpen, schedule_today, isAuthenticated, procedureId, procedureName, preselectedTimeSlot, preselectedDate, schedule_tomorrow, schedule_day_after_tomorrow]);
+    }, [isOpen, isMounted, preselectedTimeSlot, preselectedDate, consultation, memoizedData]);
 
     // Обработчик для работы с формой
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -183,7 +175,7 @@ export const NewAppointmentModal: React.FC<NewAppointmentModalProps> = ({
     };
 
     // Обработчик выбора процедуры
-    const handleProcedureSelect = (procedure: Procedure) => {
+    const handleProcedureSelect = (procedure: Procedure | Consultation) => {
         setSelectedProcedure(procedure);
         setShowProcedureDropdown(false);
     };
@@ -193,27 +185,13 @@ export const NewAppointmentModal: React.FC<NewAppointmentModalProps> = ({
         setSelectedTimeSlot(slot);
     };
 
-    // Обработчик смены дня
-    const handleTabChange = (tab: string) => {
-        setSelectedTab(tab as 'today');
+    // Обработчик смены даты
+    const handleDateChange = (date: string) => {
+        setSelectedDate(date);
         // Сбрасываем selectedTimeSlot только если это не предзаполненный слот
-        if (!preselectedTimeSlot) {
+        if (!preselectedTimeSlot || preselectedDate !== date) {
             setSelectedTimeSlot(null);
         }
-
-        // Обновляем выбранную дату на основании таба
-        const date = new Date();
-        if (tab === 'tomorrow') {
-            date.setDate(date.getDate() + 1);
-            setActiveSchedule(schedule_tomorrow[0] || null);
-        } else if (tab === 'day_after') {
-            date.setDate(date.getDate() + 2);
-            setActiveSchedule(schedule_day_after_tomorrow[0] || null);
-        } else {
-            setActiveSchedule(schedule_today[0] || null);
-        }
-
-        setSelectedDate(format(date, 'yyyy-MM-dd'));
         setShowDateDropdown(false);
     };
 
@@ -237,8 +215,6 @@ export const NewAppointmentModal: React.FC<NewAppointmentModalProps> = ({
         }
     };
 
-
-
     // Отправка формы
     const handleSubmit = async () => {
         // Сначала проверяем выбор времени
@@ -248,7 +224,7 @@ export const NewAppointmentModal: React.FC<NewAppointmentModalProps> = ({
         }
 
         // Проверяем выбор процедуры
-        if (!selectedProcedure && !procedureId) {
+        if (!selectedProcedure) {
             toast.error('Выберите процедуру');
             return;
         }
@@ -259,15 +235,22 @@ export const NewAppointmentModal: React.FC<NewAppointmentModalProps> = ({
             return;
         }
 
+        // Получаем информацию о клинике для выбранной даты
+        const schedule = ScheduleUtils.getScheduleForDate(weeklySchedule, selectedDate);
+        if (!schedule) {
+            toast.error('Не удалось найти информацию о клинике');
+            return;
+        }
+
         setIsLoading(true);
 
         try {
             const appointmentData: Record<string, any> = {
                 doctor_id: doctorId,
-                procedure_id: selectedProcedure?.medical_procedure_id || procedureId,
-                clinic_id: activeSchedule.clinic_id,
+                procedure_id: selectedProcedure.medical_procedure_id,
+                clinic_id: schedule.clinic_id,
                 date: selectedDate,
-                time_slot_id: selectedTimeSlot?.id,
+                time_slot_id: selectedTimeSlot.id,
                 first_name: formData.first_name,
                 last_name: formData.last_name,
                 phone_number: formData.phone_number.replace(/\s+/g, ""),
@@ -308,21 +291,46 @@ export const NewAppointmentModal: React.FC<NewAppointmentModalProps> = ({
     };
 
     // Преобразуем рабочие часы в слоты времени для выбора
-    const timeSlots: TimeSlot[] = activeSchedule?.working_hours?.map(hour => ({
-        id: hour.id,
-        start_time: hour.start_time,
-        end_time: hour.end_time
-    })) || [];
+    const getTimeSlotsForDate = (date: string): TimeSlot[] => {
+        const schedule = ScheduleUtils.getScheduleForDate(weeklySchedule, date);
+        return schedule ? ScheduleUtils.convertToTimeSlots(schedule.working_hours_list) : [];
+    };
+
+    // Безопасное форматирование даты
+    const getFormattedDateDisplay = () => {
+        if (!selectedDate || !isMounted) return 'Выберите дату';
+        try {
+            const dateObj = new Date(selectedDate + 'T00:00:00'); // Добавляем время для корректного парсинга
+            return format(dateObj, 'd MMMM yyyy', { locale: ru });
+        } catch (error) {
+            return selectedDate;
+        }
+    };
+
+    // Функция для получения названия дня
+    const getDateLabel = (date: string) => {
+        if (!isMounted) return date;
+
+        if (date === memoizedData.todayDate) return 'Сегодня';
+        if (date === memoizedData.tomorrowDate) return 'Завтра';
+        if (date === memoizedData.dayAfterDate) return 'Послезавтра';
+
+        try {
+            return format(new Date(date + 'T00:00:00'), 'd MMMM', { locale: ru });
+        } catch (error) {
+            return date;
+        }
+    };
+
+    // Не рендерим компонент до монтирования
+    if (!isMounted) {
+        return null;
+    }
+
+    const timeSlots = getTimeSlotsForDate(selectedDate);
 
     // Проверяем, есть ли доступные даты
-    const availableDates = [
-        { key: 'today', label: 'Сегодня', date: new Date(), schedule: schedule_today },
-        { key: 'tomorrow', label: 'Завтра', date: new Date(Date.now() + 24 * 60 * 60 * 1000), schedule: schedule_tomorrow },
-        { key: 'day_after', label: 'Послезавтра', date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000), schedule: schedule_day_after_tomorrow }
-    ].filter(dateItem => dateItem.schedule && dateItem.schedule.length > 0 && dateItem.schedule[0]?.working_hours?.length > 0);
-
-    // Если нет доступных дат
-    if (availableDates.length === 0) {
+    if (memoizedData.availableDates.length === 0) {
         return (
             <Dialog open={isOpen} onOpenChange={onClose}>
                 <DialogContent className="sm:max-w-[600px] p-0">
@@ -344,13 +352,8 @@ export const NewAppointmentModal: React.FC<NewAppointmentModalProps> = ({
         );
     }
 
-    // Форматирование отображаемой даты
-    const getFormattedDateDisplay = () => {
-        const currentDate = availableDates.find(d => d.key === selectedTab);
-        if (!currentDate) return '';
-
-        return format(currentDate.date, 'd MMMM yyyy, HH:mm', { locale: ru });
-    };
+    // Получаем клинику для отображения
+    const currentSchedule = ScheduleUtils.getScheduleForDate(weeklySchedule, selectedDate);
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
@@ -371,12 +374,11 @@ export const NewAppointmentModal: React.FC<NewAppointmentModalProps> = ({
                         />
                         <div className="flex-1">
                             <h3 className="font-semibold text-lg">{doctorName}</h3>
-                            <p className="text-gray-600">{selectedProcedure?.title || procedureName}</p>
+                            <p className="text-gray-600">{selectedProcedure?.medical_procedure_title}</p>
                             <div className="flex items-center gap-1 text-blue-500 text-sm mt-1">
                                 <MapPin className="w-4 h-4" />
-                                <span>{activeSchedule?.clinic_title}</span>
+                                <span>{currentSchedule?.clinic_title}</span>
                             </div>
-                            <p className="text-gray-500 text-sm">{activeSchedule?.clinic_address}</p>
                         </div>
                         <div className="flex flex-col items-center">
                             <div className="flex">
@@ -390,7 +392,7 @@ export const NewAppointmentModal: React.FC<NewAppointmentModalProps> = ({
                     </div>
 
                     {/* Выбор процедуры */}
-                    {(!procedureName && availableProcedures.length > 0) && (
+                    {procedures?.length > 1 && (
                         <div className="space-y-2">
                             <Label>Процедура</Label>
                             <div className="relative">
@@ -398,19 +400,26 @@ export const NewAppointmentModal: React.FC<NewAppointmentModalProps> = ({
                                     className="w-full p-3 border rounded-lg cursor-pointer flex items-center justify-between bg-green-50"
                                     onClick={() => setShowProcedureDropdown(!showProcedureDropdown)}
                                 >
-                                    <span>{selectedProcedure?.title || 'Выберите процедуру'}</span>
+                                    <span>{selectedProcedure?.medical_procedure_title || 'Выберите процедуру'}</span>
                                     <ChevronDown className="w-4 h-4" />
                                 </div>
 
                                 {showProcedureDropdown && (
                                     <div className="absolute z-50 w-full mt-1 bg-white border rounded-lg shadow-lg max-h-48 overflow-y-auto">
-                                        {availableProcedures.map((procedure) => (
+                                        {procedures.map((procedure, index) => (
                                             <div
-                                                key={procedure.medical_procedure_id}
+                                                key={procedure.medical_procedure_id || index}
                                                 className="p-3 hover:bg-gray-50 cursor-pointer"
                                                 onClick={() => handleProcedureSelect(procedure)}
                                             >
-                                                {procedure.title}
+                                                <div className="flex justify-between items-center">
+                                                    <span>{procedure.medical_procedure_title}</span>
+                                                    {procedure.doctor_procedure_final_price && (
+                                                        <span className="text-green-600 font-semibold">
+                                                            {procedure.doctor_procedure_final_price} тг
+                                                        </span>
+                                                    )}
+                                                </div>
                                             </div>
                                         ))}
                                     </div>
@@ -432,17 +441,17 @@ export const NewAppointmentModal: React.FC<NewAppointmentModalProps> = ({
                             </div>
 
                             {showDateDropdown && (
-                                <div className="absolute z-40 w-full mt-1 bg-white border rounded-lg shadow-lg">
-                                    {availableDates.map((dateItem) => (
+                                <div className="absolute z-40 w-full mt-1 bg-white border rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                                    {memoizedData.availableDates.map((date) => (
                                         <div
-                                            key={dateItem.key}
+                                            key={date}
                                             className={cn(
                                                 "p-3 hover:bg-gray-50 cursor-pointer",
-                                                selectedTab === dateItem.key ? 'bg-green-50 text-green-600' : ''
+                                                selectedDate === date ? 'bg-green-50 text-green-600' : ''
                                             )}
-                                            onClick={() => handleTabChange(dateItem.key)}
+                                            onClick={() => handleDateChange(date)}
                                         >
-                                            {dateItem.label} {format(dateItem.date, 'd MMMM', { locale: ru })}
+                                            {getDateLabel(date)}
                                         </div>
                                     ))}
                                 </div>
@@ -452,23 +461,7 @@ export const NewAppointmentModal: React.FC<NewAppointmentModalProps> = ({
 
                     {/* Выбор времени */}
                     <div className="space-y-4">
-                        <div className="flex gap-2 border-b">
-                            {availableDates.map((dateItem) => (
-                                <button
-                                    key={dateItem.key}
-                                    onClick={() => handleTabChange(dateItem.key)}
-                                    className={cn(
-                                        "px-4 py-2 font-medium",
-                                        selectedTab === dateItem.key
-                                            ? 'text-green-600 border-b-2 border-green-600'
-                                            : 'text-gray-600'
-                                    )}
-                                >
-                                    {dateItem.label} {format(dateItem.date, 'd.MM', { locale: ru })}
-                                </button>
-                            ))}
-                        </div>
-
+                        <Label>Время приема</Label>
                         <div className="grid grid-cols-4 gap-3">
                             {timeSlots.map((slot) => (
                                 <button

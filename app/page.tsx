@@ -16,7 +16,9 @@ export default function Home() {
                 <SpecialtiesSection/>
             </Suspense>
             <AddDiscountBanner />
-            <DoctorsList />
+            <MaxWidthLayout>
+                <DoctorsList />
+            </MaxWidthLayout>
             <AddSearchBanner/>
         </div>
     );
