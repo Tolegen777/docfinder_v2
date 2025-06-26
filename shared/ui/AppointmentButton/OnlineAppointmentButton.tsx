@@ -6,7 +6,7 @@ import { Pen } from 'lucide-react';
 import { Button } from '@/components/shadcn/button';
 import { NewAppointmentModal } from './NewAppointmentModal';
 import { Procedure } from "@/shared/api/doctorsApi";
-import { TimeSlot } from './TimeSelector';
+import {TimeSlot} from "@/shared/api/doctorsApi";
 
 interface OnlineAppointmentButtonProps {
     doctorId: number;

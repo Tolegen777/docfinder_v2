@@ -78,6 +78,12 @@ export interface DoctorsResponse {
     results: Doctor[];
 }
 
+export interface TimeSlot {
+    id: number;
+    start_time: string;
+    end_time?: string;
+}
+
 export const DoctorsAPI = {
     getDoctors: (cityId: number, page: number = 1, pageSize: number = 10) =>
         apiGet<DoctorsResponse>(`/patients_endpoints/city_id:${cityId}/all-doctors/?page=${page}&page_size=${pageSize}`),

@@ -19,7 +19,7 @@ import { toast } from 'sonner';
 import Image from 'next/image';
 import { useAuthStore } from '@/shared/stores/authStore';
 import { apiPost } from '@/shared/api';
-import { TimeSlot } from './TimeSelector';
+import {TimeSlot} from "@/shared/api/doctorsApi";
 import { Procedure } from "@/shared/api/doctorsApi";
 import { formatPhoneNumber } from '@/shared/lib/formatters';
 import doctorAvatar from '@/shared/assets/images/doctorPlaceholder.jpeg';

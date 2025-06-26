@@ -26,7 +26,7 @@ import { cn } from '@/lib/utils';
 import { MedicalCategory, Schedule, Procedure, Consultation } from '@/shared/api/doctorsApi';
 import {useRouter} from "next/navigation";
 import OnlineAppointmentButton from "@/shared/ui/AppointmentButton/OnlineAppointmentButton";
-import {TimeSlot} from "@/shared/ui/AppointmentButton/TimeSelector";
+import {TimeSlot} from "@/shared/api/doctorsApi";
 import { NewAppointmentModal } from "@/shared/ui/AppointmentButton/NewAppointmentModal";
 
 // Динамически импортируем DoctorClinicMapContent для предотвращения проблем с SSR
