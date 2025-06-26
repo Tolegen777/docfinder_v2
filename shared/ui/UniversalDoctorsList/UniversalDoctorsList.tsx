@@ -11,9 +11,10 @@ interface Props {
     setCurrentPage: (currentPage: number) => void
     isLoading: boolean
     currentPage: number
+    isPreventNavigation?: boolean
 }
 
-export const UniversalDoctorsList = ({data, setCurrentPage, isLoading, currentPage}: Props) => {
+export const UniversalDoctorsList = ({data, setCurrentPage, isLoading, currentPage, isPreventNavigation}: Props) => {
 
     const totalPages = data ? Math.ceil(data.count / PAGE_SIZE) : 0;
 
@@ -68,6 +69,7 @@ export const UniversalDoctorsList = ({data, setCurrentPage, isLoading, currentPa
                             procedures={doctor.procedures}
                             consultation={doctor.consultation}
                             main_photo_url={doctor.main_photo_url}
+                            isPreventNavigation={isPreventNavigation}
                         />
                     ))
                 )}

@@ -235,11 +235,7 @@ const DoctorCard: React.FC<DoctorCardProps> = ({
         <>
             <Card className={cn('w-full max-w-[1181px] p-4 md:p-5 bg-white', !isPreventNavigation && 'cursor-pointer')} onClick={() => {
                 if (!isPreventNavigation) {
-                    if (fromPage === 'speciality') {
                         router.push(`/doctor/${slug}`)
-                    } else {
-                        router.push(`doctor/${slug}`)
-                    }
                 }
             }}>
                 <h4 className="h4-20-28-600 my-5 md:hidden">{full_name}</h4>

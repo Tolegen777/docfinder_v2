@@ -1,5 +1,3 @@
-// components/DoctorsList/DoctorCardSkeleton.tsx
-
 import React from 'react';
 import { Skeleton } from '@/components/shadcn/skeleton';
 

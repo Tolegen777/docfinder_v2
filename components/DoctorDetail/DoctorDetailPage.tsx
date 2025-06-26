@@ -89,6 +89,7 @@ export default function DoctorDetailPage() {
                     procedures={doctor.procedures}
                     consultation={doctor.consultation}
                     main_photo_url={doctor.main_photo_url}
+                    isPreventNavigation
                 />
             </div>
 
