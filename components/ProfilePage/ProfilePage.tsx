@@ -69,17 +69,17 @@ const ProfileContent: React.FC = () => {
                                     <Calendar className="h-5 w-5" />
                                     <span>Мои записи</span>
                                 </button>
-                                <button
-                                    onClick={() => handleTabChange('favorites')}
-                                    className={`flex items-center gap-3 p-3 rounded-md w-full text-left transition-colors ${
-                                        activeTab === 'favorites'
-                                            ? 'bg-green-50 text-green-600 font-medium'
-                                            : 'text-gray-700 hover:bg-gray-50'
-                                    }`}
-                                >
-                                    <Heart className="h-5 w-5" />
-                                    <span>Избранное</span>
-                                </button>
+                                {/*<button*/}
+                                {/*    onClick={() => handleTabChange('favorites')}*/}
+                                {/*    className={`flex items-center gap-3 p-3 rounded-md w-full text-left transition-colors ${*/}
+                                {/*        activeTab === 'favorites'*/}
+                                {/*            ? 'bg-green-50 text-green-600 font-medium'*/}
+                                {/*            : 'text-gray-700 hover:bg-gray-50'*/}
+                                {/*    }`}*/}
+                                {/*>*/}
+                                {/*    <Heart className="h-5 w-5" />*/}
+                                {/*    <span>Избранное</span>*/}
+                                {/*</button>*/}
                                 <button
                                     onClick={() => handleTabChange('settings')}
                                     className={`flex items-center gap-3 p-3 rounded-md w-full text-left transition-colors ${
@@ -117,15 +117,15 @@ const ProfileContent: React.FC = () => {
                                     <Calendar className="h-5 w-5" />
                                     <span className="text-xs">Записи</span>
                                 </button>
-                                <button
-                                    onClick={() => handleTabChange('favorites')}
-                                    className={`flex-1 flex flex-col items-center gap-1 py-3 ${
-                                        activeTab === 'favorites' ? 'text-green-600 border-b-2 border-green-600' : 'text-gray-500'
-                                    }`}
-                                >
-                                    <Heart className="h-5 w-5" />
-                                    <span className="text-xs">Избранное</span>
-                                </button>
+                                {/*<button*/}
+                                {/*    onClick={() => handleTabChange('favorites')}*/}
+                                {/*    className={`flex-1 flex flex-col items-center gap-1 py-3 ${*/}
+                                {/*        activeTab === 'favorites' ? 'text-green-600 border-b-2 border-green-600' : 'text-gray-500'*/}
+                                {/*    }`}*/}
+                                {/*>*/}
+                                {/*    <Heart className="h-5 w-5" />*/}
+                                {/*    <span className="text-xs">Избранное</span>*/}
+                                {/*</button>*/}
                                 <button
                                     onClick={() => handleTabChange('settings')}
                                     className={`flex-1 flex flex-col items-center gap-1 py-3 ${
@@ -140,12 +140,12 @@ const ProfileContent: React.FC = () => {
                             <div className="p-4">
                                 {activeTab === 'profile' && <UserProfileEdit />}
                                 {activeTab === 'appointments' && <MyVisitsPage />}
-                                {activeTab === 'favorites' && (
-                                    <div>
-                                        <h2 className="text-xl font-semibold mb-4">Избранное</h2>
-                                        <p className="text-gray-500">Здесь будут отображаться ваши избранные клиники и врачи</p>
-                                    </div>
-                                )}
+                                {/*{activeTab === 'favorites' && (*/}
+                                {/*    <div>*/}
+                                {/*        <h2 className="text-xl font-semibold mb-4">Избранное</h2>*/}
+                                {/*        <p className="text-gray-500">Здесь будут отображаться ваши избранные клиники и врачи</p>*/}
+                                {/*    </div>*/}
+                                {/*)}*/}
                                 {activeTab === 'settings' && (
                                     <div>
                                         <h2 className="text-xl font-semibold mb-4">Настройки</h2>
@@ -165,12 +165,12 @@ const ProfileContent: React.FC = () => {
                                 <MyVisitsPage />
                             </div>
                         )}
-                        {activeTab === 'favorites' && (
-                            <div className="bg-white rounded-lg shadow-sm p-6">
-                                <h2 className="text-xl font-semibold">Избранное</h2>
-                                <p className="text-gray-500 mt-2">Здесь будут отображаться ваши избранные клиники и врачи</p>
-                            </div>
-                        )}
+                        {/*{activeTab === 'favorites' && (*/}
+                        {/*    <div className="bg-white rounded-lg shadow-sm p-6">*/}
+                        {/*        <h2 className="text-xl font-semibold">Избранное</h2>*/}
+                        {/*        <p className="text-gray-500 mt-2">Здесь будут отображаться ваши избранные клиники и врачи</p>*/}
+                        {/*    </div>*/}
+                        {/*)}*/}
                         {activeTab === 'settings' && (
                             <div className="bg-white rounded-lg shadow-sm p-6">
                                 <h2 className="text-xl font-semibold">Настройки</h2>

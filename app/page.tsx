@@ -15,11 +15,11 @@ export default function Home() {
             <Suspense fallback={<div className="h-screen animate-pulse bg-gray-100" />}>
                 <SpecialtiesSection/>
             </Suspense>
-            <AddDiscountBanner />
+            {/*<AddDiscountBanner />*/}
             <MaxWidthLayout>
                 <DoctorsList />
             </MaxWidthLayout>
-            <AddSearchBanner/>
+            {/*<AddSearchBanner/>*/}
         </div>
     );
 }

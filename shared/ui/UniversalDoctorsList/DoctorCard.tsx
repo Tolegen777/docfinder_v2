@@ -364,10 +364,10 @@ const DoctorCard: React.FC<DoctorCardProps> = ({
                                     </div>
                                 </DialogContent>
                             </Dialog>
-                            <Button variant="outline">
-                                <Heart className="w-5 h-5 text-[#16A34A]"/>
-                                <span className="text-base font-semibold text-[#16A34A]">В избранное</span>
-                            </Button>
+                            {/*<Button variant="outline">*/}
+                            {/*    <Heart className="w-5 h-5 text-[#16A34A]"/>*/}
+                            {/*    <span className="text-base font-semibold text-[#16A34A]">В избранное</span>*/}
+                            {/*</Button>*/}
                         </div>
                     </div>
 

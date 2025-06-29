@@ -240,12 +240,12 @@ const ClinicDoctorCard: React.FC<ClinicDoctorCardProps> = ({
                         </div>
                     </div>
 
-                    <div className="flex flex-wrap gap-2.5 flex-col md:flex-row">
-                        <Button variant="outline">
-                            <Heart className="w-5 h-5 text-[#16A34A]"/>
-                            <span className="text-base font-semibold text-[#16A34A]">В избранное</span>
-                        </Button>
-                    </div>
+                    {/*<div className="flex flex-wrap gap-2.5 flex-col md:flex-row">*/}
+                    {/*    <Button variant="outline">*/}
+                    {/*        <Heart className="w-5 h-5 text-[#16A34A]"/>*/}
+                    {/*        <span className="text-base font-semibold text-[#16A34A]">В избранное</span>*/}
+                    {/*    </Button>*/}
+                    {/*</div>*/}
                 </div>
 
                 {/* Right Column - Appointment */}
