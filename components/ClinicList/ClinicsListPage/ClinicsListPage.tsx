@@ -6,6 +6,7 @@ import { FiltersSection } from "@/components/ClinicList/ClinicsListPage/FiltersS
 import { ClinicsPagination } from './ClinicsPagination';
 import ClinicMapPreview from "@/components/ClinicList/ClinicCard/ClinicMapPreview";
 import { useClinics, ClinicFilters } from '@/shared/api/queries/clinicQueries';
+import {MaxWidthLayout} from "@/shared/ui/MaxWidthLayout";
 
 export const ClinicsListPage = () => {
     const { currentCity } = useCityStore();
@@ -78,7 +79,7 @@ export const ClinicsListPage = () => {
     };
 
     return (
-        <div className="container mx-auto py-6 px-4 md:px-6">
+        <MaxWidthLayout>
             {/* Clinic Map */}
             <ClinicMapPreview />
 
@@ -211,6 +212,6 @@ export const ClinicsListPage = () => {
                     )}
                 </main>
             </div>
-        </div>
+        </MaxWidthLayout>
     );
 };

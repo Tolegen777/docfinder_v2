@@ -4,7 +4,7 @@ import {AddDiscountBanner} from "@/components/AddBanner/AddDiscountBanner";
 import {DoctorsList} from "@/components/DoctorsList/DoctorsList";
 import {MaxWidthLayout} from "@/shared/ui/MaxWidthLayout";
 import {AddSearchBanner} from "@/components/AddBanner/AddSearchBanner";
-import {Suspense} from "react";
+import React, {Suspense} from "react";
 
 export default function Home() {
     return (
@@ -17,6 +17,11 @@ export default function Home() {
             </Suspense>
             {/*<AddDiscountBanner />*/}
             <MaxWidthLayout>
+                <div className="mt-2 mb-6">
+                    <h2 className="h3-28-36-600 text-center md:text-left">
+                        Врачи
+                    </h2>
+                </div>
                 <DoctorsList />
             </MaxWidthLayout>
             {/*<AddSearchBanner/>*/}

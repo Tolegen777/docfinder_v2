@@ -79,7 +79,7 @@ export const Header = () => {
                                     <DropdownMenuTrigger asChild>
                                         <Button variant="ghost" className="h-12 gap-2">
                                             <UserCircle className="h-5 w-5" />
-                                            <span className="hidden md:inline">{user?.first_name || 'Профиль'}</span>
+                                            <span className="line-clamp-1 max-w-[150px] overflow-hidden text-ellipsis">{user?.first_name || 'Профиль'}</span>
                                         </Button>
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent align="end">

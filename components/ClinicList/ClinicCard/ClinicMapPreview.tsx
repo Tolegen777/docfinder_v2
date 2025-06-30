@@ -36,7 +36,7 @@ const ClinicMapPreview: React.FC<ClinicMapPreviewProps> = ({ selectedClinicId })
     }
 
     return (
-        <MaxWidthLayout className="py-4">
+        <div className="py-4">
             <div className="relative">
                 {/* Header */}
                 <div className="flex items-center gap-2 mb-3">
@@ -76,7 +76,7 @@ const ClinicMapPreview: React.FC<ClinicMapPreviewProps> = ({ selectedClinicId })
                     </Dialog>
                 </div>
             </div>
-        </MaxWidthLayout>
+        </div>
     );
 };
 
