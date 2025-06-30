@@ -43,6 +43,7 @@ export const ClinicsListPage = () => {
 
     const clinics = data?.clinics || [];
     const totalCount = data?.totalCount || 0;
+    console.log(clinics, 'BRO')
 
     // Calculate total pages for pagination
     const totalPages = Math.ceil(totalCount / filters.pageSize);

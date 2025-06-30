@@ -97,28 +97,20 @@ export const mapClinicToCardProps = (clinic: Clinic) => {
 
     // Преобразуем weekday из API в ключи нашего расписания
     const weekdayMap: Record<string, keyof typeof schedule> = {
-        "Monday": "monday",
-        "Tuesday": "tuesday",
-        "Wednesday": "wednesday",
-        "Thursday": "thursday",
-        "Friday": "friday",
-        "Saturday": "saturday",
-        "Sunday": "sunday",
-        // Добавляем русские названия на случай, если API возвращает их
-        "Понедельник": "monday",
-        "Вторник": "tuesday",
-        "Среда": "wednesday",
-        "Четверг": "thursday",
-        "Пятница": "friday",
-        "Суббота": "saturday",
-        "Воскресенье": "sunday",
+        "MONDAY": "monday",
+        "TUESDAY": "tuesday",
+        "WEDNESDAY": "wednesday",
+        "THURSDAY": "thursday",
+        "FRIDAY": "friday",
+        "SATURDAY": "saturday",
+        "SUNDAY": "sunday",
     };
 
     // Заполняем расписание реальными данными
     clinic.working_hours.forEach(hour => {
         const day = weekdayMap[hour.weekday];
         if (day) {
-            schedule[day] = `${hour.open_time}-${hour.close_time}`;
+            schedule[day] = `${hour.open_time?.substring(0, 5)}-${hour.close_time?.substring(0, 5)}`;
         }
     });
 
