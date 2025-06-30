@@ -4,7 +4,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
-import { ChevronDown, X, MapPin, Check } from 'lucide-react';
+import {ChevronDown, X, MapPin, Check, Star, ArrowLeft, ArrowRight} from 'lucide-react';
 import {
     Dialog,
     DialogContent,
@@ -40,9 +40,11 @@ interface NewAppointmentModalProps {
     weeklySchedule: WeeklySchedule[];
     procedures: Procedure[];
     consultation?: Consultation;
-    // Новые пропсы для предзаполнения
     preselectedTimeSlot?: TimeSlot | null;
     preselectedDate?: string;
+    review_count: number;
+    average_rating: number;
+    onSuccess?: () => void;
 }
 
 // Схема валидации для данных пациента
@@ -51,6 +53,15 @@ const patientSchema = z.object({
     last_name: z.string().min(1, 'Фамилия обязательна для заполнения'),
     phone_number: z.string().regex(/^\+7\s[0-9]{3}\s[0-9]{3}\s[0-9]{4}$/, 'Введите корректный номер телефона'),
 });
+
+const renderStars = (count: number) => {
+    return Array(5).fill(0).map((_, index) => (
+        <Star
+            key={index}
+            className={`w-5 h-5 ${index < count ? 'fill-[#FB923C] stroke-[#FB923C]' : 'stroke-[#FB923C] fill-white'}`}
+        />
+    ));
+};
 
 export const NewAppointmentModal: React.FC<NewAppointmentModalProps> = ({
                                                                             isOpen,
@@ -62,9 +73,15 @@ export const NewAppointmentModal: React.FC<NewAppointmentModalProps> = ({
                                                                             procedures = [],
                                                                             consultation,
                                                                             preselectedTimeSlot = null,
-                                                                            preselectedDate
+                                                                            preselectedDate,
+                                                                            average_rating,
+                                                                            review_count,
+    onSuccess
                                                                         }) => {
-    // Мемоизируем статические данные для предотвращения различий между сервером и клиентом
+    // Состояние для управления шагами
+    const [currentStep, setCurrentStep] = useState<1 | 2>(1);
+
+    // Мемоизируем статические данные
     const memoizedData = useMemo(() => {
         const availableDates = ScheduleUtils.getAvailableDates(weeklySchedule);
         const todayDate = ScheduleUtils.getTodayDate();
@@ -79,9 +96,9 @@ export const NewAppointmentModal: React.FC<NewAppointmentModalProps> = ({
         };
     }, [weeklySchedule, procedures, consultation]);
 
-    // Простая инициализация состояний без useEffect
+    // Состояния для шага 1 (выбор услуги, даты, времени)
     const [selectedDate, setSelectedDate] = useState<string>(() => {
-        if (typeof window === 'undefined') return ''; // На сервере возвращаем пустую строку
+        if (typeof window === 'undefined') return '';
         return preselectedDate || memoizedData.availableDates[0] || memoizedData.todayDate;
     });
 
@@ -95,26 +112,27 @@ export const NewAppointmentModal: React.FC<NewAppointmentModalProps> = ({
         return consultation || null;
     });
 
-    // Состояния UI
+    // Состояния UI для шага 1
     const [showProcedureDropdown, setShowProcedureDropdown] = useState(false);
     const [showDateDropdown, setShowDateDropdown] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
-    const [isMounted, setIsMounted] = useState(false);
 
-    // Данные пользователя
+    // Состояния для шага 2 (личные данные)
     const [formData, setFormData] = useState<PatientFormData>({
         first_name: '',
         last_name: '',
         phone_number: '+7 ',
     });
-
-    // Ошибки валидации
     const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+    const [isAgreedToTerms, setIsAgreedToTerms] = useState(true);
+
+    // Общие состояния
+    const [isLoading, setIsLoading] = useState(false);
+    const [isMounted, setIsMounted] = useState(false);
 
     // Контекст из сторов
     const { isAuthenticated, user } = useAuthStore();
 
-    // Устанавливаем флаг mounted для предотвращения гидратации
+    // Устанавливаем флаг mounted
     useEffect(() => {
         setIsMounted(true);
     }, []);
@@ -133,14 +151,20 @@ export const NewAppointmentModal: React.FC<NewAppointmentModalProps> = ({
     // Сброс данных при открытии/закрытии модального окна
     useEffect(() => {
         if (isOpen && isMounted) {
-            // Устанавливаем начальные значения
+            // Сбрасываем на первый шаг
+            setCurrentStep(1);
+
+            // Устанавливаем начальные значения для шага 1
             const initialDate = preselectedDate || memoizedData.availableDates[0] || memoizedData.todayDate;
             setSelectedDate(initialDate);
             setSelectedTimeSlot(preselectedTimeSlot);
             setSelectedProcedure(consultation || null);
-            setFormErrors({});
             setShowProcedureDropdown(false);
             setShowDateDropdown(false);
+
+            // Сбрасываем данные шага 2
+            setFormErrors({});
+            setIsAgreedToTerms(true);
 
             if (!isAuthenticated) {
                 setFormData({
@@ -152,11 +176,48 @@ export const NewAppointmentModal: React.FC<NewAppointmentModalProps> = ({
         }
     }, [isOpen, isMounted, preselectedTimeSlot, preselectedDate, consultation, memoizedData]);
 
-    // Обработчик для работы с формой
+    // Обработчики для шага 1
+    const handleProcedureSelect = (procedure: Procedure | Consultation) => {
+        setSelectedProcedure(procedure);
+        setShowProcedureDropdown(false);
+    };
+
+    const handleTimeSlotSelect = (slot: TimeSlot) => {
+        setSelectedTimeSlot(slot);
+    };
+
+    const handleDateChange = (date: string) => {
+        setSelectedDate(date);
+        if (!preselectedTimeSlot || preselectedDate !== date) {
+            setSelectedTimeSlot(null);
+        }
+        setShowDateDropdown(false);
+    };
+
+    // Переход к следующему шагу
+    const handleNextStep = () => {
+        // Валидация шага 1
+        if (!selectedProcedure) {
+            toast.error('Выберите процедуру');
+            return;
+        }
+        if (!selectedTimeSlot) {
+            toast.error('Выберите время приема');
+            return;
+        }
+
+        setCurrentStep(2);
+    };
+
+    // Возврат к предыдущему шагу
+    const handlePrevStep = () => {
+        setCurrentStep(1);
+    };
+
+    // Обработчики для шага 2
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
 
-        // Применяем форматирование
         let formattedValue = value;
         if (name === 'phone_number') {
             formattedValue = formatPhoneNumber(value);
@@ -164,7 +225,6 @@ export const NewAppointmentModal: React.FC<NewAppointmentModalProps> = ({
 
         setFormData(prev => ({ ...prev, [name]: formattedValue }));
 
-        // Очищаем ошибку поля при изменении
         if (formErrors[name]) {
             setFormErrors(prev => {
                 const newErrors = { ...prev };
@@ -174,28 +234,11 @@ export const NewAppointmentModal: React.FC<NewAppointmentModalProps> = ({
         }
     };
 
-    // Обработчик выбора процедуры
-    const handleProcedureSelect = (procedure: Procedure | Consultation) => {
-        setSelectedProcedure(procedure);
-        setShowProcedureDropdown(false);
+    const handleTermsAgreementChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setIsAgreedToTerms(e.target.checked);
     };
 
-    // Обработчик выбора временного слота
-    const handleTimeSlotSelect = (slot: TimeSlot) => {
-        setSelectedTimeSlot(slot);
-    };
-
-    // Обработчик смены даты
-    const handleDateChange = (date: string) => {
-        setSelectedDate(date);
-        // Сбрасываем selectedTimeSlot только если это не предзаполненный слот
-        if (!preselectedTimeSlot || preselectedDate !== date) {
-            setSelectedTimeSlot(null);
-        }
-        setShowDateDropdown(false);
-    };
-
-    // Валидация формы перед отправкой
+    // Валидация формы
     const validateForm = () => {
         try {
             patientSchema.parse(formData);
@@ -217,25 +260,22 @@ export const NewAppointmentModal: React.FC<NewAppointmentModalProps> = ({
 
     // Отправка формы
     const handleSubmit = async () => {
-        // Сначала проверяем выбор времени
-        if (!selectedTimeSlot) {
-            toast.error('Выберите время приема');
+        if (!isAgreedToTerms) {
+            toast.error('Необходимо согласиться с условиями для записи', {
+                style: {
+                    background: '#ef4444',
+                    color: 'white',
+                    border: 'none'
+                }
+            });
             return;
         }
 
-        // Проверяем выбор процедуры
-        if (!selectedProcedure) {
-            toast.error('Выберите процедуру');
-            return;
-        }
-
-        // Валидируем форму пациента
         if (!validateForm()) {
             toast.error('Пожалуйста, исправьте ошибки в форме');
             return;
         }
 
-        // Получаем информацию о клинике для выбранной даты
         const schedule = ScheduleUtils.getScheduleForDate(weeklySchedule, selectedDate);
         if (!schedule) {
             toast.error('Не удалось найти информацию о клинике');
@@ -247,10 +287,10 @@ export const NewAppointmentModal: React.FC<NewAppointmentModalProps> = ({
         try {
             const appointmentData: Record<string, any> = {
                 doctor_id: doctorId,
-                procedure_id: selectedProcedure.medical_procedure_id,
+                procedure_id: selectedProcedure!.medical_procedure_id,
                 clinic_id: schedule.clinic_id,
                 date: selectedDate,
-                time_slot_id: selectedTimeSlot.id,
+                time_slot_id: selectedTimeSlot!.id,
                 first_name: formData.first_name,
                 last_name: formData.last_name,
                 phone_number: formData.phone_number.replace(/\s+/g, ""),
@@ -267,8 +307,8 @@ export const NewAppointmentModal: React.FC<NewAppointmentModalProps> = ({
                     fontSize: '16px',
                 }
             });
+            onSuccess?.()
 
-            // Сброс и закрытие
             setFormData({
                 first_name: '',
                 last_name: '',
@@ -290,24 +330,22 @@ export const NewAppointmentModal: React.FC<NewAppointmentModalProps> = ({
         }
     };
 
-    // Преобразуем рабочие часы в слоты времени для выбора
+    // Вспомогательные функции
     const getTimeSlotsForDate = (date: string): TimeSlot[] => {
         const schedule = ScheduleUtils.getScheduleForDate(weeklySchedule, date);
         return schedule ? ScheduleUtils.convertToTimeSlots(schedule.working_hours_list) : [];
     };
 
-    // Безопасное форматирование даты
     const getFormattedDateDisplay = () => {
         if (!selectedDate || !isMounted) return 'Выберите дату';
         try {
-            const dateObj = new Date(selectedDate + 'T00:00:00'); // Добавляем время для корректного парсинга
+            const dateObj = new Date(selectedDate + 'T00:00:00');
             return format(dateObj, 'd MMMM yyyy', { locale: ru });
         } catch (error) {
             return selectedDate;
         }
     };
 
-    // Функция для получения названия дня
     const getDateLabel = (date: string) => {
         if (!isMounted) return date;
 
@@ -322,14 +360,15 @@ export const NewAppointmentModal: React.FC<NewAppointmentModalProps> = ({
         }
     };
 
-    // Не рендерим компонент до монтирования
+    // Не рендерим до монтирования
     if (!isMounted) {
         return null;
     }
 
     const timeSlots = getTimeSlotsForDate(selectedDate);
+    const currentSchedule = ScheduleUtils.getScheduleForDate(weeklySchedule, selectedDate);
 
-    // Проверяем, есть ли доступные даты
+    // Проверяем доступность дат
     if (memoizedData.availableDates.length === 0) {
         return (
             <Dialog open={isOpen} onOpenChange={onClose}>
@@ -352,18 +391,32 @@ export const NewAppointmentModal: React.FC<NewAppointmentModalProps> = ({
         );
     }
 
-    // Получаем клинику для отображения
-    const currentSchedule = ScheduleUtils.getScheduleForDate(weeklySchedule, selectedDate);
-
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
             <DialogContent className="sm:max-w-[600px] p-0 max-h-[80vh] flex flex-col">
                 <DialogHeader className="p-6 pb-4 border-b flex-shrink-0">
-                    <DialogTitle className="text-xl font-semibold">Онлайн запись</DialogTitle>
+                    <div className="flex items-center justify-between mt-2">
+                        <div className="flex items-center gap-4">
+                            {currentStep === 2 && (
+                                <button
+                                    onClick={handlePrevStep}
+                                    className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
+                                >
+                                    <ArrowLeft className="w-5 h-5" />
+                                </button>
+                            )}
+                            <DialogTitle className="text-xl font-semibold">
+                                {currentStep === 1 ? 'Выбор времени приема' : 'Ваши данные'}
+                            </DialogTitle>
+                        </div>
+                        <div className="text-sm text-gray-500">
+                            Шаг {currentStep} из 2
+                        </div>
+                    </div>
                 </DialogHeader>
 
                 <div className="flex-1 overflow-y-auto p-6 space-y-6">
-                    {/* Информация о враче */}
+                    {/* Информация о враче (показываем на обоих шагах) */}
                     <div className="flex items-center gap-4">
                         <Image
                             src={doctorPhoto || doctorAvatar}
@@ -380,175 +433,233 @@ export const NewAppointmentModal: React.FC<NewAppointmentModalProps> = ({
                                 <span>{currentSchedule?.clinic_title}</span>
                             </div>
                         </div>
-                        <div className="flex flex-col items-center">
+                        <div className="flex-col items-center hidden md:flex">
                             <div className="flex">
-                                {[1,2,3,4].map(i => (
-                                    <div key={i} className="w-5 h-5 text-orange-400">★</div>
-                                ))}
-                                <div className="w-5 h-5 text-gray-300">★</div>
+                                {renderStars(Math.round(average_rating))}
                             </div>
-                            <span className="text-blue-500 text-sm">467 отзывов</span>
+                            <span className="text-blue-500 text-sm">{review_count} отзывов</span>
                         </div>
                     </div>
 
-                    {/* Выбор процедуры */}
-                    {procedures?.length > 1 && (
-                        <div className="space-y-2">
-                            <Label>Процедура</Label>
-                            <div className="relative">
-                                <div
-                                    className="w-full p-3 border rounded-lg cursor-pointer flex items-center justify-between bg-green-50"
-                                    onClick={() => setShowProcedureDropdown(!showProcedureDropdown)}
-                                >
-                                    <span>{selectedProcedure?.medical_procedure_title || 'Выберите процедуру'}</span>
-                                    <ChevronDown className="w-4 h-4" />
-                                </div>
-
-                                {showProcedureDropdown && (
-                                    <div className="absolute z-50 w-full mt-1 bg-white border rounded-lg shadow-lg max-h-48 overflow-y-auto">
-                                        {procedures.map((procedure, index) => (
-                                            <div
-                                                key={procedure.medical_procedure_id || index}
-                                                className="p-3 hover:bg-gray-50 cursor-pointer"
-                                                onClick={() => handleProcedureSelect(procedure)}
-                                            >
-                                                <div className="flex justify-between items-center">
-                                                    <span>{procedure.medical_procedure_title}</span>
-                                                    {procedure.doctor_procedure_final_price && (
-                                                        <span className="text-green-600 font-semibold">
-                                                            {procedure.doctor_procedure_final_price} тг
-                                                        </span>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
+                    {/* Мобильный рейтинг */}
+                    <div className="flex flex-col items-center md:hidden">
+                        <div className="flex">
+                            {renderStars(Math.round(average_rating))}
                         </div>
-                    )}
+                        <span className="text-blue-500 text-sm">{review_count} отзывов</span>
+                    </div>
 
-                    {/* Выбор даты */}
-                    <div className="space-y-2">
-                        <Label>Дата</Label>
-                        <div className="relative">
-                            <div
-                                className="w-full p-3 border rounded-lg cursor-pointer flex items-center justify-between bg-green-50"
-                                onClick={() => setShowDateDropdown(!showDateDropdown)}
-                            >
-                                <span>{getFormattedDateDisplay()}</span>
-                                <ChevronDown className="w-4 h-4" />
+                    {currentStep === 1 ? (
+                        /* ШАГ 1: Выбор процедуры, даты и времени */
+                        <>
+                            {/* Выбор процедуры */}
+                            {procedures?.length > 1 && (
+                                <div className="space-y-2">
+                                    <Label>Процедура</Label>
+                                    <div className="relative">
+                                        <div
+                                            className="w-full p-3 border rounded-lg cursor-pointer flex items-center justify-between bg-green-50"
+                                            onClick={() => setShowProcedureDropdown(!showProcedureDropdown)}
+                                        >
+                                            <span>{selectedProcedure?.medical_procedure_title || 'Выберите процедуру'}</span>
+                                            <ChevronDown className="w-4 h-4" />
+                                        </div>
+
+                                        {showProcedureDropdown && (
+                                            <div className="absolute z-50 w-full mt-1 bg-white border rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                                                {procedures.map((procedure, index) => (
+                                                    <div
+                                                        key={procedure.medical_procedure_id || index}
+                                                        className="p-3 hover:bg-gray-50 cursor-pointer"
+                                                        onClick={() => handleProcedureSelect(procedure)}
+                                                    >
+                                                        <div className="flex justify-between items-center">
+                                                            <span>{procedure.medical_procedure_title}</span>
+                                                            {procedure.doctor_procedure_final_price && (
+                                                                <span className="text-green-600 font-semibold">
+                                                                    {procedure.doctor_procedure_final_price} тг
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Выбор даты */}
+                            <div className="space-y-2">
+                                <Label>Дата</Label>
+                                <div className="relative">
+                                    <div
+                                        className="w-full p-3 border rounded-lg cursor-pointer flex items-center justify-between bg-green-50"
+                                        onClick={() => setShowDateDropdown(!showDateDropdown)}
+                                    >
+                                        <span>{getFormattedDateDisplay()}</span>
+                                        <ChevronDown className="w-4 h-4" />
+                                    </div>
+
+                                    {showDateDropdown && (
+                                        <div className="absolute z-40 w-full mt-1 bg-white border rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                                            {memoizedData.availableDates.map((date) => (
+                                                <div
+                                                    key={date}
+                                                    className={cn(
+                                                        "p-3 hover:bg-gray-50 cursor-pointer",
+                                                        selectedDate === date ? 'bg-green-50 text-green-600' : ''
+                                                    )}
+                                                    onClick={() => handleDateChange(date)}
+                                                >
+                                                    {getDateLabel(date)}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
                             </div>
 
-                            {showDateDropdown && (
-                                <div className="absolute z-40 w-full mt-1 bg-white border rounded-lg shadow-lg max-h-48 overflow-y-auto">
-                                    {memoizedData.availableDates.map((date) => (
-                                        <div
-                                            key={date}
+                            {/* Выбор времени */}
+                            <div className="space-y-4">
+                                <Label>Время приема</Label>
+                                <div className="grid grid-cols-4 gap-3">
+                                    {timeSlots.map((slot) => (
+                                        <button
+                                            key={slot.id}
+                                            onClick={() => handleTimeSlotSelect(slot)}
                                             className={cn(
-                                                "p-3 hover:bg-gray-50 cursor-pointer",
-                                                selectedDate === date ? 'bg-green-50 text-green-600' : ''
+                                                "p-3 text-sm border rounded-lg transition-colors",
+                                                selectedTimeSlot?.id === slot.id
+                                                    ? 'border-green-500 bg-green-50 text-green-600'
+                                                    : 'border-gray-300 hover:border-green-500'
                                             )}
-                                            onClick={() => handleDateChange(date)}
                                         >
-                                            {getDateLabel(date)}
-                                        </div>
+                                            {slot.start_time.substring(0, 5)}
+                                        </button>
                                     ))}
                                 </div>
-                            )}
-                        </div>
-                    </div>
+                            </div>
+                        </>
+                    ) : (
+                        /* ШАГ 2: Личные данные и подтверждение */
+                        <>
 
-                    {/* Выбор времени */}
-                    <div className="space-y-4">
-                        <Label>Время приема</Label>
-                        <div className="grid grid-cols-4 gap-3">
-                            {timeSlots.map((slot) => (
-                                <button
-                                    key={slot.id}
-                                    onClick={() => handleTimeSlotSelect(slot)}
-                                    className={cn(
-                                        "p-3 text-sm border rounded-lg transition-colors",
-                                        selectedTimeSlot?.id === slot.id
-                                            ? 'border-green-500 bg-green-50 text-green-600'
-                                            : 'border-gray-300 hover:border-green-500'
+                            {/* Форма пациента */}
+                            <div className="space-y-4">
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <Label>Фамилия</Label>
+                                        <Input
+                                            name="last_name"
+                                            value={formData.last_name}
+                                            onChange={handleInputChange}
+                                            className={cn(
+                                                isAuthenticated ? "bg-blue-50" : "",
+                                                formErrors.last_name ? "border-red-500" : ""
+                                            )}
+                                        />
+                                        {formErrors.last_name && (
+                                            <p className="text-red-500 text-xs">{formErrors.last_name}</p>
+                                        )}
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label>Имя</Label>
+                                        <Input
+                                            name="first_name"
+                                            value={formData.first_name}
+                                            onChange={handleInputChange}
+                                            className={cn(
+                                                isAuthenticated ? "bg-blue-50" : "",
+                                                formErrors.first_name ? "border-red-500" : ""
+                                            )}
+                                        />
+                                        {formErrors.first_name && (
+                                            <p className="text-red-500 text-xs">{formErrors.first_name}</p>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label>Номер телефона</Label>
+                                    <div className="relative">
+                                        <Input
+                                            name="phone_number"
+                                            value={formData.phone_number}
+                                            onChange={handleInputChange}
+                                            placeholder="+7 ___ ___ __ __"
+                                            className={cn(
+                                                isAuthenticated ? "bg-blue-50" : "",
+                                                formErrors.phone_number ? "border-red-500" : ""
+                                            )}
+                                        />
+                                        {isAuthenticated && (
+                                            <Check className="absolute right-3 top-2.5 h-4 w-4 text-green-600" />
+                                        )}
+                                    </div>
+                                    {formErrors.phone_number && (
+                                        <p className="text-red-500 text-xs">{formErrors.phone_number}</p>
                                     )}
-                                >
-                                    {slot.start_time.substring(0, 5)}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
+                                </div>
+                            </div>
 
-                    {/* Форма пациента */}
-                    <div className="space-y-4">
-                        <div className="grid grid-cols-2 gap-4">
+                            {/* Чекбокс согласия */}
                             <div className="space-y-2">
-                                <Label>Фамилия</Label>
-                                <Input
-                                    name="last_name"
-                                    value={formData.last_name}
-                                    onChange={handleInputChange}
-                                    className={cn(
-                                        isAuthenticated ? "bg-blue-50" : "",
-                                        formErrors.last_name ? "border-red-500" : ""
-                                    )}
-                                />
-                                {formErrors.last_name && (
-                                    <p className="text-red-500 text-xs">{formErrors.last_name}</p>
-                                )}
+                                <div className="flex items-start gap-3">
+                                    <input
+                                        type="checkbox"
+                                        id="terms-agreement"
+                                        checked={isAgreedToTerms}
+                                        onChange={handleTermsAgreementChange}
+                                        className="mt-1 h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+                                    />
+                                    <label htmlFor="terms-agreement" className="text-sm text-gray-700 leading-relaxed max-w-full">
+                                        Согласен со всеми условиями, включая политику конфиденциальности и условия обслуживания
+                                    </label>
+                                </div>
                             </div>
-
-                            <div className="space-y-2">
-                                <Label>Имя</Label>
-                                <Input
-                                    name="first_name"
-                                    value={formData.first_name}
-                                    onChange={handleInputChange}
-                                    className={cn(
-                                        isAuthenticated ? "bg-blue-50" : "",
-                                        formErrors.first_name ? "border-red-500" : ""
+                            {/* Сводка выбора */}
+                            <div className="bg-green-50 p-4 rounded-lg space-y-2">
+                                <h4 className="font-semibold text-green-800">Детали записи</h4>
+                                <div className="space-y-1 text-sm text-green-700">
+                                    <p><span className="font-medium">Процедура:</span> {selectedProcedure?.medical_procedure_title}</p>
+                                    <p><span className="font-medium">Дата:</span> {getFormattedDateDisplay()}</p>
+                                    <p><span className="font-medium">Время:</span> {selectedTimeSlot?.start_time.substring(0, 5)}</p>
+                                    <p><span className="font-medium">Клиника:</span> {currentSchedule?.clinic_title}</p>
+                                    {selectedProcedure?.doctor_procedure_final_price && (
+                                        <p><span className="font-medium">Стоимость:</span> {selectedProcedure.doctor_procedure_final_price} тг</p>
                                     )}
-                                />
-                                {formErrors.first_name && (
-                                    <p className="text-red-500 text-xs">{formErrors.first_name}</p>
-                                )}
+                                </div>
                             </div>
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label>Номер телефона</Label>
-                            <div className="relative">
-                                <Input
-                                    name="phone_number"
-                                    value={formData.phone_number}
-                                    onChange={handleInputChange}
-                                    placeholder="+7 ___ ___ __ __"
-                                    className={cn(
-                                        isAuthenticated ? "bg-blue-50" : "",
-                                        formErrors.phone_number ? "border-red-500" : ""
-                                    )}
-                                />
-                                {isAuthenticated && (
-                                    <Check className="absolute right-3 top-2.5 h-4 w-4 text-green-600" />
-                                )}
-                            </div>
-                            {formErrors.phone_number && (
-                                <p className="text-red-500 text-xs">{formErrors.phone_number}</p>
-                            )}
-                        </div>
-                    </div>
+                        </>
+                    )}
                 </div>
 
-                {/* Зафиксированная кнопка */}
+                {/* Кнопки управления */}
                 <div className="flex-shrink-0 p-6 border-t bg-white">
-                    <Button
-                        onClick={handleSubmit}
-                        disabled={isLoading}
-                        className="w-full py-4 text-base font-semibold bg-green-600 hover:bg-green-700 transition-all"
-                    >
-                        {isLoading ? 'Записываться...' : 'Записаться'}
-                    </Button>
+                    {currentStep === 1 ? (
+                        <Button
+                            onClick={handleNextStep}
+                            className="w-full py-4 text-base font-semibold bg-green-600 hover:bg-green-700 flex items-center justify-center gap-2"
+                        >
+                            Далее
+                            <ArrowRight className="w-4 h-4" />
+                        </Button>
+                    ) : (
+                        <Button
+                            onClick={handleSubmit}
+                            disabled={isLoading || !isAgreedToTerms}
+                            className={cn(
+                                "w-full py-4 text-base font-semibold transition-all",
+                                isAgreedToTerms
+                                    ? "bg-green-600 hover:bg-green-700"
+                                    : "bg-gray-400 cursor-not-allowed"
+                            )}
+                        >
+                            {isLoading ? 'Записываемся...' : 'Записаться'}
+                        </Button>
+                    )}
                 </div>
             </DialogContent>
         </Dialog>

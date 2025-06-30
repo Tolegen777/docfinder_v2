@@ -88,6 +88,7 @@ const DoctorCard: React.FC<DoctorCardProps> = ({
     );
     const [showAllTimes, setShowAllTimes] = useState(false);
     const [isMapOpen, setIsMapOpen] = useState(false);
+    const [isSheetOpen, setIsSheetOpen] = useState(false);
 
     // Новые состояния для модалки записи через слот
     const [isAppointmentModalOpen, setIsAppointmentModalOpen] = useState(false);
@@ -97,6 +98,8 @@ const DoctorCard: React.FC<DoctorCardProps> = ({
     const handleTimeSlotClick = (timeSlot: TimeSlot) => {
         setPreselectedTimeSlot(timeSlot);
         setIsAppointmentModalOpen(true);
+        // Закрываем Sheet только при открытии модалки записи
+        setIsSheetOpen(false);
     };
 
     // Получаем названия специальностей
@@ -160,7 +163,11 @@ const DoctorCard: React.FC<DoctorCardProps> = ({
 
                 {timeSlots.length > 12 && (
                     <button
-                        onClick={() => setShowAllTimes(!showAllTimes)}
+                        onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setShowAllTimes(!showAllTimes);
+                        }}
                         className="w-full flex items-center justify-center gap-2.5 px-5 py-2.5 border border-[#16A34A] rounded-lg bg-white hover:bg-[#F0FDF4] transition-colors"
                     >
                         <Eye className="w-5 h-5 text-[#16A34A]"/>
@@ -183,7 +190,11 @@ const DoctorCard: React.FC<DoctorCardProps> = ({
                 {availableDates.map((date) => (
                     <button
                         key={date}
-                        onClick={() => setSelectedDate(date)}
+                        onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setSelectedDate(date);
+                        }}
                         className={`px-5 py-2.5 whitespace-nowrap ${
                             selectedDate === date
                                 ? 'text-[#16A34A] font-semibold border-b-2 border-[#16A34A]'
@@ -206,19 +217,30 @@ const DoctorCard: React.FC<DoctorCardProps> = ({
                 consultation={consultation}
                 className="w-full mt-4 bg-green-600 hover:bg-green-700"
                 buttonText="Записаться онлайн"
+                average_rating={average_rating}
+                review_count={review_count}
+                onSuccess={() => setIsSheetOpen(false)}
             />
         </>
     );
 
     const MobileSchedule = () => (
-        <Sheet>
+        <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
             <SheetTrigger asChild>
-                <button className="w-full flex items-center justify-center gap-2.5 px-5 py-2.5 border border-[#16A34A] rounded-lg bg-white">
+                <button
+                    onClick={() => setIsSheetOpen(true)}
+                    className="w-full flex items-center justify-center gap-2.5 px-5 py-2.5 border border-[#16A34A] rounded-lg bg-white"
+                >
                     <span className="text-base font-semibold text-[#16A34A]">Выберите дату</span>
                     <ChevronDown className="w-5 h-5 text-[#16A34A]"/>
                 </button>
             </SheetTrigger>
-            <SheetContent side="bottom" className="h-[80vh] rounded-t-[20px]">
+            <SheetContent
+                side="bottom"
+                className="h-[80vh] rounded-t-[20px]"
+                onInteractOutside={(e) => e.preventDefault()}
+                onEscapeKeyDown={(e) => e.preventDefault()}
+            >
                 <SheetHeader>
                     <SheetTitle className="text-xl font-semibold text-[#212121]">
                         Выберите время приёма для записи онлайн
@@ -405,6 +427,8 @@ const DoctorCard: React.FC<DoctorCardProps> = ({
                 consultation={consultation}
                 preselectedTimeSlot={preselectedTimeSlot}
                 preselectedDate={selectedDate}
+                review_count={review_count}
+                average_rating={average_rating}
             />}
         </>
     );

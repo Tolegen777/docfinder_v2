@@ -21,6 +21,9 @@ interface OnlineAppointmentButtonProps {
     // Новые пропсы для предзаполнения
     preselectedTimeSlot?: TimeSlot | null;
     preselectedDate?: string;
+    average_rating: number;
+    review_count: number;
+    onSuccess?: () => void;
 }
 
 const OnlineAppointmentButton: React.FC<OnlineAppointmentButtonProps> = ({
@@ -33,7 +36,10 @@ const OnlineAppointmentButton: React.FC<OnlineAppointmentButtonProps> = ({
                                                                              className = '',
                                                                              buttonText = 'Записаться онлайн',
                                                                              preselectedTimeSlot = null,
-                                                                             preselectedDate
+                                                                             preselectedDate,
+    onSuccess,
+    average_rating,
+    review_count,
                                                                          }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -66,6 +72,9 @@ const OnlineAppointmentButton: React.FC<OnlineAppointmentButtonProps> = ({
                 consultation={consultation}
                 preselectedTimeSlot={preselectedTimeSlot}
                 preselectedDate={preselectedDate}
+                average_rating={average_rating}
+                review_count={review_count}
+                onSuccess={onSuccess}
             />}
         </>
     );
