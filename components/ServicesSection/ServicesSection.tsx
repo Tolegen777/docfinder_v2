@@ -172,12 +172,12 @@ export const ServicesSection = () => {
             )}
 
             <div className="flex gap-4 items-center my-6">
-                <div className="flex-1 max-w-xl">
-                    <SearchBar />
-                </div>
-                <Button className="bg-green-500 hover:bg-green-600 text-white whitespace-nowrap">
-                    Записаться онлайн
-                </Button>
+                {/*<div className="flex-1 max-w-xl">*/}
+                {/*    <SearchBar />*/}
+                {/*</div>*/}
+                {/*<Button className="bg-green-500 hover:bg-green-600 text-white whitespace-nowrap">*/}
+                {/*    Записаться онлайн*/}
+                {/*</Button>*/}
             </div>
 
             {/* Отображение категорий и их содержимого уровень за уровнем */}

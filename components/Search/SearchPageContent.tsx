@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
-import { Search, User, Stethoscope, Building2, ArrowLeft, X, ChevronDown } from 'lucide-react';
+import { Search, User, Stethoscope, Building2, ArrowLeft, X, ChevronDown, GraduationCap } from 'lucide-react';
 import Image from 'next/image';
 import { SearchAPI, SearchResponse } from '@/shared/api/searchApi';
 import { useCityStore } from '@/shared/stores/cityStore';
@@ -73,6 +73,7 @@ const ResultsColumn: React.FC<ResultsColumnProps> = ({
                         {title === 'Врачи' && <User className="w-8 h-8 text-gray-400" />}
                         {title === 'Процедуры' && <Stethoscope className="w-8 h-8 text-gray-400" />}
                         {title === 'Клиники' && <Building2 className="w-8 h-8 text-gray-400" />}
+                        {title === 'Специальности' && <GraduationCap className="w-8 h-8 text-gray-400" />}
                     </div>
                     <p className="text-gray-500 font-medium">Ничего не найдено</p>
                     <p className="text-gray-400 text-sm mt-1">Попробуйте изменить поисковый запрос</p>
@@ -113,6 +114,7 @@ export function SearchPageContent() {
     const [showMoreDoctors, setShowMoreDoctors] = useState(false);
     const [showMoreProcedures, setShowMoreProcedures] = useState(false);
     const [showMoreClinics, setShowMoreClinics] = useState(false);
+    const [showMoreSpecialities, setShowMoreSpecialities] = useState(false);
 
     // Debounce search query
     useEffect(() => {
@@ -137,6 +139,7 @@ export function SearchPageContent() {
         setShowMoreDoctors(false);
         setShowMoreProcedures(false);
         setShowMoreClinics(false);
+        setShowMoreSpecialities(false);
     }, [debouncedQuery]);
 
     const { data, isLoading, error } = useQuery({
@@ -164,6 +167,10 @@ export function SearchPageContent() {
 
     const handleClinicClick = (slug: string) => {
         router.push(`/clinic/${slug}`);
+    };
+
+    const handleSpecialityClick = (slug: string) => {
+        router.push(`/specialities/${slug}`);
     };
 
     const renderDoctorItem = (doctor: any) => (
@@ -241,7 +248,28 @@ export function SearchPageContent() {
         </Card>
     );
 
-    const totalResults = data ? data.doctors.length + data.procedures.length + data.clinics.length : 0;
+    const renderSpecialityItem = (speciality: any) => (
+        <Card
+            key={speciality.id}
+            className="p-4 hover:shadow-md transition-shadow cursor-pointer"
+            onClick={() => handleSpecialityClick(speciality.slug)}
+        >
+            <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center">
+                    <GraduationCap className="w-6 h-6 text-indigo-600" />
+                </div>
+                <div className="flex-1">
+                    <h4 className="font-medium text-gray-900">{speciality.title}</h4>
+                    <p className="text-sm text-gray-500">Специальность</p>
+                </div>
+                <div className="text-indigo-600">
+                    <GraduationCap className="w-5 h-5" />
+                </div>
+            </div>
+        </Card>
+    );
+
+    const totalResults = data ? data.doctors.length + data.procedures.length + data.clinics.length + data.specialities.length : 0;
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -263,7 +291,7 @@ export function SearchPageContent() {
                             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                             <Input
                                 type="text"
-                                placeholder="Поиск врачей, процедур, клиник..."
+                                placeholder="Поиск врачей, процедур, клиник, специальностей..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 className="pl-10 pr-10 h-12 text-base"
@@ -296,7 +324,7 @@ export function SearchPageContent() {
                             Начните поиск
                         </h2>
                         <p className="text-gray-500 max-w-md mx-auto">
-                            Введите название врача, процедуры или клиники в поисковую строку выше
+                            Введите название врача, процедуры, клиники или специальности в поисковую строку выше
                         </p>
                     </div>
                 ) : error ? (
@@ -342,7 +370,7 @@ export function SearchPageContent() {
                         )}
 
                         {/* Results Grid */}
-                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-8">
                             {/* Doctors Column */}
                             <ResultsColumn
                                 title="Врачи"
@@ -376,6 +404,18 @@ export function SearchPageContent() {
                                 renderItem={renderClinicItem}
                                 showMore={showMoreClinics}
                                 onShowMore={() => setShowMoreClinics(!showMoreClinics)}
+                                isLoading={isLoading}
+                            />
+
+                            {/* Specialities Column */}
+                            <ResultsColumn
+                                title="Специальности"
+                                icon={<GraduationCap className="w-5 h-5 text-indigo-600" />}
+                                items={data?.specialities || []}
+                                onItemClick={handleSpecialityClick}
+                                renderItem={renderSpecialityItem}
+                                showMore={showMoreSpecialities}
+                                onShowMore={() => setShowMoreSpecialities(!showMoreSpecialities)}
                                 isLoading={isLoading}
                             />
                         </div>

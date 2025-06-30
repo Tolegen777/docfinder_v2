@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
-import { Search, User, Stethoscope, Building2, X, ChevronDown } from 'lucide-react';
+import { Search, User, Stethoscope, Building2, X, ChevronDown, GraduationCap } from 'lucide-react';
 import Image from 'next/image';
 import { SearchAPI } from '@/shared/api/searchApi';
 import { useCityStore } from '@/shared/stores/cityStore';
@@ -85,6 +85,7 @@ const MobileResultsSection: React.FC<MobileResultsSectionProps> = ({
                         {title === 'Врачи' && <User className="w-8 h-8" />}
                         {title === 'Процедуры' && <Stethoscope className="w-8 h-8" />}
                         {title === 'Клиники' && <Building2 className="w-8 h-8" />}
+                        {title === 'Специальности' && <GraduationCap className="w-8 h-8" />}
                     </div>
                     <p className="text-gray-500 text-sm">Ничего не найдено</p>
                 </Card>
@@ -127,6 +128,7 @@ export const MobileSearchSheet: React.FC<MobileSearchSheetProps> = ({
     const [showMoreDoctors, setShowMoreDoctors] = useState(false);
     const [showMoreProcedures, setShowMoreProcedures] = useState(false);
     const [showMoreClinics, setShowMoreClinics] = useState(false);
+    const [showMoreSpecialities, setShowMoreSpecialities] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
 
     // Auto focus when sheet opens
@@ -160,6 +162,7 @@ export const MobileSearchSheet: React.FC<MobileSearchSheetProps> = ({
         setShowMoreDoctors(false);
         setShowMoreProcedures(false);
         setShowMoreClinics(false);
+        setShowMoreSpecialities(false);
     }, [debouncedQuery]);
 
     const { data, isLoading } = useQuery({
@@ -168,7 +171,7 @@ export const MobileSearchSheet: React.FC<MobileSearchSheetProps> = ({
         enabled: !!currentCity?.id && debouncedQuery.length > 0 && isOpen,
     });
 
-    const handleItemClick = (type: 'doctor' | 'procedure' | 'clinic', slug: string) => {
+    const handleItemClick = (type: 'doctor' | 'procedure' | 'clinic' | 'speciality', slug: string) => {
         onClose();
 
         switch (type) {
@@ -180,6 +183,9 @@ export const MobileSearchSheet: React.FC<MobileSearchSheetProps> = ({
                 break;
             case 'clinic':
                 router.push(`/clinic/${slug}`);
+                break;
+            case 'speciality':
+                router.push(`/specialities/${slug}`);
                 break;
         }
     };
@@ -264,7 +270,28 @@ export const MobileSearchSheet: React.FC<MobileSearchSheetProps> = ({
         </Card>
     );
 
-    const totalResults = data ? data.doctors.length + data.procedures.length + data.clinics.length : 0;
+    const renderSpecialityItem = (speciality: any) => (
+        <Card
+            key={speciality.id}
+            className="p-3 hover:bg-gray-50 transition-colors cursor-pointer active:bg-gray-100"
+            onClick={() => handleItemClick('speciality', speciality.slug)}
+        >
+            <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center">
+                    <GraduationCap className="w-5 h-5 text-indigo-600" />
+                </div>
+                <div className="flex-1">
+                    <h4 className="font-medium text-gray-900 text-sm">{speciality.title}</h4>
+                    <p className="text-xs text-gray-500">Специальность</p>
+                </div>
+                <div className="text-indigo-600">
+                    <GraduationCap className="w-4 h-4" />
+                </div>
+            </div>
+        </Card>
+    );
+
+    const totalResults = data ? data.doctors.length + data.procedures.length + data.clinics.length + data.specialities.length : 0;
 
     return (
         <Sheet open={isOpen} onOpenChange={onClose}>
@@ -283,7 +310,7 @@ export const MobileSearchSheet: React.FC<MobileSearchSheetProps> = ({
                         <Input
                             ref={inputRef}
                             type="text"
-                            placeholder="Поиск врачей, процедур, клиник..."
+                            placeholder="Поиск врачей, процедур, клиник, специальностей..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             className="pl-10 pr-10 h-12 text-base"
@@ -320,7 +347,7 @@ export const MobileSearchSheet: React.FC<MobileSearchSheetProps> = ({
                                     Начните поиск
                                 </h3>
                                 <p className="text-gray-500 text-sm">
-                                    Введите название врача, процедуры или клиники
+                                    Введите название врача, процедуры, клиники или специальности
                                 </p>
                             </div>
                         ) : totalResults === 0 && !isLoading ? (
@@ -370,6 +397,18 @@ export const MobileSearchSheet: React.FC<MobileSearchSheetProps> = ({
                                     renderItem={renderClinicItem}
                                     showMore={showMoreClinics}
                                     onShowMore={() => setShowMoreClinics(!showMoreClinics)}
+                                    isLoading={isLoading}
+                                />
+
+                                {/* Specialities */}
+                                <MobileResultsSection
+                                    title="Специальности"
+                                    icon={<GraduationCap className="w-5 h-5 text-indigo-600" />}
+                                    items={data?.specialities || []}
+                                    onItemClick={(slug) => handleItemClick('speciality', slug)}
+                                    renderItem={renderSpecialityItem}
+                                    showMore={showMoreSpecialities}
+                                    onShowMore={() => setShowMoreSpecialities(!showMoreSpecialities)}
                                     isLoading={isLoading}
                                 />
                             </div>

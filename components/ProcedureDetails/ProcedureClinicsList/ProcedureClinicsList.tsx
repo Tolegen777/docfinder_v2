@@ -12,6 +12,7 @@ import { useParams } from "next/navigation";
 import { TabBar, TabOption } from '@/shared/ui/TabBar';
 import { Users, Building2 } from 'lucide-react';
 import { ProcedureDoctorsList } from '../ProcedureDoctorsList/ProcedureDoctorsList';
+import {useCityStore} from "@/shared/stores/cityStore";
 
 type TabValue = 'doctors' | 'clinics';
 
@@ -41,6 +42,8 @@ export const ProcedureClinicsList = () => {
     const [allClinics, setAllClinics] = useState<any[]>([]);
     const [isFetchingNext, setIsFetchingNext] = useState(false);
 
+    const {currentCity} = useCityStore()
+
     // Fetch initial clinics
     const {
         data: initialData,
@@ -54,7 +57,8 @@ export const ProcedureClinicsList = () => {
             const response = await ProcedureClinicsAPI.getProcedureClinics({
                 procedureSlug,
                 page: 1,
-                pageSize
+                pageSize,
+                city: currentCity?.id
             });
 
             return {
@@ -96,7 +100,8 @@ export const ProcedureClinicsList = () => {
             const response = await ProcedureClinicsAPI.getProcedureClinics({
                 procedureSlug,
                 page: nextPage,
-                pageSize
+                pageSize,
+                city: currentCity?.id
             });
 
             const newClinics = response.results.map(clinic => ({

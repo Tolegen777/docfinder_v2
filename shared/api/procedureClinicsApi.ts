@@ -7,17 +7,19 @@ export interface ProcedureClinicFilters {
     procedureSlug: string;
     page: number;
     pageSize: number;
+    city?: number;
 }
 
 export const ProcedureClinicsAPI = {
     getProcedureClinics: (filters: ProcedureClinicFilters) => {
-        const { procedureSlug, page, pageSize } = filters;
+        const { procedureSlug, page, pageSize, city } = filters;
 
         return apiGet<ClinicsResponse>(
             `/patients_endpoints/procedures/${procedureSlug}/clinics_list`,
             {
                 page,
-                page_size: pageSize
+                page_size: pageSize,
+                city
             }
         );
     }

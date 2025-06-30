@@ -80,17 +80,17 @@ const ProfileContent: React.FC = () => {
                                 {/*    <Heart className="h-5 w-5" />*/}
                                 {/*    <span>Избранное</span>*/}
                                 {/*</button>*/}
-                                <button
-                                    onClick={() => handleTabChange('settings')}
-                                    className={`flex items-center gap-3 p-3 rounded-md w-full text-left transition-colors ${
-                                        activeTab === 'settings'
-                                            ? 'bg-green-50 text-green-600 font-medium'
-                                            : 'text-gray-700 hover:bg-gray-50'
-                                    }`}
-                                >
-                                    <Settings className="h-5 w-5" />
-                                    <span>Настройки</span>
-                                </button>
+                                {/*<button*/}
+                                {/*    onClick={() => handleTabChange('settings')}*/}
+                                {/*    className={`flex items-center gap-3 p-3 rounded-md w-full text-left transition-colors ${*/}
+                                {/*        activeTab === 'settings'*/}
+                                {/*            ? 'bg-green-50 text-green-600 font-medium'*/}
+                                {/*            : 'text-gray-700 hover:bg-gray-50'*/}
+                                {/*    }`}*/}
+                                {/*>*/}
+                                {/*    <Settings className="h-5 w-5" />*/}
+                                {/*    <span>Настройки</span>*/}
+                                {/*</button>*/}
                             </nav>
                         </div>
                     </div>
@@ -126,15 +126,15 @@ const ProfileContent: React.FC = () => {
                                 {/*    <Heart className="h-5 w-5" />*/}
                                 {/*    <span className="text-xs">Избранное</span>*/}
                                 {/*</button>*/}
-                                <button
-                                    onClick={() => handleTabChange('settings')}
-                                    className={`flex-1 flex flex-col items-center gap-1 py-3 ${
-                                        activeTab === 'settings' ? 'text-green-600 border-b-2 border-green-600' : 'text-gray-500'
-                                    }`}
-                                >
-                                    <Settings className="h-5 w-5" />
-                                    <span className="text-xs">Настройки</span>
-                                </button>
+                                {/*<button*/}
+                                {/*    onClick={() => handleTabChange('settings')}*/}
+                                {/*    className={`flex-1 flex flex-col items-center gap-1 py-3 ${*/}
+                                {/*        activeTab === 'settings' ? 'text-green-600 border-b-2 border-green-600' : 'text-gray-500'*/}
+                                {/*    }`}*/}
+                                {/*>*/}
+                                {/*    <Settings className="h-5 w-5" />*/}
+                                {/*    <span className="text-xs">Настройки</span>*/}
+                                {/*</button>*/}
                             </div>
 
                             <div className="p-4">
@@ -146,12 +146,12 @@ const ProfileContent: React.FC = () => {
                                 {/*        <p className="text-gray-500">Здесь будут отображаться ваши избранные клиники и врачи</p>*/}
                                 {/*    </div>*/}
                                 {/*)}*/}
-                                {activeTab === 'settings' && (
-                                    <div>
-                                        <h2 className="text-xl font-semibold mb-4">Настройки</h2>
-                                        <p className="text-gray-500">Настройки вашего аккаунта</p>
-                                    </div>
-                                )}
+                                {/*{activeTab === 'settings' && (*/}
+                                {/*    <div>*/}
+                                {/*        <h2 className="text-xl font-semibold mb-4">Настройки</h2>*/}
+                                {/*        <p className="text-gray-500">Настройки вашего аккаунта</p>*/}
+                                {/*    </div>*/}
+                                {/*)}*/}
                             </div>
                         </div>
                     </div>
@@ -171,12 +171,12 @@ const ProfileContent: React.FC = () => {
                         {/*        <p className="text-gray-500 mt-2">Здесь будут отображаться ваши избранные клиники и врачи</p>*/}
                         {/*    </div>*/}
                         {/*)}*/}
-                        {activeTab === 'settings' && (
-                            <div className="bg-white rounded-lg shadow-sm p-6">
-                                <h2 className="text-xl font-semibold">Настройки</h2>
-                                <p className="text-gray-500 mt-2">Настройки вашего аккаунта</p>
-                            </div>
-                        )}
+                        {/*{activeTab === 'settings' && (*/}
+                        {/*    <div className="bg-white rounded-lg shadow-sm p-6">*/}
+                        {/*        <h2 className="text-xl font-semibold">Настройки</h2>*/}
+                        {/*        <p className="text-gray-500 mt-2">Настройки вашего аккаунта</p>*/}
+                        {/*    </div>*/}
+                        {/*)}*/}
                     </div>
                 </div>
             </MaxWidthLayout>

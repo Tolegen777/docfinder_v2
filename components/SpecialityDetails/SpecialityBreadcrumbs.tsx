@@ -5,11 +5,11 @@ import Link from 'next/link';
 import { MaxWidthLayout } from "@/shared/ui/MaxWidthLayout";
 
 interface ProcedureBreadcrumbsProps {
-    procedureName: string;
+    specialityName: string;
 }
 
-export const ProcedureBreadcrumbs: React.FC<ProcedureBreadcrumbsProps> = ({
-                                                                              procedureName,
+export const SpecialityBreadcrumbs: React.FC<ProcedureBreadcrumbsProps> = ({
+                                                                              specialityName,
                                                                           }) => {
     return (
         <MaxWidthLayout className="my-4">
@@ -17,11 +17,11 @@ export const ProcedureBreadcrumbs: React.FC<ProcedureBreadcrumbsProps> = ({
                 <Link href="/" className="hover:text-emerald-600 transition-colors">
                     Главная
                 </Link>
-                {procedureName && (
+                {specialityName && (
                     <>
                         <span className="mx-2">•</span>
                         <span className="text-emerald-600">
-                            {procedureName}
+                            {specialityName}
                         </span>
                     </>
                 )}

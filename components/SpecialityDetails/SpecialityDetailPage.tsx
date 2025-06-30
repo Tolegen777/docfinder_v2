@@ -10,6 +10,7 @@ import {
 } from "@/components/SpecialityDetails/lib/specialityAdapters";
 import {UniversalDoctorsList} from "@/shared/ui/UniversalDoctorsList/UniversalDoctorsList";
 import {PAGE_SIZE} from "@/shared/constants/common";
+import {SpecialityBreadcrumbs} from "@/components/SpecialityDetails/SpecialityBreadcrumbs";
 
 export const SpecialityDetailPage: React.FC = () => {
     const params = useParams();
@@ -32,9 +33,18 @@ export const SpecialityDetailPage: React.FC = () => {
         enabled: !!specialitySlug && !!currentCity?.id,
     });
 
+    const { data: specialityDetailData } = useQuery({
+        queryKey: ['specialityDetail', specialitySlug, currentCity?.id],
+        queryFn: () => SpecialitiesAPI.getSpecialityDetails(
+            currentCity?.id as number,
+            specialitySlug,
+        ),
+        enabled: !!specialitySlug && !!currentCity?.id,
+    });
+
     return (
         <>
-            <h1 className="text-3xl font-bold mb-6">Врачи специальности: {specialityTitle}</h1>
+            <SpecialityBreadcrumbs specialityName={specialityDetailData?.medical_speciality_title ?? ''}/>
 
             <UniversalDoctorsList
                 data={data}

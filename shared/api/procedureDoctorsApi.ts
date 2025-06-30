@@ -5,17 +5,19 @@ export interface ProcedureDoctorFilters {
     procedureSlug: string;
     page: number;
     pageSize: number;
+    city?: number
 }
 
 export const ProcedureDoctorsAPI = {
     getProcedureDoctors: (filters: ProcedureDoctorFilters) => {
-        const { procedureSlug, page, pageSize } = filters;
+        const { procedureSlug, page, pageSize, city } = filters;
 
         return apiGet<DoctorsResponse>(
             `/patients_endpoints/procedures/${procedureSlug}/doctors_list`,
             {
                 page,
-                page_size: pageSize
+                page_size: pageSize,
+                city
             }
         );
     }

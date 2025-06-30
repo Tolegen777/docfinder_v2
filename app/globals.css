@@ -79,6 +79,11 @@ body {
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
+
+  /* Анимация с задержкой для WhatsApp кнопки */
+  .animation-delay-200 {
+    animation-delay: 0.2s;
+  }
 }
 
 /* styles/typography.css */

@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
-import { Search, User, Stethoscope, Building2, Loader2, ChevronDown } from 'lucide-react';
+import { Search, User, Stethoscope, Building2, Loader2, ChevronDown, GraduationCap } from 'lucide-react';
 import Image from 'next/image';
 import { SearchAPI } from '@/shared/api/searchApi';
 import { useCityStore } from '@/shared/stores/cityStore';
@@ -84,6 +84,7 @@ export const SearchDropdown: React.FC<SearchDropdownProps> = ({
     const [showMoreDoctors, setShowMoreDoctors] = useState(false);
     const [showMoreProcedures, setShowMoreProcedures] = useState(false);
     const [showMoreClinics, setShowMoreClinics] = useState(false);
+    const [showMoreSpecialities, setShowMoreSpecialities] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
 
@@ -113,6 +114,7 @@ export const SearchDropdown: React.FC<SearchDropdownProps> = ({
         setShowMoreDoctors(false);
         setShowMoreProcedures(false);
         setShowMoreClinics(false);
+        setShowMoreSpecialities(false);
     }, [debouncedQuery]);
 
     const { data, isLoading } = useQuery({
@@ -153,7 +155,7 @@ export const SearchDropdown: React.FC<SearchDropdownProps> = ({
         }
     };
 
-    const handleItemClick = (type: 'doctor' | 'procedure' | 'clinic', slug: string) => {
+    const handleItemClick = (type: 'doctor' | 'procedure' | 'clinic' | 'speciality', slug: string) => {
         setIsOpen(false);
         setQuery('');
         onSelect?.();
@@ -167,6 +169,9 @@ export const SearchDropdown: React.FC<SearchDropdownProps> = ({
                 break;
             case 'clinic':
                 router.push(`/clinic/${slug}`);
+                break;
+            case 'speciality':
+                router.push(`/specialities/${slug}`);
                 break;
         }
     };
@@ -243,7 +248,23 @@ export const SearchDropdown: React.FC<SearchDropdownProps> = ({
         </button>
     );
 
-    const hasResults = data && (data.doctors.length > 0 || data.procedures.length > 0 || data.clinics.length > 0);
+    const renderSpecialityItem = (speciality: any) => (
+        <button
+            key={speciality.id}
+            onClick={() => handleItemClick('speciality', speciality.slug)}
+            className="w-full flex items-center gap-3 p-2 hover:bg-gray-50 rounded-md transition-colors"
+        >
+            <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0">
+                <GraduationCap className="w-4 h-4 text-indigo-600" />
+            </div>
+            <div className="flex-1 text-left">
+                <div className="font-medium text-gray-900 text-sm">{speciality.title}</div>
+                <div className="text-xs text-gray-500">Специальность</div>
+            </div>
+        </button>
+    );
+
+    const hasResults = data && (data.doctors.length > 0 || data.procedures.length > 0 || data.clinics.length > 0 || data.specialities.length > 0);
 
     const ResultsContent = () => (
         <>
@@ -299,6 +320,17 @@ export const SearchDropdown: React.FC<SearchDropdownProps> = ({
                         renderItem={renderClinicItem}
                         showMore={showMoreClinics}
                         onShowMore={() => setShowMoreClinics(!showMoreClinics)}
+                    />
+
+                    {/* Specialities */}
+                    <ResultsSection
+                        title="Специальности"
+                        icon={<GraduationCap className="w-4 h-4 text-indigo-600" />}
+                        items={data.specialities}
+                        onItemClick={(slug) => handleItemClick('speciality', slug)}
+                        renderItem={renderSpecialityItem}
+                        showMore={showMoreSpecialities}
+                        onShowMore={() => setShowMoreSpecialities(!showMoreSpecialities)}
                     />
                 </div>
             )}

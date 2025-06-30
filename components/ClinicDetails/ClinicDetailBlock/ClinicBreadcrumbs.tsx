@@ -13,10 +13,6 @@ export const ClinicBreadcrumbs: React.FC<ClinicBreadcrumbsProps> = ({ clinicName
                 Главная
             </Link>
             <span className="mx-2">•</span>
-            <Link href="/clinics" className="hover:text-emerald-600 transition-colors">
-                Клиники
-            </Link>
-            <span className="mx-2">•</span>
             <span className="text-emerald-600">{clinicName}</span>
         </div>
     );

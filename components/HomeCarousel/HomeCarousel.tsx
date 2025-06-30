@@ -42,7 +42,7 @@ const DoctorsSlide = () => {
                         </div>
                     </div>
 
-                    <CheckboxGroup/>
+                    {/*<CheckboxGroup/>*/}
                 </div>
             </div>
 
@@ -69,7 +69,6 @@ const ExampleSlide = () => (
 
 const SLIDES = [
     { id: 0, component: <DoctorsSlide /> },
-    { id: 1, component: <ExampleSlide /> },
 ];
 
 export const HomeCarousel = () => {
@@ -103,8 +102,8 @@ export const HomeCarousel = () => {
             </CarouselContent>
 
             {/* Кастомные кнопки навигации */}
-            <CarouselPrevious className="absolute left-4 top-1/2 -translate-y-1/2" />
-            <CarouselNext className="absolute right-4 top-1/2 -translate-y-1/2" />
+            {/*<CarouselPrevious className="absolute left-4 top-1/2 -translate-y-1/2" />*/}
+            {/*<CarouselNext className="absolute right-4 top-1/2 -translate-y-1/2" />*/}
 
             {/* Индикаторы */}
             <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2">

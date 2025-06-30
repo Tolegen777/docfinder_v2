@@ -5,7 +5,7 @@ export interface SearchDoctor {
     id: number;
     full_name: string;
     slug: string;
-    main_photo_url: string;
+    main_photo_url?: string;
 }
 
 export interface SearchProcedure {
@@ -24,10 +24,17 @@ export interface SearchClinic {
     address: string;
 }
 
+export interface SearchSpeciality {
+    id: number;
+    title: string;
+    slug: string;
+}
+
 export interface SearchResponse {
     doctors: SearchDoctor[];
     procedures: SearchProcedure[];
     clinics: SearchClinic[];
+    specialities: SearchSpeciality[];
 }
 
 export const SearchAPI = {

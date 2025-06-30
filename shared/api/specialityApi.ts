@@ -72,5 +72,5 @@ export const SpecialitiesAPI = {
 
     // Получение деталей специальности по slug (если такой API существует)
     getSpecialityDetails: (cityId: number, specialitySlug: string) =>
-        apiGet<Speciality>(`/patients_endpoints/city_id:${cityId}/medical-specialities/${specialitySlug}/details/`)
+        apiGet<{medical_speciality_title: string}>(`/patients_endpoints/doctors/city_id:${cityId}/medical-specialities/${specialitySlug}/categories_stat/`)
 } as const;
