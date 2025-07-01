@@ -79,8 +79,8 @@ const DoctorCard: React.FC<DoctorCardProps> = ({
                                                }) => {
     const router = useRouter();
 
-    // Получаем доступные даты (только первые 3 для UI)
-    const availableDates = ScheduleUtils.getAvailableDates(weekly_schedule).slice(0, 3);
+    // Получаем ВСЕ доступные даты (убираем ограничение .slice(0, 3))
+    const availableDates = ScheduleUtils.getAvailableDates(weekly_schedule);
     const todayDate = ScheduleUtils.getTodayDate();
 
     const [selectedDate, setSelectedDate] = useState<string>(
@@ -186,24 +186,43 @@ const DoctorCard: React.FC<DoctorCardProps> = ({
 
     const ScheduleContent = () => (
         <>
-            <div className="flex border-b border-[#CBD5E1] overflow-x-auto">
-                {availableDates.map((date) => (
-                    <button
-                        key={date}
-                        onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            setSelectedDate(date);
-                        }}
-                        className={`px-5 py-2.5 whitespace-nowrap ${
-                            selectedDate === date
-                                ? 'text-[#16A34A] font-semibold border-b-2 border-[#16A34A]'
-                                : 'text-[#212121]'
-                        }`}
-                    >
-                        {formatScheduleDate(date)}
-                    </button>
-                ))}
+            {/* Обновленный блок с горизонтальным скроллом для всех дат */}
+            <div
+                className="flex border-b border-[#CBD5E1] overflow-x-auto"
+                style={{
+                    scrollbarWidth: 'none',
+                    msOverflowStyle: 'none'
+                }}
+                onScroll={(e) => {
+                    // Предотвращаем показ скроллбара
+                    const target = e.target as HTMLElement;
+                    target.style.scrollbarWidth = 'none';
+                }}
+            >
+                <style jsx>{`
+                    div::-webkit-scrollbar {
+                        display: none;
+                    }
+                `}</style>
+                <div className="flex gap-0 min-w-max">
+                    {availableDates.map((date) => (
+                        <button
+                            key={date}
+                            onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                setSelectedDate(date);
+                            }}
+                            className={`px-5 py-2.5 whitespace-nowrap flex-shrink-0 transition-colors ${
+                                selectedDate === date
+                                    ? 'text-[#16A34A] font-semibold border-b-2 border-[#16A34A]'
+                                    : 'text-[#212121] hover:text-[#16A34A]'
+                            }`}
+                        >
+                            {formatScheduleDate(date)}
+                        </button>
+                    ))}
+                </div>
             </div>
 
             {renderWorkingHours()}

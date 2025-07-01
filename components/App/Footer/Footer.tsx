@@ -47,8 +47,23 @@ export const Footer = () => {
                     </div>
                 </div>
 
+                {/* Дисклеймер */}
+                <div className="mb-8 px-4">
+                    <div className="bg-slate-800 rounded-lg p-6 border border-slate-700">
+                        <p className="text-sm text-gray-300 leading-relaxed text-center">
+                            *Вся информация на сайте носит информационный характер и опубликована в целях
+                            информирования пользователей о возможности оказания медицинской помощи и медицинских
+                            услуг пациенту. Для постановки диагноза, выявления возможных противопоказаний и
+                            назначения лечения, необходима очная консультация с врачом.
+                        </p>
+                    </div>
+                </div>
+
                 <div className="mt-8 pt-8 border-t border-gray-800">
                     <div className="flex flex-wrap gap-4 justify-center text-gray-400 text-sm">
+                        <Link href="/user-agreement" className="hover:text-white">
+                            Пользовательское соглашение
+                        </Link>
                         <Link href="/consent" className="hover:text-white">
                             Согласие на обработку данных
                         </Link>

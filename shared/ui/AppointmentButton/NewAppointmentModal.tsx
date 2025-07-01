@@ -24,6 +24,7 @@ import { formatPhoneNumber } from '@/shared/lib/formatters';
 import doctorAvatar from '@/shared/assets/images/doctorPlaceholder.jpeg';
 import { cn } from '@/lib/utils';
 import { z } from 'zod';
+import Link from "next/link";
 
 interface PatientFormData {
     first_name: string;
@@ -615,7 +616,36 @@ export const NewAppointmentModal: React.FC<NewAppointmentModalProps> = ({
                                         className="mt-1 h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
                                     />
                                     <label htmlFor="terms-agreement" className="text-sm text-gray-700 leading-relaxed max-w-full">
-                                        Согласен со всеми условиями, включая политику конфиденциальности и условия обслуживания
+                                        Согласен со всеми условиями, включая{' '}
+                                        <Link
+                                            href="/privacy"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-blue-600 hover:text-blue-800 underline"
+                                            onClick={(e) => e.stopPropagation()}
+                                        >
+                                            политику конфиденциальности
+                                        </Link>
+                                        {' '}и{' '}
+                                        <Link
+                                            href="/user-agreement"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-blue-600 hover:text-blue-800 underline"
+                                            onClick={(e) => e.stopPropagation()}
+                                        >
+                                            условия обслуживания
+                                        </Link>
+                                        {', а также с '}
+                                        <Link
+                                            href="/consent"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-blue-600 hover:text-blue-800 underline"
+                                            onClick={(e) => e.stopPropagation()}
+                                        >
+                                            согласием на обработку персональных данных
+                                        </Link>
                                     </label>
                                 </div>
                             </div>
@@ -650,12 +680,7 @@ export const NewAppointmentModal: React.FC<NewAppointmentModalProps> = ({
                         <Button
                             onClick={handleSubmit}
                             disabled={isLoading || !isAgreedToTerms}
-                            className={cn(
-                                "w-full py-4 text-base font-semibold transition-all",
-                                isAgreedToTerms
-                                    ? "bg-green-600 hover:bg-green-700"
-                                    : "bg-gray-400 cursor-not-allowed"
-                            )}
+                            className="w-full py-4 text-base font-semibold transition-all"
                         >
                             {isLoading ? 'Записываемся...' : 'Записаться'}
                         </Button>
