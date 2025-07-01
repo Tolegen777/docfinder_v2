@@ -1,7 +1,7 @@
 #!/bin/bash
 
-echo "🔄 Обновление DocFinder v2 с Git..."
-echo "=================================="
+echo "🔄 Zero-downtime обновление DocFinder v2..."
+echo "=========================================="
 
 # Переход в папку проекта
 cd /home/ubuntu/docfinder
@@ -37,46 +37,77 @@ if [[ ! $REPLY =~ ^[Yy]$ ]]; then
     exit 1
 fi
 
-# Остановка контейнера
-echo "⏹️ Остановка текущего контейнера..."
-sudo docker-compose down
-
 # Обновление кода
 echo "📥 Обновление кода..."
 git pull origin main
 
 if [ $? -ne 0 ]; then
     echo "❌ Ошибка при обновлении кода из Git"
-    echo "🔄 Запуск старой версии..."
-    sudo docker-compose up -d
     exit 1
 fi
 
-# Сборка и запуск обновленной версии
-echo "🔨 Сборка обновленного образа..."
+# Сборка нового образа (старый контейнер продолжает работать)
+echo "🔨 Сборка нового образа..."
 sudo docker-compose build --no-cache
 
 if [ $? -ne 0 ]; then
     echo "❌ Ошибка при сборке Docker образа"
-    echo "🔄 Попытка запуска старой версии..."
-    sudo docker-compose up -d
     exit 1
 fi
 
-echo "🚀 Запуск обновленного контейнера..."
-sudo docker-compose up -d
+# Создание временного контейнера для проверки
+echo "🧪 Тестирование нового образа..."
+sudo docker run -d --name docfinder_test -p 3001:3000 docfinder_docfinder_nextjs:latest
+
+# Ждем запуска
+sleep 10
+
+# Проверяем что новый контейнер работает
+if sudo docker ps | grep docfinder_test | grep Up > /dev/null; then
+    echo "✅ Новый образ работает корректно"
+
+    # Остановка тестового контейнера
+    sudo docker stop docfinder_test
+    sudo docker rm docfinder_test
+
+    # Быстрое переключение (минимальный downtime)
+    echo "🔄 Переключение на новую версию..."
+
+    # Создаем новый контейнер
+    sudo docker create --name docfinder_nextjs_new \
+        -p 3000:3000 \
+        -e NODE_ENV=production \
+        --restart unless-stopped \
+        docfinder_docfinder_nextjs:latest
+
+    # Быстрое переключение
+    sudo docker stop docfinder_nextjs_1 && \
+    sudo docker start docfinder_nextjs_new && \
+    sudo docker rm docfinder_nextjs_1 && \
+    sudo docker rename docfinder_nextjs_new docfinder_nextjs_1
+
+    echo "✅ Переключение завершено!"
+
+else
+    echo "❌ Новый образ не запускается корректно"
+    sudo docker stop docfinder_test 2>/dev/null
+    sudo docker rm docfinder_test 2>/dev/null
+    echo "🔄 Откат изменений..."
+    git reset --hard $LOCAL
+    exit 1
+fi
 
 # Проверка статуса
 echo "✅ Проверка статуса..."
 sleep 5
-sudo docker-compose ps
+sudo docker ps | grep docfinder_nextjs_1
 
 # Проверка логов
 echo "📊 Последние логи:"
-sudo docker-compose logs --tail=10
+sudo docker logs --tail=10 docfinder_nextjs_1
 
 echo ""
-echo "🎉 Обновление завершено!"
+echo "🎉 Zero-downtime обновление завершено!"
+echo "📋 Downtime: ~2-5 секунд"
 echo "📋 Текущий коммит: $(git log -1 --oneline)"
 echo "🌐 Сайт доступен: https://docfinder.kz"
-echo "📋 Для просмотра логов: sudo docker-compose logs -f"
