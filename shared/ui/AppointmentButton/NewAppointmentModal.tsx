@@ -286,6 +286,8 @@ export const NewAppointmentModal: React.FC<NewAppointmentModalProps> = ({
         setIsLoading(true);
 
         try {
+            const fullUrl = typeof window !== 'undefined' ? window?.location?.href : '';
+
             const appointmentData: Record<string, any> = {
                 doctor_id: doctorId,
                 procedure_id: selectedProcedure!.medical_procedure_id,
@@ -295,6 +297,7 @@ export const NewAppointmentModal: React.FC<NewAppointmentModalProps> = ({
                 first_name: formData.first_name,
                 last_name: formData.last_name,
                 phone_number: formData.phone_number.replace(/\s+/g, ""),
+                note: fullUrl
             };
 
             const response = await apiPost('/patients_endpoints/visits/create-visit/', appointmentData);

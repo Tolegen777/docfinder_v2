@@ -6,13 +6,10 @@ import {
     Carousel,
     CarouselContent,
     CarouselItem,
-    CarouselNext,
-    CarouselPrevious,
 } from "@/components/shadcn/carousel";
 import { SearchInput } from '@/components/Search/SearchInput';
 import doctorImg from '@/shared/assets/images/doctor.png'
 import type { EmblaCarouselType } from 'embla-carousel';
-import {CheckboxGroup} from "@/components/HomeCarousel/CheckboxOption";
 
 // Компонент слайда с врачами
 const DoctorsSlide = () => {

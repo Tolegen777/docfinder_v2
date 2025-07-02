@@ -5,9 +5,6 @@ import { useParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { useCityStore } from '@/shared/stores/cityStore';
 import {SpecialitiesAPI} from "@/shared/api/specialityApi";
-import {
-    getSpecialityTitleFromSlug
-} from "@/components/SpecialityDetails/lib/specialityAdapters";
 import {UniversalDoctorsList} from "@/shared/ui/UniversalDoctorsList/UniversalDoctorsList";
 import {PAGE_SIZE} from "@/shared/constants/common";
 import {SpecialityBreadcrumbs} from "@/components/SpecialityDetails/SpecialityBreadcrumbs";
@@ -17,9 +14,6 @@ export const SpecialityDetailPage: React.FC = () => {
     const specialitySlug = params?.slug as string;
     const [currentPage, setCurrentPage] = React.useState(1);
     const { currentCity } = useCityStore();
-
-    // Получаем заголовок специальности из слага
-    const specialityTitle = getSpecialityTitleFromSlug(specialitySlug);
 
     // Получаем данные врачей по специальности
     const { data, isLoading } = useQuery({
