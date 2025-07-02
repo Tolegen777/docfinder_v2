@@ -23,8 +23,8 @@ const Popup = dynamic(
     { ssr: false }
 );
 
-// Координаты центра Алматы
-const ALMATY_CENTER = [43.238949, 76.889709];
+// Координаты центра Шымкента
+const SHYMKENT_CENTER = [42.300000, 69.600000];
 
 interface MapComponentProps {
     isPreview?: boolean;
@@ -46,7 +46,7 @@ const MapClinicComponent = ({ isPreview = false, selectedClinicId, customMarkers
 
     const [customIcon, setCustomIcon] = useState(null);
     const [selectedIcon, setSelectedIcon] = useState(null);
-    const [centerCoords, setCenterCoords] = useState(ALMATY_CENTER);
+    const [centerCoords, setCenterCoords] = useState(SHYMKENT_CENTER);
 
     // Extract clinics from the cache or use customMarkers if provided
     const clinicMarkers = useMemo(() => {
@@ -123,9 +123,9 @@ const MapClinicComponent = ({ isPreview = false, selectedClinicId, customMarkers
 
     if (typeof window === 'undefined' || !customIcon || !selectedIcon) return null;
 
-    // Если нет координат, используем моковые данные
+    // Если нет координат, используем моковые данные для Шымкента
     const markersToRender = clinicMarkers.length > 0 ? clinicMarkers : [
-        { id: 1, name: 'Центр Алматы', address: 'Алматы', position: ALMATY_CENTER as [number, number] }
+        { id: 1, name: 'Центр Шымкента', address: 'Шымкент', position: SHYMKENT_CENTER as [number, number] }
     ];
 
     // @ts-ignore

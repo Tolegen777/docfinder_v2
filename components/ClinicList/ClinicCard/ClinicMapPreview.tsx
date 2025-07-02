@@ -52,22 +52,28 @@ const ClinicMapPreview: React.FC<ClinicMapPreviewProps> = ({ selectedClinicId })
                         </div>
                     )}
 
-                    {/* Map Interaction Layer */}
+                    {/* Map Interaction Layer - показываем только когда модалка закрыта */}
+                    {!isOpen && (
+                        <Dialog open={isOpen} onOpenChange={setIsOpen}>
+                            <DialogTrigger asChild>
+                                <button className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2
+                                   bg-white px-4 py-2 rounded-lg shadow-md
+                                   hover:bg-gray-50 transition-colors duration-200
+                                   text-gray-900 text-sm font-medium z-[400]">
+                                    Посмотреть на карте
+                                </button>
+                            </DialogTrigger>
+                        </Dialog>
+                    )}
+
+                    {/* Dialog Content - вынесен отдельно чтобы избежать проблем с условным рендерингом */}
                     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-                        <DialogTrigger asChild>
-                            <button className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2
-                               bg-white px-4 py-2 rounded-lg shadow-md
-                               hover:bg-gray-50 transition-colors duration-200
-                               text-gray-900 text-sm font-medium z-[400]">
-                                Посмотреть на карте
-                            </button>
-                        </DialogTrigger>
                         <DialogContent className="max-w-6xl w-[90vw] h-[80vh] p-0">
                             <div className="relative h-full">
                                 <MapComponent selectedClinicId={selectedClinicId} />
                                 <DialogClose className="absolute top-4 right-4 z-[500]">
                                     <button className="p-2 bg-white rounded-full shadow-md hover:bg-gray-50
-                                   transition-colors duration-200">
+                                       transition-colors duration-200">
                                         <X className="w-5 h-5 text-gray-600" />
                                     </button>
                                 </DialogClose>
