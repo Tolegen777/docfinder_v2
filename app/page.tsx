@@ -1,9 +1,7 @@
 import {HomeCarousel} from "@/components/HomeCarousel/HomeCarousel";
 import {SpecialtiesSection} from "@/components/SpecialtiesSection/SpecialtiesSection";
-import {AddDiscountBanner} from "@/components/AddBanner/AddDiscountBanner";
 import {DoctorsList} from "@/components/DoctorsList/DoctorsList";
 import {MaxWidthLayout} from "@/shared/ui/MaxWidthLayout";
-import {AddSearchBanner} from "@/components/AddBanner/AddSearchBanner";
 import React, {Suspense} from "react";
 
 export default function Home() {
