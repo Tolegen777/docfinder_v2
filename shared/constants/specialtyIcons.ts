@@ -16,7 +16,21 @@ import endocrineIcon from '@/shared/assets/icon/endocrine.svg';
 import urologyIcon from '@/shared/assets/icon/urology.svg';
 import diagnosticsIcon from '@/shared/assets/icon/diagnostics.svg';
 import therapyIcon from '@/shared/assets/icon/therapy.svg';
+import anesteziologIcon from '@/shared/assets/icon/anesteziolog.svg';
+import aritmologIcon from '@/shared/assets/icon/aritmolog.svg';
+import genetikIcon from '@/shared/assets/icon/genetik.svg';
+import infektsionistIcon from '@/shared/assets/icon/infektsionist.svg';
+import lorOtolaringologIcon from '@/shared/assets/icon/lorOtolaringolog.svg';
+import nefrologIcon from '@/shared/assets/icon/nefrolog.svg';
+import parazitologIcon from '@/shared/assets/icon/parazitolog.svg';
+import pulmonologIcon from '@/shared/assets/icon/pulmonolog.svg';
+import revmatologIcon from '@/shared/assets/icon/revmatolog.svg';
+import somnologIcon from '@/shared/assets/icon/somnolog.svg';
+import ssosudistyHirurgIcon from '@/shared/assets/icon/ssosudistyHirurg.svg';
+import surdologIcon from '@/shared/assets/icon/surdolog.svg';
+import uziSpetsialistIcon from '@/shared/assets/icon/uzi.svg';
 import oncologyIcon from '@/shared/assets/icon/oncology.svg';
+import mammologIcon from '@/shared/assets/icon/mammolog.svg';
 import { StaticImageData } from 'next/image';
 
 // Маппинг слагов к иконкам
@@ -39,7 +53,7 @@ export const specialtyIconsMap: Record<string, any> = {
     // Гинекология
     'ginekolog': gynecologyIcon,
     'akusher': gynecologyIcon,
-    'mammolog': gynecologyIcon,
+    'mammolog': mammologIcon,
 
     // Кардиология
     'kardiolog': cardiologyIcon,
@@ -98,6 +112,21 @@ export const specialtyIconsMap: Record<string, any> = {
     // Онкология
     'onkolog': oncologyIcon,
     'khimioterapevt': oncologyIcon,
+
+    'anesteziolog': anesteziologIcon,
+    'aritmolog': aritmologIcon,
+    // 'venerolog': venerologIcon,
+    'genetik': genetikIcon,
+    'infektsionist': infektsionistIcon,
+    'lor-otolaringolog': lorOtolaringologIcon,
+    'nefrolog': nefrologIcon,
+    'parazitolog': parazitologIcon,
+    'pulmonolog': pulmonologIcon,
+    'revmatolog': revmatologIcon,
+    'somnolog': somnologIcon,
+    'sosudistyj-hirurg': ssosudistyHirurgIcon,
+    'surdolog': surdologIcon,
+    'uzi-spetsialist': uziSpetsialistIcon,
 
     // Все остальные специальности используют стандартную иконку доктора
     'default': doctorIcon,
