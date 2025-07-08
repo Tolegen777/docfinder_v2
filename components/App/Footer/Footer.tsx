@@ -16,34 +16,36 @@ export const Footer = () => {
                 <div className="mb-8">
                     <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
                         {/* Телефон */}
-                        <div className="flex items-center gap-3">
-                            <Phone className="w-5 h-5 text-green-400" />
+                        <a
+                            href={`tel:+${phoneNumber}`}
+                            id="footer-phone-link"
+                            className="flex items-center gap-3 hover:bg-slate-800 p-3 rounded-lg transition-colors group"
+                        >
+                            <Phone className="w-5 h-5 text-green-400 group-hover:text-green-300" />
                             <div className="flex flex-col">
                                 <span className="text-sm text-gray-400">Телефон</span>
-                                <a
-                                    href={`tel:+${phoneNumber}`}
-                                    className="text-white hover:text-green-400 transition-colors font-medium"
-                                >
+                                <span className="text-white group-hover:text-green-400 transition-colors font-medium">
                                     {phoneNumberFormatted}
-                                </a>
+                                </span>
                             </div>
-                        </div>
+                        </a>
 
                         {/* WhatsApp */}
-                        <div className="flex items-center gap-3">
-                            <MessageCircle className="w-5 h-5 text-green-400" />
+                        <a
+                            href={`https://wa.me/${whatsappNumber}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            id="footer-whatsapp-link"
+                            className="flex items-center gap-3 hover:bg-slate-800 p-3 rounded-lg transition-colors group"
+                        >
+                            <MessageCircle className="w-5 h-5 text-green-400 group-hover:text-green-300" />
                             <div className="flex flex-col">
                                 <span className="text-sm text-gray-400">WhatsApp</span>
-                                <a
-                                    href={`https://wa.me/${whatsappNumber}`}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-white hover:text-green-400 transition-colors font-medium"
-                                >
+                                <span className="text-white group-hover:text-green-400 transition-colors font-medium">
                                     {whatsappNumberFormatted}
-                                </a>
+                                </span>
                             </div>
-                        </div>
+                        </a>
                     </div>
                 </div>
 
