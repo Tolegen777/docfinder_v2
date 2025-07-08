@@ -116,6 +116,7 @@ export const FloatingWhatsApp = () => {
 
             <div style={containerStyle}>
                 <button
+                    id="float-whatsapp-button"
                     onClick={handleWhatsAppClick}
                     onMouseEnter={() => setIsHovered(true)}
                     onMouseLeave={() => setIsHovered(false)}
