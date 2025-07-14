@@ -1,4 +1,5 @@
 import { useCityStore } from "@/shared/stores/cityStore";
+import { useLocationStore } from "@/shared/stores/locationStore";
 import { cn } from "@/lib/utils";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/shadcn/accordion";
 import { Checkbox } from "@/components/shadcn/checkbox";
@@ -12,6 +13,7 @@ interface FiltersSectionProps {
         amenities: number[];
         isOpenNow: boolean;
         is24hours: boolean;
+        nearbyOnly: boolean;
     };
     onFilterChange: (filterKey: string, value: any) => void;
     isLoading: boolean;
@@ -24,6 +26,7 @@ export const FiltersSection = ({
                                    isLoading
                                }: FiltersSectionProps) => {
     const { currentCity } = useCityStore();
+    const { coords, hasLocation } = useLocationStore();
     const cityId = currentCity?.id as number;
 
     // Fetch amenities and specialties using React Query
@@ -35,6 +38,8 @@ export const FiltersSection = ({
             onFilterChange("is24hours", !filters.is24hours);
         } else if (type === "open-now") {
             onFilterChange("isOpenNow", !filters.isOpenNow);
+        } else if (type === "nearby") {
+            onFilterChange("nearbyOnly", !filters.nearbyOnly);
         } else if (type === "amenity" && id) {
             const newAmenities = filters.amenities.includes(id)
                 ? filters.amenities.filter(amenityId => amenityId !== id)
@@ -77,6 +82,19 @@ export const FiltersSection = ({
                                 />
                                 <span className="text-sm text-gray-600">Сейчас открыто</span>
                             </label>
+
+                            {/* Фильтр "Рядом" - показывается только если есть местоположение */}
+                            {hasLocation() && (
+                                <label className="flex items-center space-x-2">
+                                    <Checkbox
+                                        id="nearby"
+                                        checked={filters.nearbyOnly}
+                                        onCheckedChange={() => handleCheckboxChange("nearby")}
+                                        disabled={isLoading}
+                                    />
+                                    <span className="text-sm text-gray-600">Рядом</span>
+                                </label>
+                            )}
                         </div>
                     </AccordionContent>
                 </AccordionItem>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import ClinicCard from "../ClinicCard/ClinicCard";
 import { useCityStore } from '@/shared/stores/cityStore';
+import { useLocationStore } from '@/shared/stores/locationStore';
 import { ClinicCardSkeleton } from "@/components/ClinicList/ClinicCard/ClinicCardSkeleton";
 import { FiltersSection } from "@/components/ClinicList/ClinicsListPage/FiltersSection";
 import { ClinicsPagination } from './ClinicsPagination';
@@ -10,6 +11,7 @@ import {MaxWidthLayout} from "@/shared/ui/MaxWidthLayout";
 
 export const ClinicsListPage = () => {
     const { currentCity } = useCityStore();
+    const { coords } = useLocationStore();
     const cityId = currentCity?.id as number;
 
     // State for filters and pagination
@@ -20,6 +22,7 @@ export const ClinicsListPage = () => {
         specialities: [],
         amenities: [],
         isOpenNow: false,
+        nearbyOnly: false,
     });
 
     // Update cityId in filters whenever it changes
@@ -39,7 +42,7 @@ export const ClinicsListPage = () => {
         isError,
         error,
         refetch
-    } = useClinics(filters);
+    } = useClinics(filters, coords);
 
     const clinics = data?.clinics || [];
     const totalCount = data?.totalCount || 0;
@@ -105,7 +108,8 @@ export const ClinicsListPage = () => {
                         specialities: filters.specialities || [],
                         amenities: filters.amenities || [],
                         isOpenNow: filters.isOpenNow || false,
-                        is24hours: false // Not implemented in backend
+                        is24hours: false, // Not implemented in backend
+                        nearbyOnly: filters.nearbyOnly || false,
                     }}
                     onFilterChange={handleFilterChange}
                     isLoading={isLoading}
@@ -163,7 +167,8 @@ export const ClinicsListPage = () => {
                             specialities: filters.specialities || [],
                             amenities: filters.amenities || [],
                             isOpenNow: filters.isOpenNow || false,
-                            is24hours: false // Not implemented in backend
+                            is24hours: false, // Not implemented in backend
+                            nearbyOnly: filters.nearbyOnly || false,
                         }}
                         onFilterChange={handleFilterChange}
                         isLoading={isLoading}

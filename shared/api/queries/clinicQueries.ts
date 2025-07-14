@@ -1,7 +1,7 @@
 // shared/api/queries/clinicQueries.ts
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiGet } from '@/shared/api';
-import { ClinicsAPI, ClinicsResponse, Clinic, mapClinicToCardProps } from '@/shared/api/clinicsApi';
+import { ClinicsAPI, ClinicsResponse, Clinic, mapClinicToCardProps, LocationCoords } from '@/shared/api/clinicsApi';
 import { AmenitiesAPI, Amenity } from '@/shared/api/amenitiesApi';
 import { SpecialtiesAPI, Specialty } from '@/shared/api/specialtiesApi';
 
@@ -9,7 +9,7 @@ import { SpecialtiesAPI, Specialty } from '@/shared/api/specialtiesApi';
 export const clinicKeys = {
     all: ['clinics'] as const,
     lists: () => [...clinicKeys.all, 'list'] as const,
-    list: (filters: ClinicFilters) => [...clinicKeys.lists(), filters] as const,
+    list: (filters: ClinicFilters, coords?: LocationCoords | null) => [...clinicKeys.lists(), filters, coords] as const,
     amenities: (cityId: number) => [...clinicKeys.all, 'amenities', cityId] as const,
     specialties: (cityId: number) => [...clinicKeys.all, 'specialties', cityId] as const,
 }
@@ -22,12 +22,13 @@ export interface ClinicFilters {
     specialities?: number[];
     amenities?: number[];
     isOpenNow?: boolean;
+    nearbyOnly?: boolean;
 }
 
 // Hook for fetching clinics with filters
-export const useClinics = (filters: ClinicFilters) => {
+export const useClinics = (filters: ClinicFilters, coords?: LocationCoords | null) => {
     return useQuery({
-        queryKey: clinicKeys.list(filters),
+        queryKey: clinicKeys.list(filters, coords),
         queryFn: async () => {
             const response = await ClinicsAPI.getClinics(
                 filters.cityId,
@@ -37,7 +38,9 @@ export const useClinics = (filters: ClinicFilters) => {
                     specialities: filters.specialities,
                     amenities: filters.amenities,
                     is_open_now: filters.isOpenNow,
-                }
+                    nearbyOnly: filters.nearbyOnly,
+                },
+                coords
             );
 
             // Transform clinic data for UI display

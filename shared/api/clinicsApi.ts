@@ -36,7 +36,6 @@ export interface Clinic {
     rating_info: RatingInfo;
     doctor_count?: number;
     main_photo_url?: string;
-
 }
 
 export interface ClinicsResponse {
@@ -44,6 +43,11 @@ export interface ClinicsResponse {
     next: string;
     previous: any;
     results: Clinic[];
+}
+
+export interface LocationCoords {
+    lat: number;
+    lng: number;
 }
 
 export const ClinicsAPI = {
@@ -55,7 +59,9 @@ export const ClinicsAPI = {
             specialities?: number[],
             amenities?: number[],
             is_open_now?: boolean,
-        }
+            nearbyOnly?: boolean,
+        },
+        coords?: LocationCoords | null
     ) => {
         const url = `/patients_endpoints/clinics/city_id:${cityId}/all-clinics/`;
 
@@ -76,6 +82,12 @@ export const ClinicsAPI = {
         // Add is_open_now filter if provided
         if (filters?.is_open_now !== undefined) {
             params.is_open_now = filters.is_open_now;
+        }
+
+        // Add location parameters if nearby filter is enabled and coordinates are available
+        if (filters?.nearbyOnly && coords) {
+            params.latitude = coords.lat;
+            params.longitude = coords.lng;
         }
 
         return apiGet<ClinicsResponse>(url, params);

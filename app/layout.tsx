@@ -7,7 +7,7 @@ import {Footer} from "../components/App/Footer/Footer";
 import {Providers} from "@/root/Providers/Providers";
 import {ReactNode} from "react";
 import {FloatingWhatsApp} from "@/shared/ui/FloatingWhatsApp/FloatingWhatsApp";
-import ClinicLocator from "@/components/ClinicLocator/ClinicLocator";
+import {LocationProvider} from "@/components/LocationProvider/LocationProvider";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -66,7 +66,7 @@ export default function RootLayout({
             <Footer/>
         </Providers>
         <FloatingWhatsApp />
-        <ClinicLocator/>
+        <LocationProvider/>
         </body>
         </html>
     );
