@@ -80,6 +80,7 @@ export const ClinicDoctorsList = () => {
                     setCurrentPage={setCurrentPage}
                     currentPage={currentPage}
                     isLoading={isLoading}
+                    useNextAvailableSchedule={false}
                 />
             </div>
 
@@ -102,6 +103,7 @@ export const ClinicDoctorsList = () => {
                         setCurrentPage={setCurrentPage}
                         currentPage={currentPage}
                         isLoading={isLoading}
+                        useNextAvailableSchedule={false}
                     />
                 </main>
             </div>

@@ -49,7 +49,7 @@ interface DoctorCardProps {
     clinic_today_address?: string;
     clinic_today_coords?: any;
     clinic_today_maps_links?: any;
-    weekly_schedule: WeeklySchedule[];
+    weekly_schedule?: WeeklySchedule[];
     procedures: Procedure[];
     consultation: Consultation;
     isPreventNavigation?: boolean;
@@ -70,12 +70,12 @@ const DoctorCard: React.FC<DoctorCardProps> = ({
                                                    clinic_today_address,
                                                    clinic_today_coords,
                                                    clinic_today_maps_links,
-                                                   weekly_schedule,
+                                                   weekly_schedule = [],
                                                    procedures = [],
                                                    consultation,
                                                    isPreventNavigation,
                                                    main_photo_url,
-                                                   fromPage
+                                                   fromPage,
                                                }) => {
     const router = useRouter();
 
@@ -276,7 +276,7 @@ const DoctorCard: React.FC<DoctorCardProps> = ({
         <>
             <Card className={cn('w-full max-w-[1181px] p-4 md:p-5 bg-white', !isPreventNavigation && 'cursor-pointer')} onClick={() => {
                 if (!isPreventNavigation) {
-                        router.push(`/doctor/${slug}`)
+                    router.push(`/doctor/${slug}`)
                 }
             }}>
                 <h4 className="h4-20-28-600 my-5 md:hidden">{full_name}</h4>

@@ -83,6 +83,7 @@ export interface Doctor {
     procedures: Procedure[];
     consultation: Consultation;
     weekly_schedule: WeeklySchedule[];
+    next_available_schedule?: { weekly_schedule:  WeeklySchedule[] }; // Новое поле
     main_photo_url?: string;
     clinic_franchise: ClinicFranchise;
     procedure_name: any;

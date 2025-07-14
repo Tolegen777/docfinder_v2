@@ -85,7 +85,9 @@ export default function DoctorDetailPage() {
                     clinic_today_address={doctor.clinic_today_address}
                     clinic_today_coords={doctor.clinic_today_coords}
                     clinic_today_maps_links={doctor.clinic_today_maps_links}
-                    weekly_schedule={doctor.weekly_schedule}
+                    weekly_schedule={doctor?.weekly_schedule?.length > 0
+                        ? doctor?.weekly_schedule : doctor?.next_available_schedule?.weekly_schedule
+                            ? doctor?.next_available_schedule?.weekly_schedule : [] }
                     procedures={doctor.procedures}
                     consultation={doctor.consultation}
                     main_photo_url={doctor.main_photo_url}

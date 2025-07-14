@@ -12,9 +12,17 @@ interface Props {
     isLoading: boolean
     currentPage: number
     isPreventNavigation?: boolean
+    useNextAvailableSchedule?: boolean; // Новый пропс
 }
 
-export const UniversalDoctorsList = ({data, setCurrentPage, isLoading, currentPage, isPreventNavigation}: Props) => {
+export const UniversalDoctorsList = ({
+                                         data,
+                                         setCurrentPage,
+                                         isLoading,
+                                         currentPage,
+                                         isPreventNavigation,
+                                         useNextAvailableSchedule = true // По умолчанию true
+                                     }: Props) => {
 
     const totalPages = data ? Math.ceil(data.count / PAGE_SIZE) : 0;
 
@@ -65,7 +73,10 @@ export const UniversalDoctorsList = ({data, setCurrentPage, isLoading, currentPa
                             clinic_today_address={doctor.clinic_today_address}
                             clinic_today_coords={doctor.clinic_today_coords}
                             clinic_today_maps_links={doctor.clinic_today_maps_links}
-                            weekly_schedule={doctor.weekly_schedule}
+                            weekly_schedule={!useNextAvailableSchedule
+                                ? doctor?.weekly_schedule : doctor?.weekly_schedule?.length > 0
+                                ? doctor?.weekly_schedule :  doctor?.next_available_schedule?.weekly_schedule
+                                        ? doctor?.next_available_schedule?.weekly_schedule : [] }
                             procedures={doctor.procedures}
                             consultation={doctor.consultation}
                             main_photo_url={doctor.main_photo_url}
