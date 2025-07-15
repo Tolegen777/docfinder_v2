@@ -74,9 +74,9 @@ export const UniversalDoctorsList = ({
                             clinic_today_coords={doctor.clinic_today_coords}
                             clinic_today_maps_links={doctor.clinic_today_maps_links}
                             weekly_schedule={!useNextAvailableSchedule
-                                ? doctor?.weekly_schedule : doctor?.weekly_schedule?.length > 0
+                                ? doctor?.weekly_schedule : doctor?.weekly_schedule?.[0]?.schedules?.[0]?.working_hours_list?.length > 0
                                 ? doctor?.weekly_schedule :  doctor?.next_available_schedule?.weekly_schedule
-                                        ? doctor?.next_available_schedule?.weekly_schedule : [] }
+                                        ? doctor?.next_available_schedule?.weekly_schedule : doctor?.weekly_schedule }
                             procedures={doctor.procedures}
                             consultation={doctor.consultation}
                             main_photo_url={doctor.main_photo_url}
