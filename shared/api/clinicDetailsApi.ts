@@ -49,7 +49,7 @@ export interface ClinicDetails {
     // Дополнительные поля, которые используются в UI, но могут отсутствовать в API (м)
     metro?: string;
     bus_stop?: string;
-    images?: string[];
+    photos?: {photo_url: string}[];
     features?: { id: string; icon: string; title: string }[];
 }
 

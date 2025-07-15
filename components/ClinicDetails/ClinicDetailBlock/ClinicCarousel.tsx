@@ -42,6 +42,8 @@ export const ClinicCarousel: React.FC<ClinicCarouselProps> = ({
         );
     }
 
+    console.log(images, 'bro')
+
     return (
         <div className="relative w-full h-full overflow-hidden rounded-xl">
             <div className="relative w-full h-full">
@@ -63,11 +65,11 @@ export const ClinicCarousel: React.FC<ClinicCarouselProps> = ({
 
             {/* Индикаторы слайдов (показываем только если > 1 изображения) */}
             {images.length > 1 && (
-                <div className="absolute bottom-4 left-0 right-0 flex justify-center">
+                <div className="absolute bottom-4 left-0 right-0 flex justify-center py-4 overflow-x-auto no-scrollbar mx-10">
                     {images.map((_, index) => (
                         <div
                             key={index}
-                            className={`w-2 h-2 mx-1 rounded-full ${currentSlide === index ? 'bg-white' : 'bg-white/50'}`}
+                            className={`w-3 h-3 mx-1 flex-shrink-0 rounded-full ${currentSlide === index ? 'bg-primary' : 'bg-gray-300'}`}
                             onClick={() => setCurrentSlide(index)}
                         />
                     ))}

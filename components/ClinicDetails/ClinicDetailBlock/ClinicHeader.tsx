@@ -11,15 +11,12 @@ import { ClinicMap } from './ClinicMap';
 import { ClinicInfoBlock } from './ClinicInfoBlock';
 import { AboutSection } from "@/components/ClinicDetails/ClinicDetailBlock/AboutSection";
 
-// Импортируем моковые изображения для фолбэка
-import clinicImg1 from '@/shared/assets/images/img.png';
-import clinicImg2 from '@/shared/assets/images/img.png';
-
 interface ClinicHeaderProps {
     clinic: ClinicDetails;
 }
 
 export const ClinicHeader: React.FC<ClinicHeaderProps> = ({ clinic }) => {
+    console.log(clinic, 'CLINIC')
     // Преобразуем формат рабочих часов для компонента
     const formattedWorkHours = clinic.working_hours.map(hour => ({
         day: hour.weekday,
@@ -36,8 +33,8 @@ export const ClinicHeader: React.FC<ClinicHeaderProps> = ({ clinic }) => {
     };
 
     // Проверяем наличие изображений, если нет, используем моковые
-    const hasRealImages = clinic.images && clinic.images.length > 0;
-    // const imagesToUse = hasRealImages ? clinic.images : [clinicImg1, clinicImg2];
+    const hasRealImages = clinic.photos && clinic.photos.length > 0;
+    const clinicImages = clinic.photos?.map(item => item?.photo_url)
 
     // Проверяем наличие координат для карты
     const hasCoordinates = clinic.latitude && clinic.longitude &&
@@ -56,7 +53,7 @@ export const ClinicHeader: React.FC<ClinicHeaderProps> = ({ clinic }) => {
                 {/* Блок 1: Карусель */}
                 <div className="relative w-full aspect-[4/3]">
                     {/*// @ts-ignore*/}
-                    <ClinicCarousel images={clinic?.images ?? []} />
+                    <ClinicCarousel images={clinicImages ?? []} />
                     {!hasRealImages && (
                         <TooltipProvider>
                             <Tooltip>
@@ -123,7 +120,7 @@ export const ClinicHeader: React.FC<ClinicHeaderProps> = ({ clinic }) => {
                         {/* Блок 1: Карусель */}
                         <div className="relative h-[400px]">
                             {/*// @ts-ignore*/}
-                            <ClinicCarousel images={clinic?.images ?? []} />
+                            <ClinicCarousel images={clinicImages ?? []} />
                             {!hasRealImages && (
                                 <TooltipProvider>
                                     <Tooltip>
