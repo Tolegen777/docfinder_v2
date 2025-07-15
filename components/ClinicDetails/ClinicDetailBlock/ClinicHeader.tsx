@@ -37,7 +37,7 @@ export const ClinicHeader: React.FC<ClinicHeaderProps> = ({ clinic }) => {
 
     // Проверяем наличие изображений, если нет, используем моковые
     const hasRealImages = clinic.images && clinic.images.length > 0;
-    const imagesToUse = hasRealImages ? clinic.images : [clinicImg1, clinicImg2];
+    // const imagesToUse = hasRealImages ? clinic.images : [clinicImg1, clinicImg2];
 
     // Проверяем наличие координат для карты
     const hasCoordinates = clinic.latitude && clinic.longitude &&
@@ -56,7 +56,7 @@ export const ClinicHeader: React.FC<ClinicHeaderProps> = ({ clinic }) => {
                 {/* Блок 1: Карусель */}
                 <div className="relative w-full aspect-[4/3]">
                     {/*// @ts-ignore*/}
-                    <ClinicCarousel images={imagesToUse} />
+                    <ClinicCarousel images={clinic?.images ?? []} />
                     {!hasRealImages && (
                         <TooltipProvider>
                             <Tooltip>
@@ -123,7 +123,7 @@ export const ClinicHeader: React.FC<ClinicHeaderProps> = ({ clinic }) => {
                         {/* Блок 1: Карусель */}
                         <div className="relative h-[400px]">
                             {/*// @ts-ignore*/}
-                            <ClinicCarousel images={imagesToUse} />
+                            <ClinicCarousel images={clinic?.images ?? []} />
                             {!hasRealImages && (
                                 <TooltipProvider>
                                     <Tooltip>

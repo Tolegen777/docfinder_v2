@@ -37,7 +37,7 @@ export const ClinicCarousel: React.FC<ClinicCarouselProps> = ({
         // Заглушка, если нет изображений
         return (
             <div className="relative w-full h-full bg-gray-200 rounded-xl flex items-center justify-center">
-                <span className="text-gray-500">Изображения не найдены</span>
+                <span className="text-gray-500">Изображений нет</span>
             </div>
         );
     }
