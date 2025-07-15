@@ -45,6 +45,25 @@ export default function DoctorDetailPage() {
         enabled: !!doctorSlug,
     });
 
+    // Функция для определения расписания и флага использования next_available_schedule
+    const getScheduleInfo = (doctor: any) => {
+        if (!doctor) return { schedule: undefined, isNextAvailable: false };
+
+        const hasCurrentSchedule = doctor?.weekly_schedule?.[0]?.schedules?.[0]?.working_hours_list?.length > 0;
+
+        if (hasCurrentSchedule) {
+            return {
+                schedule: doctor.weekly_schedule,
+                isNextAvailable: false
+            };
+        } else {
+            return {
+                schedule: doctor?.next_available_schedule?.weekly_schedule || doctor?.weekly_schedule,
+                isNextAvailable: !!doctor?.next_available_schedule?.weekly_schedule
+            };
+        }
+    };
+
     if (isLoading) {
         return <DoctorDetailSkeleton />;
     }
@@ -59,6 +78,8 @@ export default function DoctorDetailPage() {
             </MaxWidthLayout>
         );
     }
+
+    const { schedule, isNextAvailable } = getScheduleInfo(doctor);
 
     return (
         <MaxWidthLayout className="py-4">
@@ -85,13 +106,12 @@ export default function DoctorDetailPage() {
                     clinic_today_address={doctor.clinic_today_address}
                     clinic_today_coords={doctor.clinic_today_coords}
                     clinic_today_maps_links={doctor.clinic_today_maps_links}
-                    weekly_schedule={doctor?.weekly_schedule?.[0]?.schedules?.[0]?.working_hours_list?.length > 0
-                        ? doctor?.weekly_schedule : doctor?.next_available_schedule?.weekly_schedule
-                            ? doctor?.next_available_schedule?.weekly_schedule : doctor?.weekly_schedule }
+                    weekly_schedule={schedule}
                     procedures={doctor.procedures}
                     consultation={doctor.consultation}
                     main_photo_url={doctor.main_photo_url}
                     isPreventNavigation
+                    isNextAvailableSchedule={isNextAvailable}
                 />
             </div>
 

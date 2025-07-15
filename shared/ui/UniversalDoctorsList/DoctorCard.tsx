@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Star, Eye, MapPin, Heart, ChevronDown, Pen, X } from 'lucide-react';
+import { Star, Eye, MapPin, Heart, ChevronDown, Pen, X, Calendar } from 'lucide-react';
 import { Card } from '@/components/shadcn/card';
 import {
     Sheet,
@@ -55,6 +55,8 @@ interface DoctorCardProps {
     isPreventNavigation?: boolean;
     main_photo_url?: string;
     fromPage?: string;
+    // Новый пропс для передачи информации о том, что используется next_available_schedule
+    isNextAvailableSchedule?: boolean;
 }
 
 const DoctorCard: React.FC<DoctorCardProps> = ({
@@ -76,6 +78,7 @@ const DoctorCard: React.FC<DoctorCardProps> = ({
                                                    isPreventNavigation,
                                                    main_photo_url,
                                                    fromPage,
+                                                   isNextAvailableSchedule = false,
                                                }) => {
     const router = useRouter();
 
@@ -184,8 +187,28 @@ const DoctorCard: React.FC<DoctorCardProps> = ({
         return format(new Date(date), 'd MMM', { locale: ru });
     };
 
+    // Функция для отображения примечания о ближайшем расписании
+    const renderScheduleNote = () => {
+        if (!isNextAvailableSchedule || availableDates.length === 0) return null;
+
+        const firstAvailableDate = availableDates[0];
+        const formattedDate = format(new Date(firstAvailableDate), 'd MMMM yyyy', { locale: ru });
+
+        return (
+            <div className="flex items-center gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg mb-1">
+                <Calendar className="w-4 h-4 text-primary" />
+                <span className="text-sm text-primary">
+                    Ближайшее доступное расписание врача: {formattedDate}
+                </span>
+            </div>
+        );
+    };
+
     const ScheduleContent = () => (
         <>
+            {/* Примечание о ближайшем расписании */}
+            {renderScheduleNote()}
+
             {/* Обновленный блок с горизонтальным скроллом для всех дат */}
             <div
                 className="flex border-b border-[#CBD5E1] overflow-x-auto"
@@ -213,7 +236,7 @@ const DoctorCard: React.FC<DoctorCardProps> = ({
                                 e.stopPropagation();
                                 setSelectedDate(date);
                             }}
-                            className={`px-5 py-2.5 whitespace-nowrap flex-shrink-0 transition-colors ${
+                            className={`px-5 pb-2.5 whitespace-nowrap flex-shrink-0 transition-colors ${
                                 selectedDate === date
                                     ? 'text-[#16A34A] font-semibold border-b-2 border-[#16A34A]'
                                     : 'text-[#212121] hover:text-[#16A34A]'
@@ -405,10 +428,6 @@ const DoctorCard: React.FC<DoctorCardProps> = ({
                                     </div>
                                 </DialogContent>
                             </Dialog>
-                            {/*<Button variant="outline">*/}
-                            {/*    <Heart className="w-5 h-5 text-[#16A34A]"/>*/}
-                            {/*    <span className="text-base font-semibold text-[#16A34A]">В избранное</span>*/}
-                            {/*</Button>*/}
                         </div>
                     </div>
 

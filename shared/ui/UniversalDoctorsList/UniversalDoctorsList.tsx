@@ -41,6 +41,30 @@ export const UniversalDoctorsList = ({
         }
     };
 
+    // Функция для определения используется ли next_available_schedule для конкретного врача
+    const getScheduleInfo = (doctor: any) => {
+        const hasCurrentSchedule = doctor?.weekly_schedule?.[0]?.schedules?.[0]?.working_hours_list?.length > 0;
+
+        if (!useNextAvailableSchedule) {
+            return {
+                schedule: doctor?.weekly_schedule,
+                isNextAvailable: false
+            };
+        }
+
+        if (hasCurrentSchedule) {
+            return {
+                schedule: doctor?.weekly_schedule,
+                isNextAvailable: false
+            };
+        } else {
+            return {
+                schedule: doctor?.next_available_schedule?.weekly_schedule || doctor?.weekly_schedule,
+                isNextAvailable: !!doctor?.next_available_schedule?.weekly_schedule
+            };
+        }
+    };
+
     if (!data?.results.length && !isLoading) {
         return <EmptyDoctors
             title="Врачи не найдены"
@@ -58,31 +82,33 @@ export const UniversalDoctorsList = ({
                         <DoctorCardSkeleton key={i} />
                     ))
                 ) : (
-                    data?.results.map((doctor) => (
-                        <DoctorCard
-                            key={doctor.id}
-                            id={doctor.id}
-                            full_name={doctor.full_name}
-                            slug={doctor.slug}
-                            medical_categories={doctor.medical_categories}
-                            specialities={doctor.specialities}
-                            experience_years={doctor.experience_years}
-                            review_count={doctor.review_count}
-                            average_rating={doctor.average_rating}
-                            clinic_today_title={doctor.clinic_today_title}
-                            clinic_today_address={doctor.clinic_today_address}
-                            clinic_today_coords={doctor.clinic_today_coords}
-                            clinic_today_maps_links={doctor.clinic_today_maps_links}
-                            weekly_schedule={!useNextAvailableSchedule
-                                ? doctor?.weekly_schedule : doctor?.weekly_schedule?.[0]?.schedules?.[0]?.working_hours_list?.length > 0
-                                ? doctor?.weekly_schedule :  doctor?.next_available_schedule?.weekly_schedule
-                                        ? doctor?.next_available_schedule?.weekly_schedule : doctor?.weekly_schedule }
-                            procedures={doctor.procedures}
-                            consultation={doctor.consultation}
-                            main_photo_url={doctor.main_photo_url}
-                            isPreventNavigation={isPreventNavigation}
-                        />
-                    ))
+                    data?.results.map((doctor) => {
+                        const { schedule, isNextAvailable } = getScheduleInfo(doctor);
+
+                        return (
+                            <DoctorCard
+                                key={doctor.id}
+                                id={doctor.id}
+                                full_name={doctor.full_name}
+                                slug={doctor.slug}
+                                medical_categories={doctor.medical_categories}
+                                specialities={doctor.specialities}
+                                experience_years={doctor.experience_years}
+                                review_count={doctor.review_count}
+                                average_rating={doctor.average_rating}
+                                clinic_today_title={doctor.clinic_today_title}
+                                clinic_today_address={doctor.clinic_today_address}
+                                clinic_today_coords={doctor.clinic_today_coords}
+                                clinic_today_maps_links={doctor.clinic_today_maps_links}
+                                weekly_schedule={schedule}
+                                procedures={doctor.procedures}
+                                consultation={doctor.consultation}
+                                main_photo_url={doctor.main_photo_url}
+                                isPreventNavigation={isPreventNavigation}
+                                isNextAvailableSchedule={isNextAvailable}
+                            />
+                        );
+                    })
                 )}
             </div>
 
