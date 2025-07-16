@@ -7,7 +7,6 @@ import Image from 'next/image';
 import logoImg from '@/shared/assets/images/logo.png';
 import { MaxWidthLayout } from '@/shared/ui/MaxWidthLayout';
 import AuthModal from '@/components/Auth/AuthModal/AuthModal';
-import { LanguageSelector } from '@/components/App/LanguageSelector/LanguageSelector';
 import { CitySelector } from '@/components/App/CitySelector/CitySelector';
 import { SearchDropdown } from '@/components/Search/SearchDropdown';
 import {

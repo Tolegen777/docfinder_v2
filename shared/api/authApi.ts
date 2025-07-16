@@ -36,6 +36,17 @@ export interface IRefreshResponse {
     access: string;
 }
 
+// Новые интерфейсы для сброса и изменения пароля
+export interface ResetPasswordParams {
+    phone_number: string;
+}
+
+export interface ChangePasswordParams {
+    current_password: string;
+    new_password: string;
+    confirm_new_password: string;
+}
+
 // Format phone number (remove spaces)
 const formatPhoneNumber = (phoneNumber: string): string => {
     return phoneNumber.replace(/\s/g, '');
@@ -43,6 +54,8 @@ const formatPhoneNumber = (phoneNumber: string): string => {
 
 export const authApi = {
     refresh: (payload: IRefreshPayload) => apiPost<IRefreshResponse>('/patients_endpoints/authentication/token/refresh/', payload),
+    resetPassword: (payload: ResetPasswordParams) => apiPost<{ message: string }>('/patients_endpoints/authentication/reset-password/', payload),
+    changePassword: (payload: ChangePasswordParams) => apiPost<{ message: string }>('/patients_endpoints/authentication/change-password/', payload),
 };
 
 // Auth service hooks
@@ -95,6 +108,28 @@ export const useCheckAuth = () => {
         },
         onError: () => {
             setAuth(false, null);
+        },
+    });
+};
+
+// Новые хуки для работы с паролем
+export const useResetPassword = () => {
+    return useMutation({
+        mutationFn: async (params: ResetPasswordParams) => {
+            const formattedParams = {
+                ...params,
+                phone_number: formatPhoneNumber(params.phone_number),
+            };
+
+            return authApi.resetPassword(formattedParams);
+        },
+    });
+};
+
+export const useChangePassword = () => {
+    return useMutation({
+        mutationFn: async (params: ChangePasswordParams) => {
+            return authApi.changePassword(params);
         },
     });
 };

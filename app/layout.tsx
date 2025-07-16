@@ -71,3 +71,7 @@ export default function RootLayout({
         </html>
     );
 }
+
+body: {
+    phone_number: '+77077077070'
+}

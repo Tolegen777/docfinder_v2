@@ -14,10 +14,11 @@ import {
     FormItem,
     FormMessage,
 } from '@/components/shadcn/form';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Key } from 'lucide-react';
 import { formatPhoneNumber } from '@/shared/lib/formatters';
 import { useGetUserProfile, useUpdateUserProfile } from '@/shared/api/userProfileApi';
 import { useAuthStore } from "@/shared/stores/authStore";
+import ChangePasswordModal from '@/components/Auth/ChangePasswordModal';
 
 // Схема валидации Zod для формы профиля
 const profileSchema = z.object({
@@ -40,6 +41,7 @@ const formatIIN = (value: string): string => {
 const UserProfileEdit: React.FC = () => {
     const { user, setAuth } = useAuthStore();
     const [isEditing, setIsEditing] = useState(false);
+    const [showChangePassword, setShowChangePassword] = useState(false);
 
     // Используем хуки для работы с API профиля
     const { data: profileData, isLoading, refetch } = useGetUserProfile();
@@ -120,7 +122,20 @@ const UserProfileEdit: React.FC = () => {
     return (
         <div className="w-full max-w-4xl mx-auto">
             <div className="bg-white rounded-lg shadow-sm p-6">
-                <h1 className="text-xl md:text-2xl font-semibold mb-6">Личные данные</h1>
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+                    <h1 className="text-xl md:text-2xl font-semibold">Личные данные</h1>
+
+                    {/* Кнопка изменения пароля */}
+                    <Button
+                        type="button"
+                        variant="outline"
+                        className="flex items-center justify-center gap-2 w-full sm:w-auto"
+                        onClick={() => setShowChangePassword(true)}
+                    >
+                        <Key className="h-4 w-4" />
+                        <span className="whitespace-nowrap">Изменить пароль</span>
+                    </Button>
+                </div>
 
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -163,25 +178,6 @@ const UserProfileEdit: React.FC = () => {
                                     </FormItem>
                                 )}
                             />
-
-                            {/* Отчество */}
-                            {/*<FormField*/}
-                            {/*    control={form.control}*/}
-                            {/*    name="middle_name"*/}
-                            {/*    render={({ field }) => (*/}
-                            {/*        <FormItem>*/}
-                            {/*            <FormControl>*/}
-                            {/*                <Input*/}
-                            {/*                    label="Отчество"*/}
-                            {/*                    {...field}*/}
-                            {/*                    disabled={!isEditing}*/}
-                            {/*                    className="bg-[#f3f5f6]"*/}
-                            {/*                />*/}
-                            {/*            </FormControl>*/}
-                            {/*            <FormMessage />*/}
-                            {/*        </FormItem>*/}
-                            {/*    )}*/}
-                            {/*/>*/}
 
                             {/* ИИН */}
                             <FormField
@@ -322,6 +318,12 @@ const UserProfileEdit: React.FC = () => {
                     </form>
                 </Form>
             </div>
+
+            {/* Модальное окно изменения пароля */}
+            <ChangePasswordModal
+                isOpen={showChangePassword}
+                onClose={() => setShowChangePassword(false)}
+            />
         </div>
     );
 };

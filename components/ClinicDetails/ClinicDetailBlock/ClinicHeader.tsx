@@ -32,7 +32,6 @@ export const ClinicHeader: React.FC<ClinicHeaderProps> = ({ clinic }) => {
         "2gis": clinic.two_gis_url
     };
 
-    // Проверяем наличие изображений, если нет, используем моковые
     const hasRealImages = clinic.photos && clinic.photos.length > 0;
     const clinicImages = clinic.photos?.map(item => item?.photo_url)
 
@@ -63,7 +62,7 @@ export const ClinicHeader: React.FC<ClinicHeaderProps> = ({ clinic }) => {
                                     </div>
                                 </TooltipTrigger>
                                 <TooltipContent>
-                                    <p>Используются изображения-заглушки</p>
+                                    <p>Изображения не найдены</p>
                                 </TooltipContent>
                             </Tooltip>
                         </TooltipProvider>
@@ -130,7 +129,7 @@ export const ClinicHeader: React.FC<ClinicHeaderProps> = ({ clinic }) => {
                                             </div>
                                         </TooltipTrigger>
                                         <TooltipContent>
-                                            <p>Используются изображения-заглушки, т.к. для клиники нет реальных фото</p>
+                                            <p>Изображения не найдены</p>
                                         </TooltipContent>
                                     </Tooltip>
                                 </TooltipProvider>

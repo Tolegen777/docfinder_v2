@@ -142,7 +142,10 @@ const MyVisitsPage: React.FC = () => {
                                 <button className={`flex items-center gap-2 ${
                                     activeTab === 'upcoming' ? 'text-green-600' : 'text-gray-900'
                                 }`}>
-                                    <span className="font-medium">Предстоящие ({visitCounts.upcoming})</span>
+                                    <span className="font-medium">
+                                        <span className="hidden sm:inline">Предстоящие ({visitCounts.upcoming})</span>
+                                        <span className="sm:hidden text-xs">Предст. ({visitCounts.upcoming})</span>
+                                    </span>
                                 </button>
                             </div>
                             <div
@@ -154,7 +157,10 @@ const MyVisitsPage: React.FC = () => {
                                 <button className={`flex items-center gap-2 ${
                                     activeTab === 'past' ? 'text-green-600' : 'text-gray-900'
                                 }`}>
-                                    <span className="font-medium">Прошедшие ({visitCounts.past})</span>
+                                    <span className="font-medium">
+                                        <span className="hidden sm:inline">Прошедшие ({visitCounts.past})</span>
+                                        <span className="sm:hidden text-xs">Прошед. ({visitCounts.past})</span>
+                                    </span>
                                 </button>
                             </div>
                             <div
@@ -166,7 +172,10 @@ const MyVisitsPage: React.FC = () => {
                                 <button className={`flex items-center gap-2 ${
                                     activeTab === 'cancelled' ? 'text-green-600' : 'text-gray-900'
                                 }`}>
-                                    <span className="font-medium">Отмененные ({visitCounts.cancelled})</span>
+                                    <span className="font-medium">
+                                        <span className="hidden sm:inline">Отмененные ({visitCounts.cancelled})</span>
+                                        <span className="sm:hidden text-xs">Отмен. ({visitCounts.cancelled})</span>
+                                    </span>
                                 </button>
                             </div>
                         </div>

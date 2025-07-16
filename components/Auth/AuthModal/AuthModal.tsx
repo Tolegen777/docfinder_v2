@@ -15,6 +15,7 @@ import { useLogin, useRegister } from "@/shared/api/authApi";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/shadcn/input";
 import {toast} from "sonner";
+import ResetPasswordModal from '@/components/Auth/ResetPasswordModal';
 
 type AuthModalProps = {
     isOpen?: boolean;
@@ -93,14 +94,6 @@ const formatPhoneNumber = (value: string): string => {
     return formattedNumber;
 };
 
-// Функция для форматирования ИИН (убирает все нецифровые символы и ограничивает до 12 цифр)
-const formatIIN = (value: string): string => {
-    if (!value) return '';
-
-    // Удаляем все нецифровые символы и ограничиваем до 12 цифр
-    return value.replace(/\D/g, '').slice(0, 12);
-};
-
 const AuthModal: React.FC<AuthModalProps> = ({
                                                  isOpen = false,
                                                  onClose,
@@ -109,6 +102,7 @@ const AuthModal: React.FC<AuthModalProps> = ({
     const [mode, setMode] = useState<'login' | 'register'>(defaultMode);
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [showResetPassword, setShowResetPassword] = useState(false);
 
     const login = useLogin();
     const register = useRegister();
@@ -131,6 +125,15 @@ const AuthModal: React.FC<AuthModalProps> = ({
             confirm_password: '',
         }
     });
+
+    // Очищаем ошибки валидации при открытии/закрытии модального окна
+    React.useEffect(() => {
+        if (isOpen) {
+            // Очищаем ошибки при открытии
+            loginForm.clearErrors();
+            registerForm.clearErrors();
+        }
+    }, [isOpen, loginForm, registerForm]);
 
     const onLoginSubmit = async (data: LoginFormValues) => {
         try {
@@ -189,218 +192,242 @@ const AuthModal: React.FC<AuthModalProps> = ({
 
     const switchToLogin = () => {
         setMode('login');
+        setShowResetPassword(false);
+        // Очищаем ошибки валидации при переходе
+        registerForm.clearErrors();
     };
 
     const switchToRegister = () => {
         setMode('register');
+        setShowResetPassword(false);
+        // Очищаем ошибки валидации при переходе
+        loginForm.clearErrors();
+    };
+
+    const handleResetPassword = () => {
+        setShowResetPassword(true);
+        // Очищаем ошибки валидации при переходе
+        loginForm.clearErrors();
+    };
+
+    const handleBackToLogin = () => {
+        setShowResetPassword(false);
+        // Очищаем ошибки валидации при возврате
+        loginForm.clearErrors();
     };
 
     return (
-        <Dialog open={isOpen} onOpenChange={open => !open && onClose && onClose()}>
-            <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader className="flex flex-row items-center justify-between">
-                    <DialogTitle className="text-2xl font-bold">
-                        {mode === 'login' ? 'Вход' : 'Регистрация'}
-                    </DialogTitle>
-                </DialogHeader>
+        <>
+            <Dialog open={isOpen && !showResetPassword} onOpenChange={open => !open && onClose && onClose()}>
+                <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader className="flex flex-row items-center justify-between">
+                        <DialogTitle className="text-2xl font-bold">
+                            {mode === 'login' ? 'Вход' : 'Регистрация'}
+                        </DialogTitle>
+                    </DialogHeader>
 
-                <div className="border-t my-2" />
+                    <div className="border-t my-2" />
 
-                {mode === 'login' ? (
-                    <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-4">
-                        <div className="relative">
-                            <Controller
-                                name="phone_number"
-                                control={loginForm.control}
-                                render={({ field }) => (
-                                    <Input
-                                        label="Номер телефона"
-                                        className="bg-[#f3f5f6]"
-                                        value={field.value}
-                                        onChange={(e) => {
-                                            const formattedValue = formatPhoneNumber(e.target.value);
-                                            field.onChange(formattedValue);
-                                        }}
-                                        onBlur={field.onBlur}
-                                    />
-                                )}
-                            />
-                            {loginForm.formState.errors.phone_number && (
-                                <p className="mt-1 text-sm text-red-500">
-                                    {loginForm.formState.errors.phone_number.message}
-                                </p>
-                            )}
-                        </div>
-
-                        <div className="space-y-2">
+                    {mode === 'login' ? (
+                        <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-4">
                             <div className="relative">
-                                <Input
-                                    type={showPassword ? "text" : "password"}
-                                    label="Пароль"
-                                    className="bg-[#f3f5f6] pr-10"
-                                    {...loginForm.register('password')}
+                                <Controller
+                                    name="phone_number"
+                                    control={loginForm.control}
+                                    render={({ field }) => (
+                                        <Input
+                                            label="Номер телефона"
+                                            className="bg-[#f3f5f6]"
+                                            value={field.value}
+                                            onChange={(e) => {
+                                                const formattedValue = formatPhoneNumber(e.target.value);
+                                                field.onChange(formattedValue);
+                                            }}
+                                            onBlur={field.onBlur}
+                                        />
+                                    )}
                                 />
-                                <button
-                                    type="button"
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
-                                    onClick={togglePasswordVisibility}
-                                >
-                                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                                </button>
+                                {loginForm.formState.errors.phone_number && (
+                                    <p className="mt-1 text-sm text-red-500">
+                                        {loginForm.formState.errors.phone_number.message}
+                                    </p>
+                                )}
                             </div>
-                            {loginForm.formState.errors.password && (
-                                <p className="text-sm text-red-500">
-                                    {loginForm.formState.errors.password.message}
-                                </p>
-                            )}
-                        </div>
 
-                        <Button
-                            type="submit"
-                            className="w-full bg-[#00B834] hover:bg-[#00A02D] text-white"
-                            disabled={login.isPending}
-                        >
-                            {login.isPending ? 'Загрузка...' : 'Войти'}
-                        </Button>
+                            <div className="space-y-2">
+                                <div className="relative">
+                                    <Input
+                                        type={showPassword ? "text" : "password"}
+                                        label="Пароль"
+                                        className="bg-[#f3f5f6] pr-10"
+                                        {...loginForm.register('password')}
+                                    />
+                                    <button
+                                        type="button"
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+                                        onClick={togglePasswordVisibility}
+                                    >
+                                        {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                                    </button>
+                                </div>
+                                {loginForm.formState.errors.password && (
+                                    <p className="text-sm text-red-500">
+                                        {loginForm.formState.errors.password.message}
+                                    </p>
+                                )}
+                            </div>
 
-                        <div className="text-center">
-                            <p className="text-sm text-gray-500">
-                                Нет аккаунта?{' '}
+                            <Button
+                                type="submit"
+                                className="w-full bg-[#00B834] hover:bg-[#00A02D] text-white"
+                                disabled={login.isPending}
+                            >
+                                {login.isPending ? 'Загрузка...' : 'Войти'}
+                            </Button>
+
+                            {/* Кнопка "Забыли пароль?" */}
+                            <div className="text-center">
                                 <Button
                                     variant="link"
-                                    className="p-0 h-auto text-[#00B834]"
-                                    onClick={switchToRegister}
+                                    className="p-0 h-auto text-[#00B834] text-sm"
+                                    onClick={handleResetPassword}
                                 >
-                                    Зарегистрироваться
+                                    Забыли пароль?
                                 </Button>
-                            </p>
-                        </div>
-                    </form>
-                ) : (
-                    <form onSubmit={registerForm.handleSubmit(onRegisterSubmit)} className="space-y-4">
-                        <div className="relative">
-                            <Input
-                                label="Имя"
-                                className="bg-[#f3f5f6]"
-                                {...registerForm.register('first_name')}
-                            />
-                            {registerForm.formState.errors.first_name && (
-                                <p className="mt-1 text-sm text-red-500">
-                                    {registerForm.formState.errors.first_name.message}
-                                </p>
-                            )}
-                        </div>
+                            </div>
 
-                        <div className="relative">
-                            <Controller
-                                name="phone_number"
-                                control={registerForm.control}
-                                render={({ field }) => (
-                                    <Input
-                                        label="Номер телефона"
-                                        className="bg-[#f3f5f6]"
-                                        value={field.value}
-                                        onChange={(e) => {
-                                            const formattedValue = formatPhoneNumber(e.target.value);
-                                            field.onChange(formattedValue);
-                                        }}
-                                        onBlur={field.onBlur}
-                                    />
+                            <div className="text-center">
+                                <p className="text-sm text-gray-500">
+                                    Нет аккаунта?{' '}
+                                    <Button
+                                        variant="link"
+                                        className="p-0 h-auto text-[#00B834]"
+                                        onClick={switchToRegister}
+                                    >
+                                        Зарегистрироваться
+                                    </Button>
+                                </p>
+                            </div>
+                        </form>
+                    ) : (
+                        <form onSubmit={registerForm.handleSubmit(onRegisterSubmit)} className="space-y-4">
+                            <div className="relative">
+                                <Input
+                                    label="Имя"
+                                    className="bg-[#f3f5f6]"
+                                    {...registerForm.register('first_name')}
+                                />
+                                {registerForm.formState.errors.first_name && (
+                                    <p className="mt-1 text-sm text-red-500">
+                                        {registerForm.formState.errors.first_name.message}
+                                    </p>
                                 )}
-                            />
-                            {registerForm.formState.errors.phone_number && (
-                                <p className="mt-1 text-sm text-red-500">
-                                    {registerForm.formState.errors.phone_number.message}
-                                </p>
-                            )}
-                        </div>
-
-                        {/*<div className="relative">*/}
-                        {/*    <Input*/}
-                        {/*        label="Придумайте логин *"*/}
-                        {/*        required*/}
-                        {/*        className="bg-[#f3f5f6]"*/}
-                        {/*        {...registerForm.register('login')}*/}
-                        {/*    />*/}
-                        {/*    {registerForm.formState.errors.login && (*/}
-                        {/*        <p className="mt-1 text-sm text-red-500">*/}
-                        {/*            {registerForm.formState.errors.login.message}*/}
-                        {/*        </p>*/}
-                        {/*    )}*/}
-                        {/*</div>*/}
-
-                        <div className="space-y-2">
-                            <div className="relative">
-                                <Input
-                                    type={showPassword ? "text" : "password"}
-                                    label="Придумайте пароль *"
-                                    required
-                                    className="bg-[#f3f5f6] pr-10"
-                                    {...registerForm.register('password')}
-                                />
-                                <button
-                                    type="button"
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
-                                    onClick={togglePasswordVisibility}
-                                >
-                                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                                </button>
                             </div>
-                            {registerForm.formState.errors.password && (
-                                <p className="text-sm text-red-500">
-                                    {registerForm.formState.errors.password.message}
-                                </p>
-                            )}
-                        </div>
 
-                        <div className="space-y-2">
                             <div className="relative">
-                                <Input
-                                    type={showConfirmPassword ? "text" : "password"}
-                                    label="Повторите пароль *"
-                                    required
-                                    className="bg-[#f3f5f6] pr-10"
-                                    {...registerForm.register('confirm_password')}
+                                <Controller
+                                    name="phone_number"
+                                    control={registerForm.control}
+                                    render={({ field }) => (
+                                        <Input
+                                            label="Номер телефона"
+                                            className="bg-[#f3f5f6]"
+                                            value={field.value}
+                                            onChange={(e) => {
+                                                const formattedValue = formatPhoneNumber(e.target.value);
+                                                field.onChange(formattedValue);
+                                            }}
+                                            onBlur={field.onBlur}
+                                        />
+                                    )}
                                 />
-                                <button
-                                    type="button"
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
-                                    onClick={toggleConfirmPasswordVisibility}
-                                >
-                                    {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                                </button>
+                                {registerForm.formState.errors.phone_number && (
+                                    <p className="mt-1 text-sm text-red-500">
+                                        {registerForm.formState.errors.phone_number.message}
+                                    </p>
+                                )}
                             </div>
-                            {registerForm.formState.errors.confirm_password && (
-                                <p className="text-sm text-red-500">
-                                    {registerForm.formState.errors.confirm_password.message}
+
+                            <div className="space-y-2">
+                                <div className="relative">
+                                    <Input
+                                        type={showPassword ? "text" : "password"}
+                                        label="Придумайте пароль *"
+                                        required
+                                        className="bg-[#f3f5f6] pr-10"
+                                        {...registerForm.register('password')}
+                                    />
+                                    <button
+                                        type="button"
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+                                        onClick={togglePasswordVisibility}
+                                    >
+                                        {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                                    </button>
+                                </div>
+                                {registerForm.formState.errors.password && (
+                                    <p className="text-sm text-red-500">
+                                        {registerForm.formState.errors.password.message}
+                                    </p>
+                                )}
+                            </div>
+
+                            <div className="space-y-2">
+                                <div className="relative">
+                                    <Input
+                                        type={showConfirmPassword ? "text" : "password"}
+                                        label="Повторите пароль *"
+                                        required
+                                        className="bg-[#f3f5f6] pr-10"
+                                        {...registerForm.register('confirm_password')}
+                                    />
+                                    <button
+                                        type="button"
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+                                        onClick={toggleConfirmPasswordVisibility}
+                                    >
+                                        {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                                    </button>
+                                </div>
+                                {registerForm.formState.errors.confirm_password && (
+                                    <p className="text-sm text-red-500">
+                                        {registerForm.formState.errors.confirm_password.message}
+                                    </p>
+                                )}
+                            </div>
+
+                            <Button
+                                type="submit"
+                                className="w-full bg-[#00B834] hover:bg-[#00A02D] text-white"
+                                disabled={register.isPending}
+                            >
+                                {register.isPending ? 'Загрузка...' : 'Зарегистрироваться'}
+                            </Button>
+
+                            <div className="text-center">
+                                <p className="text-sm text-gray-500">
+                                    Уже есть аккаунт?{' '}
+                                    <Button
+                                        variant="link"
+                                        className="p-0 h-auto text-[#00B834]"
+                                        onClick={switchToLogin}
+                                    >
+                                        Войти
+                                    </Button>
                                 </p>
-                            )}
-                        </div>
+                            </div>
+                        </form>
+                    )}
+                </DialogContent>
+            </Dialog>
 
-                        <Button
-                            type="submit"
-                            className="w-full bg-[#00B834] hover:bg-[#00A02D] text-white"
-                            disabled={register.isPending}
-                        >
-                            {register.isPending ? 'Загрузка...' : 'Зарегистрироваться'}
-                        </Button>
-
-                        <div className="text-center">
-                            <p className="text-sm text-gray-500">
-                                Уже есть аккаунт?{' '}
-                                <Button
-                                    variant="link"
-                                    className="p-0 h-auto text-[#00B834]"
-                                    onClick={switchToLogin}
-                                >
-                                    Войти
-                                </Button>
-                            </p>
-                        </div>
-                    </form>
-                )}
-            </DialogContent>
-        </Dialog>
+            {/* Модальное окно сброса пароля */}
+            <ResetPasswordModal
+                isOpen={showResetPassword}
+                onClose={() => setShowResetPassword(false)}
+                onBackToLogin={handleBackToLogin}
+            />
+        </>
     );
 };
 
