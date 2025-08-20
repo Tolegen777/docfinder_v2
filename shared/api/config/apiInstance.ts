@@ -9,7 +9,7 @@ type FailedQueue = {
     resolve: (token: string | null) => void;
 };
 
-const API_URL = 'https://backend.docfinder.kz/api/v1';
+const API_URL = 'https://backend.docf.kz/api/v1';
 
 // Create axios instance
 export const apiInstance = axios.create({
