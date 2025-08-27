@@ -1,11 +1,11 @@
-// import {ReviewsList} from "@/components/DoctorDetail/Review/ReviewsList/ReviewsList";
 import DoctorDetailPage from "@/components/DoctorDetail/DoctorDetailPage";
+import {ReviewsList} from "@/shared/ui/Reviews/ReviewsList";
 
 export default function Doctor() {
     return (
         <div>
             <DoctorDetailPage />
-            {/*<ReviewsList />*/}
+            <ReviewsList type="doctor" showClinicLink={true} />
         </div>
     );
 }

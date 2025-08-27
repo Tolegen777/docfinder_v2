@@ -1,8 +1,8 @@
 'use client';
 
-import React, {useState, useEffect} from 'react';
-import {usePathname} from 'next/navigation';
-import {useQuery} from '@tanstack/react-query';
+import React, { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
+import { useQuery } from '@tanstack/react-query';
 import {
     Select,
     SelectContent,
@@ -10,11 +10,12 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/shadcn/select";
-import {MaxWidthLayout} from "@/shared/ui/MaxWidthLayout";
-import {Skeleton} from '@/components/shadcn/skeleton';
-import {ReviewsAPI} from '@/shared/api/reviewsApi';
-import {ReviewCard} from "@/components/ClinicDetails/Review/ReviewCard/ReviewCard";
-import {Button} from "@/components/shadcn/button";
+import { MaxWidthLayout } from "@/shared/ui/MaxWidthLayout";
+import { Skeleton } from '@/components/shadcn/skeleton';
+import { ReviewsAPI } from '@/shared/api/reviewsApi';
+import { Button } from "@/components/shadcn/button";
+import { Review } from '@/shared/api/reviewsApi';
+import {ReviewCard} from "@/shared/ui/Reviews/ReviewCard";
 
 // Количество отзывов на странице
 const PAGE_SIZE = 10;
@@ -41,32 +42,62 @@ const ReviewCardSkeleton = () => (
     </div>
 );
 
-export const ReviewsList = () => {
+interface ReviewsListProps {
+    type: 'clinic' | 'doctor';
+    showClinicLink?: boolean; // Показывать ли ссылку на клинику (для отзывов врача)
+}
+
+export const ReviewsList = ({ type, showClinicLink = false }: ReviewsListProps) => {
     // Состояния
     const [currentPage, setCurrentPage] = useState(1);
     const [sortBy, setSortBy] = useState('');
+    const [allReviews, setAllReviews] = useState<Review[]>([]); // Накопленные отзывы
 
-    // Получаем slug клиники из URL
+    // Получаем slug из URL
     const pathname = usePathname();
-    const doctorSlug = pathname?.split('/').pop() || '';
+    const entitySlug = pathname?.split('/').pop() || '';
 
     // Запрос на получение отзывов
-    const {data, isLoading, isFetching} = useQuery({
-        queryKey: ['doctorReviews', doctorSlug, currentPage, sortBy],
-        queryFn: () => ReviewsAPI.getDoctorReviews(doctorSlug, currentPage, PAGE_SIZE),
-        enabled: !!doctorSlug,
+    const { data, isLoading, isFetching } = useQuery({
+        queryKey: [`${type}Reviews`, entitySlug, currentPage, sortBy],
+        queryFn: () => {
+            if (type === 'clinic') {
+                return ReviewsAPI.getClinicReviews(entitySlug, currentPage, PAGE_SIZE);
+            } else {
+                return ReviewsAPI.getDoctorReviews(entitySlug, currentPage, PAGE_SIZE);
+            }
+        },
+        enabled: !!entitySlug,
     });
+
+    // Обновляем накопленные отзывы при получении новых данных
+    useEffect(() => {
+        if (data?.results) {
+            if (currentPage === 1) {
+                // Первая страница или новая сортировка - заменяем все отзывы
+                setAllReviews(data.results);
+            } else {
+                // Последующие страницы - добавляем к существующим
+                setAllReviews(prev => [...prev, ...data.results]);
+            }
+        }
+    }, [data, currentPage]);
+
+    // Сброс данных при изменении сортировки
+    useEffect(() => {
+        setAllReviews([]);
+        setCurrentPage(1);
+    }, [sortBy, entitySlug]);
 
     // Обработчик изменения сортировки
     const handleSortingChange = (value: string) => {
         setSortBy(value);
-        setCurrentPage(1); // Сбрасываем страницу при изменении сортировки
     };
 
     // Обработчик кнопки "Показать еще"
     const handleShowMore = () => {
         if (data && data.next) {
-            setCurrentPage(currentPage + 1);
+            setCurrentPage(prev => prev + 1);
         }
     };
 
@@ -98,14 +129,14 @@ export const ReviewsList = () => {
 
             {/* Reviews list */}
             <div className="space-y-4">
-                {isLoading ? (
-                    // Скелетоны при загрузке
-                    Array.from({length: 3}).map((_, index) => (
+                {isLoading && currentPage === 1 ? (
+                    // Скелетоны при первоначальной загрузке
+                    Array.from({ length: 3 }).map((_, index) => (
                         <ReviewCardSkeleton key={index}/>
                     ))
-                ) : data?.results.length ? (
-                    // Список отзывов
-                    data.results.map((review) => (
+                ) : allReviews.length ? (
+                    // Список накопленных отзывов
+                    allReviews.map((review) => (
                         <ReviewCard
                             key={review.id}
                             id={review.id}
@@ -113,13 +144,24 @@ export const ReviewsList = () => {
                             text={review.text}
                             rating={review.rating / 2}
                             createdAt={review.created_at}
+                            isVerified={type === 'doctor'} // Для врачей показываем верификацию
+                            showClinicLink={showClinicLink}
                         />
                     ))
-                ) : (
-                    // Если отзывов нет
+                ) : !isLoading ? (
+                    // Если отзывов нет и загрузка завершена
                     <div className="w-full bg-white rounded-xl p-8 text-center">
-                        <p className="text-gray-500">Отзывов пока нет. Будьте первым, кто оставит отзыв!</p>
+                        <p className="text-gray-500">
+                            Отзывов пока нет. Будьте первым, кто оставит отзыв!
+                        </p>
                     </div>
+                ) : null}
+
+                {/* Скелетоны при загрузке следующих страниц */}
+                {isFetching && currentPage > 1 && (
+                    Array.from({ length: 3 }).map((_, index) => (
+                        <ReviewCardSkeleton key={`loading-${index}`}/>
+                    ))
                 )}
             </div>
 
@@ -135,10 +177,9 @@ export const ReviewsList = () => {
                         {isFetching ? 'Загрузка...' : 'Показать еще'}
                     </Button>
                 )}
-                <Button
-                >
-                    Написать отзыв
-                </Button>
+                {/*<Button>*/}
+                {/*    Написать отзыв*/}
+                {/*</Button>*/}
             </div>
         </MaxWidthLayout>
     );
