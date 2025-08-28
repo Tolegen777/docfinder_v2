@@ -41,6 +41,7 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
                                                            onShowMore,
                                                            maxItems = 5
                                                        }) => {
+    // Не отображаем секцию если нет элементов
     if (items.length === 0) return null;
 
     const displayItems = showMore ? items : items.slice(0, maxItems);
@@ -81,10 +82,10 @@ export const SearchDropdown: React.FC<SearchDropdownProps> = ({
     const [isOpen, setIsOpen] = useState(false);
     const [isMobileSheetOpen, setIsMobileSheetOpen] = useState(false);
     const [debouncedQuery, setDebouncedQuery] = useState('');
+    const [showMoreSpecialities, setShowMoreSpecialities] = useState(false);
     const [showMoreDoctors, setShowMoreDoctors] = useState(false);
     const [showMoreProcedures, setShowMoreProcedures] = useState(false);
     const [showMoreClinics, setShowMoreClinics] = useState(false);
-    const [showMoreSpecialities, setShowMoreSpecialities] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
 
@@ -111,10 +112,10 @@ export const SearchDropdown: React.FC<SearchDropdownProps> = ({
 
     // Reset show more states when query changes
     useEffect(() => {
+        setShowMoreSpecialities(false);
         setShowMoreDoctors(false);
         setShowMoreProcedures(false);
         setShowMoreClinics(false);
-        setShowMoreSpecialities(false);
     }, [debouncedQuery]);
 
     const { data, isLoading } = useQuery({
@@ -224,8 +225,8 @@ export const SearchDropdown: React.FC<SearchDropdownProps> = ({
                     <span>Процедура</span>
                     {procedure.is_for_children && (
                         <span className="bg-orange-100 text-orange-800 px-1.5 py-0.5 rounded-full text-xs">
-              Детская
-            </span>
+                            Детская
+                        </span>
                     )}
                 </div>
             </div>
@@ -289,6 +290,17 @@ export const SearchDropdown: React.FC<SearchDropdownProps> = ({
                 </div>
             ) : (
                 <div className="py-2 max-h-96 overflow-y-auto">
+                    {/* Specialities - первые */}
+                    <ResultsSection
+                        title="Специальности"
+                        icon={<GraduationCap className="w-4 h-4 text-indigo-600" />}
+                        items={data.specialities}
+                        onItemClick={(slug) => handleItemClick('speciality', slug)}
+                        renderItem={renderSpecialityItem}
+                        showMore={showMoreSpecialities}
+                        onShowMore={() => setShowMoreSpecialities(!showMoreSpecialities)}
+                    />
+
                     {/* Doctors */}
                     <ResultsSection
                         title="Врачи"
@@ -320,17 +332,6 @@ export const SearchDropdown: React.FC<SearchDropdownProps> = ({
                         renderItem={renderClinicItem}
                         showMore={showMoreClinics}
                         onShowMore={() => setShowMoreClinics(!showMoreClinics)}
-                    />
-
-                    {/* Specialities */}
-                    <ResultsSection
-                        title="Специальности"
-                        icon={<GraduationCap className="w-4 h-4 text-indigo-600" />}
-                        items={data.specialities}
-                        onItemClick={(slug) => handleItemClick('speciality', slug)}
-                        renderItem={renderSpecialityItem}
-                        showMore={showMoreSpecialities}
-                        onShowMore={() => setShowMoreSpecialities(!showMoreSpecialities)}
                     />
                 </div>
             )}
