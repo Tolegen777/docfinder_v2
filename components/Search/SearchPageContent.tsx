@@ -5,7 +5,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { Search, User, Stethoscope, Building2, ArrowLeft, X, ChevronDown, GraduationCap } from 'lucide-react';
 import Image from 'next/image';
-import { SearchAPI, SearchResponse } from '@/shared/api/searchApi';
+import { SearchAPI } from '@/shared/api/searchApi';
 import { useCityStore } from '@/shared/stores/cityStore';
 import { Input } from '@/components/shadcn/input';
 import { Button } from '@/components/shadcn/button';
@@ -61,25 +61,9 @@ const ResultsColumn: React.FC<ResultsColumnProps> = ({
         );
     }
 
+    // Не отображаем колонку если нет элементов
     if (items.length === 0) {
-        return (
-            <div className="space-y-4">
-                <div className="flex items-center gap-2 mb-4">
-                    {icon}
-                    <h3 className="text-lg font-semibold">{title}</h3>
-                </div>
-                <Card className="p-8 text-center border-2 border-dashed border-gray-200 bg-gray-50/50">
-                    <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center">
-                        {title === 'Врачи' && <User className="w-8 h-8 text-gray-400" />}
-                        {title === 'Процедуры' && <Stethoscope className="w-8 h-8 text-gray-400" />}
-                        {title === 'Клиники' && <Building2 className="w-8 h-8 text-gray-400" />}
-                        {title === 'Специальности' && <GraduationCap className="w-8 h-8 text-gray-400" />}
-                    </div>
-                    <p className="text-gray-500 font-medium">Ничего не найдено</p>
-                    <p className="text-gray-400 text-sm mt-1">Попробуйте изменить поисковый запрос</p>
-                </Card>
-            </div>
-        );
+        return null;
     }
 
     return (
@@ -111,10 +95,10 @@ export function SearchPageContent() {
     const { currentCity } = useCityStore();
     const [searchQuery, setSearchQuery] = useState(searchParams?.get('q') || '');
     const [debouncedQuery, setDebouncedQuery] = useState(searchQuery);
+    const [showMoreSpecialities, setShowMoreSpecialities] = useState(false);
     const [showMoreDoctors, setShowMoreDoctors] = useState(false);
     const [showMoreProcedures, setShowMoreProcedures] = useState(false);
     const [showMoreClinics, setShowMoreClinics] = useState(false);
-    const [showMoreSpecialities, setShowMoreSpecialities] = useState(false);
 
     // Debounce search query
     useEffect(() => {
@@ -136,10 +120,10 @@ export function SearchPageContent() {
 
     // Reset show more states when query changes
     useEffect(() => {
+        setShowMoreSpecialities(false);
         setShowMoreDoctors(false);
         setShowMoreProcedures(false);
         setShowMoreClinics(false);
-        setShowMoreSpecialities(false);
     }, [debouncedQuery]);
 
     const { data, isLoading, error } = useQuery({
@@ -215,8 +199,8 @@ export function SearchPageContent() {
                         <span>Процедура</span>
                         {procedure.is_for_children && (
                             <span className="bg-orange-100 text-orange-800 px-2 py-0.5 rounded-full text-xs">
-                Детская
-              </span>
+                                Детская
+                            </span>
                         )}
                     </div>
                 </div>
@@ -270,6 +254,22 @@ export function SearchPageContent() {
     );
 
     const totalResults = data ? data.doctors.length + data.procedures.length + data.clinics.length + data.specialities.length : 0;
+
+    // Определяем, какие колонки отображать на основе результатов
+    const columnsToShow = [];
+    if (data?.specialities && data.specialities.length > 0) columnsToShow.push('specialities' as never);
+    if (data?.doctors && data.doctors.length > 0) columnsToShow.push('doctors' as never);
+    if (data?.procedures && data.procedures.length > 0) columnsToShow.push('procedures' as never);
+    if (data?.clinics && data.clinics.length > 0) columnsToShow.push('clinics' as never);
+
+    // Определяем класс сетки на основе количества колонок
+    const getGridClass = () => {
+        const count = columnsToShow.length;
+        if (count === 1) return 'grid-cols-1';
+        if (count === 2) return 'grid-cols-1 lg:grid-cols-2';
+        if (count === 3) return 'grid-cols-1 lg:grid-cols-2 xl:grid-cols-3';
+        return 'grid-cols-1 lg:grid-cols-2 xl:grid-cols-4';
+    };
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -369,55 +369,63 @@ export function SearchPageContent() {
                             </div>
                         )}
 
-                        {/* Results Grid */}
-                        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-8">
+                        {/* Results Grid - динамическая сетка */}
+                        <div className={`grid ${getGridClass()} gap-8`}>
+                            {/* Specialities Column - первая */}
+                            {columnsToShow.includes('specialities' as never) && (
+                                <ResultsColumn
+                                    title="Специальности"
+                                    icon={<GraduationCap className="w-5 h-5 text-indigo-600" />}
+                                    items={data?.specialities || []}
+                                    onItemClick={handleSpecialityClick}
+                                    renderItem={renderSpecialityItem}
+                                    showMore={showMoreSpecialities}
+                                    onShowMore={() => setShowMoreSpecialities(!showMoreSpecialities)}
+                                    isLoading={isLoading}
+                                />
+                            )}
+
                             {/* Doctors Column */}
-                            <ResultsColumn
-                                title="Врачи"
-                                icon={<User className="w-5 h-5 text-green-600" />}
-                                items={data?.doctors || []}
-                                onItemClick={handleDoctorClick}
-                                renderItem={renderDoctorItem}
-                                showMore={showMoreDoctors}
-                                onShowMore={() => setShowMoreDoctors(!showMoreDoctors)}
-                                isLoading={isLoading}
-                            />
+                            {columnsToShow.includes('doctors' as never) && (
+                                <ResultsColumn
+                                    title="Врачи"
+                                    icon={<User className="w-5 h-5 text-green-600" />}
+                                    items={data?.doctors || []}
+                                    onItemClick={handleDoctorClick}
+                                    renderItem={renderDoctorItem}
+                                    showMore={showMoreDoctors}
+                                    onShowMore={() => setShowMoreDoctors(!showMoreDoctors)}
+                                    isLoading={isLoading}
+                                />
+                            )}
 
                             {/* Procedures Column */}
-                            <ResultsColumn
-                                title="Процедуры"
-                                icon={<Stethoscope className="w-5 h-5 text-blue-600" />}
-                                items={data?.procedures || []}
-                                onItemClick={handleProcedureClick}
-                                renderItem={renderProcedureItem}
-                                showMore={showMoreProcedures}
-                                onShowMore={() => setShowMoreProcedures(!showMoreProcedures)}
-                                isLoading={isLoading}
-                            />
+                            {columnsToShow.includes('procedures' as never) && (
+                                <ResultsColumn
+                                    title="Процедуры"
+                                    icon={<Stethoscope className="w-5 h-5 text-blue-600" />}
+                                    items={data?.procedures || []}
+                                    onItemClick={handleProcedureClick}
+                                    renderItem={renderProcedureItem}
+                                    showMore={showMoreProcedures}
+                                    onShowMore={() => setShowMoreProcedures(!showMoreProcedures)}
+                                    isLoading={isLoading}
+                                />
+                            )}
 
                             {/* Clinics Column */}
-                            <ResultsColumn
-                                title="Клиники"
-                                icon={<Building2 className="w-5 h-5 text-purple-600" />}
-                                items={data?.clinics || []}
-                                onItemClick={handleClinicClick}
-                                renderItem={renderClinicItem}
-                                showMore={showMoreClinics}
-                                onShowMore={() => setShowMoreClinics(!showMoreClinics)}
-                                isLoading={isLoading}
-                            />
-
-                            {/* Specialities Column */}
-                            <ResultsColumn
-                                title="Специальности"
-                                icon={<GraduationCap className="w-5 h-5 text-indigo-600" />}
-                                items={data?.specialities || []}
-                                onItemClick={handleSpecialityClick}
-                                renderItem={renderSpecialityItem}
-                                showMore={showMoreSpecialities}
-                                onShowMore={() => setShowMoreSpecialities(!showMoreSpecialities)}
-                                isLoading={isLoading}
-                            />
+                            {columnsToShow.includes('clinics' as never) && (
+                                <ResultsColumn
+                                    title="Клиники"
+                                    icon={<Building2 className="w-5 h-5 text-purple-600" />}
+                                    items={data?.clinics || []}
+                                    onItemClick={handleClinicClick}
+                                    renderItem={renderClinicItem}
+                                    showMore={showMoreClinics}
+                                    onShowMore={() => setShowMoreClinics(!showMoreClinics)}
+                                    isLoading={isLoading}
+                                />
+                            )}
                         </div>
                     </div>
                 )}
