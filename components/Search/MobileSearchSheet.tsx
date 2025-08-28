@@ -73,24 +73,9 @@ const MobileResultsSection: React.FC<MobileResultsSectionProps> = ({
         );
     }
 
+    // Не отображаем секцию если нет элементов
     if (items.length === 0) {
-        return (
-            <div className="space-y-3">
-                <div className="flex items-center gap-2 mb-3">
-                    {icon}
-                    <h3 className="text-lg font-semibold">{title}</h3>
-                </div>
-                <Card className="p-6 text-center">
-                    <div className="text-gray-400 mb-2 flex justify-center">
-                        {title === 'Врачи' && <User className="w-8 h-8" />}
-                        {title === 'Процедуры' && <Stethoscope className="w-8 h-8" />}
-                        {title === 'Клиники' && <Building2 className="w-8 h-8" />}
-                        {title === 'Специальности' && <GraduationCap className="w-8 h-8" />}
-                    </div>
-                    <p className="text-gray-500 text-sm">Ничего не найдено</p>
-                </Card>
-            </div>
-        );
+        return null;
     }
 
     return (
@@ -125,10 +110,10 @@ export const MobileSearchSheet: React.FC<MobileSearchSheetProps> = ({
     const { currentCity } = useCityStore();
     const [searchQuery, setSearchQuery] = useState(initialQuery);
     const [debouncedQuery, setDebouncedQuery] = useState(initialQuery);
+    const [showMoreSpecialities, setShowMoreSpecialities] = useState(false);
     const [showMoreDoctors, setShowMoreDoctors] = useState(false);
     const [showMoreProcedures, setShowMoreProcedures] = useState(false);
     const [showMoreClinics, setShowMoreClinics] = useState(false);
-    const [showMoreSpecialities, setShowMoreSpecialities] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
 
     // Auto focus when sheet opens
@@ -136,7 +121,7 @@ export const MobileSearchSheet: React.FC<MobileSearchSheetProps> = ({
         if (isOpen && inputRef.current) {
             setTimeout(() => {
                 inputRef.current?.focus();
-            }, 300); // Delay to ensure sheet animation is complete
+            }, 300);
         }
     }, [isOpen]);
 
@@ -159,10 +144,10 @@ export const MobileSearchSheet: React.FC<MobileSearchSheetProps> = ({
 
     // Reset show more states when query changes
     useEffect(() => {
+        setShowMoreSpecialities(false);
         setShowMoreDoctors(false);
         setShowMoreProcedures(false);
         setShowMoreClinics(false);
-        setShowMoreSpecialities(false);
     }, [debouncedQuery]);
 
     const { data, isLoading } = useQuery({
@@ -237,8 +222,8 @@ export const MobileSearchSheet: React.FC<MobileSearchSheetProps> = ({
                         <span>Процедура</span>
                         {procedure.is_for_children && (
                             <span className="bg-orange-100 text-orange-800 px-1.5 py-0.5 rounded-full text-xs">
-                Детская
-              </span>
+                                Детская
+                            </span>
                         )}
                     </div>
                 </div>
@@ -362,8 +347,20 @@ export const MobileSearchSheet: React.FC<MobileSearchSheetProps> = ({
                                 </p>
                             </div>
                         ) : (
-                            /* Results */
+                            /* Results - специальности первые */
                             <div className="space-y-6">
+                                {/* Specialities - первые */}
+                                <MobileResultsSection
+                                    title="Специальности"
+                                    icon={<GraduationCap className="w-5 h-5 text-indigo-600" />}
+                                    items={data?.specialities || []}
+                                    onItemClick={(slug) => handleItemClick('speciality', slug)}
+                                    renderItem={renderSpecialityItem}
+                                    showMore={showMoreSpecialities}
+                                    onShowMore={() => setShowMoreSpecialities(!showMoreSpecialities)}
+                                    isLoading={isLoading}
+                                />
+
                                 {/* Doctors */}
                                 <MobileResultsSection
                                     title="Врачи"
@@ -397,18 +394,6 @@ export const MobileSearchSheet: React.FC<MobileSearchSheetProps> = ({
                                     renderItem={renderClinicItem}
                                     showMore={showMoreClinics}
                                     onShowMore={() => setShowMoreClinics(!showMoreClinics)}
-                                    isLoading={isLoading}
-                                />
-
-                                {/* Specialities */}
-                                <MobileResultsSection
-                                    title="Специальности"
-                                    icon={<GraduationCap className="w-5 h-5 text-indigo-600" />}
-                                    items={data?.specialities || []}
-                                    onItemClick={(slug) => handleItemClick('speciality', slug)}
-                                    renderItem={renderSpecialityItem}
-                                    showMore={showMoreSpecialities}
-                                    onShowMore={() => setShowMoreSpecialities(!showMoreSpecialities)}
                                     isLoading={isLoading}
                                 />
                             </div>
