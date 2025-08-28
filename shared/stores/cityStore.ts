@@ -7,10 +7,7 @@ interface CityState {
 }
 
 export const useCityStore = create<CityState>((set, get) => ({
-    currentCity: {
-        title: 'Шымкент',
-        id: 3
-    },
+    currentCity: null, // Default to first city (Алматы in most cases)
 
     setCurrentCity: (city: City) => {
         set({ currentCity: city });
