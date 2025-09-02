@@ -1,17 +1,28 @@
 'use client'
-import React, { useState } from "react";
+import React, {useEffect, useState} from "react";
 import Link from "next/link";
 import { Phone, MessageCircle } from "lucide-react";
 import ClinicConnectionModal from "@/components/ClinicConnectionModal/ClinicConnectionModal";
-
-const phoneNumber = "77470000103";
-const whatsappNumber = "+77009990108";
-
-const phoneNumberFormatted = "+7 (747) 000-01-03";
-const whatsappNumberFormatted = "+7 (700) 999-01-08";
+import {useCityStore} from "@/shared/stores/cityStore";
 
 export const Footer = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [phoneNumber, setPhoneNumber] = useState("77470000103");
+    const [whatsappNumber, setWhatsappNumber] = useState("+77009990108");
+    const [phoneNumberFormatted, setPhoneNumberFormatted] = useState("+7 (747) 000-01-03");
+    const [whatsappNumberFormatted, setWhatsappNumberFormatted] = useState("+7 (700) 999-01-08");
+
+    const {currentCity} = useCityStore()
+
+    useEffect(() => {
+        if (currentCity?.title === 'Алматы') {
+            setPhoneNumber("+77070000103")
+            setPhoneNumberFormatted("+7 (707) 000-01-03")
+        } else if (currentCity?.title === 'Астана') {
+            setPhoneNumber("+77470000103")
+            setPhoneNumberFormatted("+7 (747) 000-01-03")
+        }
+    }, [currentCity?.title]);
 
     return (
         <>
