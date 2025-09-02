@@ -3,11 +3,20 @@
 import { MessageCircle } from "lucide-react";
 import React, { useState, useEffect } from "react";
 
-const whatsappNumber = "+77009990108";
-
 export const FloatingWhatsApp = () => {
     const [isVisible, setIsVisible] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
+    const [whatsappNumber, setWhatsappNumber] = useState("+77009990108");
+
+    // const {currentCity} = useCityStore()
+    //
+    // useEffect(() => {
+    //     if (currentCity?.title === 'Алматы') {
+    //         setWhatsappNumber("+77070000103")
+    //     } else if (currentCity?.title === 'Астана') {
+    //         setWhatsappNumber("+77470000103")
+    //     }
+    // }, [currentCity?.title]);
 
     useEffect(() => {
         const timer = setTimeout(() => {
