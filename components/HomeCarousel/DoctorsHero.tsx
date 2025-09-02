@@ -7,7 +7,7 @@ export const DoctorsHero = () => {
             <div className="container mx-auto px-4">
                 <div className="grid lg:grid-cols-2 gap-8 items-center">
                     {/* Left Content */}
-                    <div className="text-white space-y-6 md:-mt-12 text-center md:text-left">
+                    <div className="text-white space-y-3 md:space-y-6 md:-mt-20 text-center md:text-left">
                         <h1 className="h2-40-56-600 lg:text-5xl xl:text-6xl font-black leading-tight md:w-[1000px]">
                             ЛУЧШИЕ ВРАЧИ КАЗАХСТАНА<br />
                             В ОДНОМ МЕСТЕ
