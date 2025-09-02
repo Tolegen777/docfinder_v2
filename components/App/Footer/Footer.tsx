@@ -16,10 +16,10 @@ export const Footer = () => {
 
     useEffect(() => {
         if (currentCity?.title === 'Алматы') {
-            setPhoneNumber("+77070000103")
+            setPhoneNumber("77070000103")
             setPhoneNumberFormatted("+7 (707) 000-01-03")
-        } else if (currentCity?.title === 'Астана') {
-            setPhoneNumber("+77470000103")
+        } else {
+            setPhoneNumber("77470000103")
             setPhoneNumberFormatted("+7 (747) 000-01-03")
         }
     }, [currentCity?.title]);
