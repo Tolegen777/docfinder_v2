@@ -7,14 +7,14 @@ export const DoctorsHero = () => {
             <div className="container mx-auto px-4">
                 <div className="grid lg:grid-cols-2 gap-8 items-center">
                     {/* Left Content */}
-                    <div className="text-white space-y-6 md:-mt-12">
-                        <h1 className="h2-40-56-600 lg:text-5xl xl:text-6xl font-bold leading-tight md:w-[1000px]">
+                    <div className="text-white space-y-6 md:-mt-12 text-center md:text-left">
+                        <h1 className="h2-40-56-600 lg:text-5xl xl:text-6xl font-black leading-tight md:w-[1000px]">
                             ЛУЧШИЕ ВРАЧИ КАЗАХСТАНА<br />
                             В ОДНОМ МЕСТЕ
                         </h1>
 
                         <div className="space-y-4">
-                            <h2 className="text-2xl lg:text-3xl font-semibold text-yellow-300">
+                            <h2 className="text-2xl lg:text-3xl font-black text-yellow-300">
                                 1000+ СПЕЦИАЛИСТОВ
                                 <div>
                                     с опытом ждут вас
@@ -22,7 +22,7 @@ export const DoctorsHero = () => {
                             </h2>
                         </div>
 
-                        <p className="text-lg text-white/90 max-w-sm leading-relaxed">
+                        <p className="text-sm md:text-lg text-white/90 max-w-sm leading-relaxed">
                             Реальные отзывы, честные рейтинги,
                             удобная запись онлайн. Начните выбор
                             врача прямо сейчас - найдите своего
@@ -32,7 +32,7 @@ export const DoctorsHero = () => {
                     </div>
 
                     {/* Right Content - Doctors Image */}
-                    <div className="relative flex justify-center lg:justify-end md:h-[450px] md:-bottom-20">
+                    <div className="relative flex justify-center lg:justify-end md:h-[450px] md:-bottom-20 -m-6 md:m-auto">
                         <div className="relative w-full max-w-lg">
                             <Image
                                 src={doctorImg}
