@@ -22,7 +22,7 @@ export const DoctorsHero = () => {
                             </h2>
                         </div>
 
-                        <p className="text-sm md:text-lg text-white/90 max-w-sm leading-relaxed">
+                        <p className="text-sm md:text-lg text-white/90 md:max-w-md leading-relaxed">
                             Реальные отзывы, честные рейтинги,
                             удобная запись онлайн. Начните выбор
                             врача прямо сейчас - найдите своего
