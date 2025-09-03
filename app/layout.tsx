@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Roboto } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import {Header} from "../components/App/Header/Header";
@@ -17,6 +17,13 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
     variable: "--font-geist-mono",
     subsets: ["latin"],
+});
+
+// Добавляем Roboto
+const roboto = Roboto({
+    weight: ['400', '500', '700'],
+    subsets: ['latin', 'cyrillic'],
+    variable: '--font-roboto',
 });
 
 export const metadata: Metadata = {
@@ -48,7 +55,7 @@ export default function RootLayout({
             />
         </head>
         <body
-            className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+            className={`${geistSans.variable} ${geistMono.variable} ${roboto.variable} antialiased`}
         >
         {/* Google Tag Manager (noscript) */}
         <noscript>
@@ -70,8 +77,4 @@ export default function RootLayout({
         </body>
         </html>
     );
-}
-
-body: {
-    phone_number: '+77077077070'
 }
