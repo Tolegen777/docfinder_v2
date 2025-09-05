@@ -7,6 +7,7 @@ import { ProcedureDoctorsAPI } from '@/shared/api/procedureDoctorsApi';
 import {UniversalDoctorsList} from "@/shared/ui/UniversalDoctorsList/UniversalDoctorsList";
 import {PAGE_SIZE} from "@/shared/constants/common";
 import {useCityStore} from "@/shared/stores/cityStore";
+import {DoctorsResponse} from "@/shared/api/doctorsApi";
 
 export const ProcedureDoctorsList = () => {
     const params = useParams();
@@ -27,9 +28,20 @@ export const ProcedureDoctorsList = () => {
         enabled: !!procedureSlug?.length
     });
 
+    const mappedData: DoctorsResponse = {
+        ...data,
+        previous: data?.previous ?? null,
+        next: data?.next ?? '',
+        count: data?.count ?? 0,
+        results: data?.results?.map(item => ({
+            ...item,
+            consultation: item?.main_procedure
+        })) ?? [],
+    }
+
     return (
         <UniversalDoctorsList
-            data={data}
+            data={mappedData}
             setCurrentPage={setCurrentPage}
             currentPage={currentPage}
             isLoading={isLoading}
